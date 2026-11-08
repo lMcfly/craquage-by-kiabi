@@ -22,10 +22,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Vérifier le code (syntaxe des scripts, catalogue lisible)
+        run: |
+          for f in src/js/*.js sw.js scripts/*.mjs; do node --check "$f"; done
+          node -e "const d=require('./data/products.json'); if(!Array.isArray(d.products)||d.products.length<50) process.exit(1); console.log(d.products.length+' articles')"
       - name: Préparer le site
         run: |
           mkdir -p _site
-          cp -r index.html manifest.webmanifest sw.js assets icons data _site/
+          cp -r index.html manifest.webmanifest sw.js assets src data _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

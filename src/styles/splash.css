@@ -1,0 +1,14 @@
+/* ---------- Animation d'ouverture : lettres qui montent, cœur qui craque, « by K » ---------- */
+.splash { position: fixed; inset: 0; z-index: 50; background: radial-gradient(120% 80% at 50% 40%, #0d0a52 0%, #040037 60%); display: grid; place-items: center; cursor: pointer; overflow: hidden; }
+.splash-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.word { display: flex; align-items: flex-start; font-family: var(--font-display); font-weight: 800; font-size: clamp(3rem, 15vw, 5.2rem); letter-spacing: -.045em; line-height: 1.05; color: #fff; }
+.word .m { display: inline-block; overflow: hidden; padding: 0 .01em .08em; margin-bottom: -.08em; }
+.word .l { display: inline-block; transform: translateY(110%); }
+.word .heart { width: .5em; height: .5em; margin: .02em 0 0 .06em; overflow: visible; transform: scale(0); }
+.word .heart path { fill: var(--red); }
+.splash .by { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 500; font-size: 1.15rem; color: rgba(255,255,255,.72); opacity: 0; }
+.splash .by img { height: 40px; width: auto; }
+.splash .skip { position: absolute; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; font-size: .78rem; color: rgba(255,255,255,.4); }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } .photo.loading::after { animation: none; } .card.fly, .card.back { transition: none; } }
+@media (max-width: 380px) { .brand b { font-size: 1.05rem; } .tabbar button { font-size: .72rem; } }

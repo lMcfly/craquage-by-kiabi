@@ -20,17 +20,36 @@ Les choix (Go, No go, couleurs, looks, réglages) sont enregistrés uniquement s
 - **Nouveautés automatiques** : chaque nuit, le robot lit chaque rayon trié par « Nouveautés », note la date d'arrivée des articles ; l'app glisse les nouveautés au début de la pile avec un badge **Nouveau** (7 jours).
 - **Garde-fou** : si le robot récupère moins de la moitié des articles de la veille (blocage, panne), l'ancien catalogue est conservé.
 
-## Ce qu'il y a dans le dépôt
+## Architecture
 
-| Fichier | Rôle |
-|---|---|
-| `index.html` | L'app (animation d'ouverture, swipe, catégories, mes envies, mes styles, partage) |
-| `data/products.json` | Le catalogue Kiabi (articles, prix, couleurs, liens, photos) |
-| `scripts/update-catalog.mjs` | Le robot qui récupère le catalogue sur les pages thématiques kiabi.com |
-| `scripts/pages.json` | La liste des rayons parcourus : ajouter une page `/v/...` ici pour élargir le catalogue |
-| `manifest.webmanifest`, `sw.js`, `icons/` | Installation sur l'écran d'accueil et ouverture hors ligne |
-| `.github/workflows/deploy.yml` | Met le site en ligne à chaque modification |
-| `.github/workflows/update-catalog.yml` | Met le catalogue à jour chaque nuit, puis remet le site en ligne |
+```
+index.html                  Structure de la page (aucun style ni script en ligne)
+manifest.webmanifest, sw.js Installation sur l'écran d'accueil et ouverture hors ligne
+src/
+  styles/
+    base.css                Couleurs Kiabi (jour/nuit), typographie, éléments communs
+    app.css                 Écrans : en-tête, réglages, cartes, onglets, envies, styles, fiche article
+    splash.css              Animation d'ouverture
+  js/                       Modules JavaScript (ES modules, sans outil de build)
+    app.js                  Point d'entrée : état, algorithme de préférences, swipe, envies, styles, looks, réglages
+    i18n.js                 Langue et thème choisis, traduction, format des prix et des couleurs
+    translations.js         Tous les textes en français, anglais, espagnol, allemand
+    catalog.js              Catégories, pastilles de couleur, photos Kiabi, calcul des promos
+    splash.js               Animation « Craquage by K »
+    platform.js             Comportement d'appli (pas de zoom) et service worker
+    utils.js                Petits outils partagés (DOM, stockage local)
+assets/
+  brand/                    Logo K Kiabi (version claire et version blanche)
+  icons/                    Icônes de l'app
+data/products.json          Le catalogue (articles, prix, couleurs, liens, photos, date d'arrivée)
+scripts/
+  update-catalog.mjs        Le robot qui récupère le catalogue sur kiabi.com
+  pages.json                Les rayons parcourus : ajouter une page /v/... ici pour élargir le catalogue
+tests/smoke.mjs             Test de l'app dans un iPhone simulé (npm test)
+.github/workflows/
+  deploy.yml                Vérifie le code puis met le site en ligne à chaque modification
+  update-catalog.yml        Met le catalogue à jour chaque nuit, puis remet le site en ligne
+```
 
 Les photos ne sont pas stockées ici : elles sont affichées directement depuis `static.kiabi.com`.
 
@@ -49,5 +68,6 @@ En local :
 ```bash
 npm install
 npx playwright install chromium
-npm run update-catalog
+npm run update-catalog   # met à jour data/products.json
+npm test                 # vérifie l'app dans un iPhone simulé
 ```
