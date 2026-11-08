@@ -102,6 +102,18 @@ header .brand { justify-self: center; gap: 4px; }
 .undo { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--muted); padding: 0; }
 .undo svg { width: 20px; height: 20px; } .undo:disabled { opacity: .35; cursor: default; }
 
+/* ---------- Adaptation à la hauteur d'écran ---------- */
+/* Grands téléphones (iPhone Pro Max, Pixel Pro, Galaxy Ultra) : plus d'air entre les boutons et la barre d'onglets */
+@media (min-height: 800px) { .app { padding-bottom: calc(var(--tabbar) + 16px); } .controls { gap: 24px; } }
+/* Écrans bas (Safari avec sa barre, petits Android) : tout se resserre pour garder la photo la plus grande possible */
+@media (max-height: 700px) {
+  .app { gap: 5px; }
+  .catbtn { padding: 5px 13px 5px 15px; font-size: .84rem; }
+  .verdict { width: 50px; height: 50px; } .verdict svg { width: 23px; height: 23px; }
+  .undo { width: 38px; height: 38px; }
+  .deck { --info: 88px; }
+}
+
 /* ---------- États (chargement, fin, vide) ---------- */
 .state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 14px; }
 .state h2 { font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
@@ -156,7 +168,20 @@ header .brand { justify-self: center; gap: 4px; }
 .switch input { appearance: none; -webkit-appearance: none; flex-shrink: 0; width: 46px; height: 28px; border-radius: 28px; background: var(--soft); position: relative; margin: 0; cursor: pointer; transition: background .2s; order: 2; }
 .switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
 .switch input:checked { background: var(--btn-bg); } .switch input:checked::after { transform: translateX(18px); background: var(--btn-fg); }
-.wel-txt { text-align: center; color: var(--muted); margin: -6px 0 18px; line-height: 1.45; }
+/* Premier lancement : page plein écran (on ne voit pas l'app derrière), bouton toujours visible en bas */
+.welcome { position: fixed; inset: 0; z-index: 40; background: var(--bg); display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); animation: welIn .35s ease-out; }
+@keyframes welIn { from { opacity: 0; } to { opacity: 1; } }
+.wel-inner { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; width: 100%; max-width: 520px; margin: 0 auto;
+  padding: clamp(14px, 4vh, 36px) max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
+.wel-brand { display: flex; align-items: center; justify-content: center; gap: 5px; margin-bottom: clamp(14px, 3.5vh, 32px); color: var(--ink); }
+.wel-brand b { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -.03em; }
+.wel-brand span { font-size: .8rem; color: var(--muted); } .wel-brand img { height: 19px; }
+.welcome h3 { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 7vw, 2rem); letter-spacing: -.03em; margin: 0 0 8px; text-align: center; color: var(--ink); }
+.wel-txt { text-align: center; color: var(--muted); margin: 0 auto 20px; line-height: 1.45; max-width: 34ch; font-size: .95rem; }
+.welcome .size-row { background: var(--surface); box-shadow: 0 4px 16px -10px rgba(4, 0, 55, .25); }
+.wel-actions { width: 100%; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 4px;
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: var(--bg); box-shadow: 0 -12px 20px -12px var(--bg); }
 .sheet-sizes { margin: 2px 0 0; color: var(--muted); font-size: .92rem; } .sheet-sizes b { color: var(--ink); } .sheet-sizes .no { color: var(--red); font-weight: 600; }
 .wish-item { position: relative; }
 .wish-item .thumb { display: block; width: 100%; }

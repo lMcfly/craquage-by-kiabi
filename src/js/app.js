@@ -264,7 +264,6 @@ if (!profile.asked) {
   $('wel-go').onclick = closeWelcome; $('wel-skip').onclick = closeWelcome;
   $('welcome').hidden = false;
 }
-swipeToClose($('welcome'), closeWelcome);
 
 // ---------- Raccourci sur l'écran d'accueil ----------
 // Déjà installée (ouverte depuis l'icône) : l'option disparaît. Android/Chrome : vraie fenêtre d'installation.
