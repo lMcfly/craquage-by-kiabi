@@ -3,7 +3,7 @@ import { $, esc, reduced, store, shuffle } from './utils.js';
 import { settings, SETTINGS_KEY, t, tl, eur, arts, colourName, STYLE, applyStatic, applyTheme } from './i18n.js';
 import { IMG, SW, CATS, catLabel, LOOK, photo, discount, OCCASIONS, occLabel, occFits } from './catalog.js';
 import { playSplash } from './splash.js';
-import { profile, saveProfile, fits, sizeText, sizePicker, CLOTHES, BOTTOMS, SHOES } from './profile.js';
+import { profile, saveProfile, fits, setSizeData, sizeText, sizePicker, CLOTHES, BOTTOMS, SHOES } from './profile.js';
 import { setupPlatform } from './platform.js';
 
 applyTheme(); applyStatic();
@@ -551,6 +551,7 @@ const isNew = id => { const a = byId.get(id)?.a; return !!a && (CAT_DATE - Date.
 // ---------- Démarrage ----------
 fetch('data/products.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(data => {
   PRODUCTS = data.products; byId = new Map(PRODUCTS.map(p => [p.id, p])); CAT_DATE = Date.parse(data.updated) || Date.now();
+  setSizeData(PRODUCTS.some(p => p.c.some(c => Array.isArray(c.s))));
   const st = store.get(KEY);
   const all = shuffle(PRODUCTS.map(p => p.id));
   if (st && Array.isArray(st.order)) {

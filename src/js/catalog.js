@@ -15,21 +15,22 @@ export const discount = c => { const now = Math.min(...c.p), was = Math.max(...c
 // ---------- Occasions ----------
 // Une occasion = des styles détectés (p.t) + des mots du nom de l'article ; « not » écarte ce qui ne colle pas.
 const norm = s => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
-const UNDIES = /tanga|culotte|string|soutien|brassiere|shorty|slip|boxer|pyjama|nuisette/;
+const UNDIES = /tanga|culotte|string|soutien|brassiere|shorty|slip|boxer|pyjama|nuisette|de nuit|maillot de bain/;
 const MAIN = ['robe', 'haut', 'pull', 'pantalon', 'jupe'];
+// tags : styles détectés, pris en compte seulement pour les catégories de tagKinds ; rx : mots du nom ; not : exclusions
 export const OCCASIONS = {
-  soiree: { tags: ['glam'], tagKinds: ['robe', 'haut', 'jupe', 'pantalon'],
-            rx: /sequin|paillette|satin|lurex|strass|metallis|brillant|ceremonie|soiree|bustier|escarpin|pochette|robe.*(dentelle|velours)|jupe.*(dentelle|velours|plisse)|top.*dentelle|blazer.*velours/,
-            not: /sport|jogging|sweat|chausson|polaire|plage|legging|chaussette|antiderapant|bonnet|banane|gant|doudoune|parka/ },
-  bureau: { tags: ['chic', 'minimal', 'preppy'], tagKinds: MAIN,
-            rx: /blazer|chemise|chemisier|blouse|tailleur|cigarette|mocassin|escarpin|trench|fine jauge|col roule|pince|caban|manteau|cabas/,
-            not: /chaussette|sequin|paillette|lurex|jogging|sweat|short|plage|bain|crochet|dos nu|bustier|chausson|fluo|noel|legging|basket|doudoune|parka|body|debardeur|crop|bretelle|velours cotele|cargo/ },
+  soiree: { tags: ['glam'], tagKinds: ['robe', 'haut', 'jupe'],
+            rx: /sequin|paillet|satin|lurex|strass|metallis|ceremonie|soiree|bustier|escarpin|robe.*(dentelle|velours)|jupe.*(dentelle|velours|plisse)|top.*dentelle|body.*(dentelle|sequin|bijou)|bijou|pochette(?!.*telephone)/,
+            not: /mocassin|denim|jean|cotele|telephone|macrame|\blin\b|echarpe|foulard|maternite|sport|jogging|sweat|chausson|polaire|plage|legging|chaussette|bonnet|banane|gant|doudoune|parka|tee-shirt|t-shirt/ },
+  bureau: { tags: [], tagKinds: [],
+            rx: /blazer|tailleur|chemise|chemisier|blouse|lavalliere|cigarette|pantalon (droit|fluide|a pinces|en toile)|pinces|viscose|trench|caban|manteau|mocassin|escarpin|fine jauge|col roule|sous-pull|gilet (en maille|long|boutonne|col rond|court)|pull col|robe (chemise|droite|pull|blazer|portefeuille)|jupe (midi|crayon|plissee)/,
+            not: /pantalon.*maille|elastique|soft touch|grosse jauge|denim|jean|maternite|paillet|sequin|satin|dentelle|strass|fourrure|astrakan|astracan|moutonne|ceremonie|velours|leopard|multicolore|tee-shirt|t-shirt|doudou|crochet|plage|bain|short|bardot|dos nu|bustier|bretelle|fluo|noel|oversize|nouee|caftan|plumetis|basket|chausson|jogging|sweat|carreaux|rayure|raye|pois/ },
   weekend: { tags: ['casual', 'sport', 'retro'], tagKinds: [...MAIN, 'chaussures'],
              rx: /jean|denim|sweat|t-shirt|tee-shirt|basket|jogging|salopette|cargo|bob|casquette|banane|mariniere|short|parka|doudoune/,
-             not: /sequin|paillette|satin|escarpin|ceremonie|tailleur|blazer|chausson/ },
+             not: /sequin|paillet|satin|escarpin|ceremonie|tailleur|blazer|chausson|maternite/ },
   cocooning: { tags: ['cosy'], tagKinds: [...MAIN, 'veste', 'chaussures', 'accessoire'],
                rx: /maille|pull|gilet|polaire|sherpa|moumoute|teddy|chausson|legging|jogging|doudou|chaussette|bonnet|echarpe|plaid|molleton|sweat|fourre/,
-               not: /sequin|paillette|dos nu|plage|crochet|sandale|mule|escarpin|bustier|lin\b|bain/ }
+               not: /sequin|paillet|dentelle|dos nu|plage|crochet|sandale|mule|escarpin|bustier|\blin\b|bain|satin|blazer|tailleur/ }
 };
 export const occLabel = k => t('occ_' + k);
 export function occFits(p, k) {

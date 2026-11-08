@@ -164,12 +164,12 @@ async function sizePass(browser) {
       if (!v.length) { found[label] = new Set(); continue; }          // aucune pièce du rayon dans cette taille
       const keys = await readSized(browser, slug, v); await PAUSE(2000);
       if (!keys) { ok = false; break; }
-      found[label] = new Set(keys); if (keys.length >= 90) found[label].full = true;   // liste tronquée : on ne conclut pas « indisponible »
+      found[label] = new Set(keys);
     }
     if (!ok) { console.log(`  ${slug}: tailles non lues`); continue; }
     for (const k of ks) {
       const { c } = colour.get(k); const s = new Set(c.s || []);
-      for (const [label, set] of Object.entries(found)) if (set.has(k) || set.full) s.add(label);
+      for (const [label, set] of Object.entries(found)) if (set.has(k)) s.add(label);   // strict : absent du filtre = pas dans cette taille
       const order = Object.keys(groups); c.s = [...s].sort((a, b) => order.indexOf(a) - order.indexOf(b));
     }
     console.log(`  ${slug}: tailles lues (${shoe ? 'pointures' : 'vêtements'})`);

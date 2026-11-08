@@ -17,13 +17,20 @@ export const profile = Object.assign({ sizes: [], bottoms: [], shoes: [], onlyMi
 export const saveProfile = () => store.set(PROFILE_KEY, profile);
 export const hasSizes = () => profile.sizes.length > 0 || profile.bottoms.length > 0 || profile.shoes.length > 0;
 
-// Cette couleur existe-t-elle dans la taille choisie ? (accessoires et tailles inconnues : toujours oui)
+// Le catalogue contient-il les tailles ? (sinon, impossible de trier : on montre tout)
+let sizeData = false;
+export const setSizeData = v => { sizeData = v; };
+
+// Cette couleur existe-t-elle dans la taille choisie ? Strict : taille inconnue = pas proposée.
+// Seuls les accessoires (taille unique) passent toujours.
 export function fits(p, c, evenIfOff = false) {
-  if ((!profile.onlyMine && !evenIfOff) || p.k === 'accessoire' || !Array.isArray(c.s)) return true;
+  if ((!profile.onlyMine && !evenIfOff) || p.k === 'accessoire') return true;
   const kind = kindOf(p);
   // bas : taille de pantalon si elle est donnée, sinon la taille des hauts
   const mine = kind === 'shoes' ? profile.shoes : kind === 'bottoms' ? (profile.bottoms.length ? profile.bottoms.map(n => BOTTOM_TO_LETTER[n]) : profile.sizes) : profile.sizes;
-  return !mine.length || c.s.some(x => mine.includes(x));
+  if (!mine.length) return true;                       // pas de taille choisie pour ce type d'article
+  if (!Array.isArray(c.s)) return !sizeData;           // tailles inconnues pour cet article
+  return c.s.some(x => mine.includes(x));
 }
 
 // « S – XL » quand les tailles se suivent, sinon « S · L · XXL »
