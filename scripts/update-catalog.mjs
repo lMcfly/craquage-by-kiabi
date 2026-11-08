@@ -10,12 +10,15 @@ const { pages } = JSON.parse(fs.readFileSync(ROOT + 'scripts/pages.json', 'utf8'
 const OUT = ROOT + 'data/products.json';
 const PAUSE = ms => new Promise(r => setTimeout(r, ms));
 
+// filtres du site « Marques › Kiabi » (pas de marketplace) et « Genre › Femme » (ni homme, ni enfant, ni bébé),
+// tri « Nouveautés » : les nouveaux articles de chaque rayon passent en premier
+const pageUrl = (slug, extra = '') => 'https://www.kiabi.com/v/' + slug + '?itemsperpage=90&display=grid&fieldnametosort=isnew&filter=marques%3Akiabi;genre%3Afemme' + extra;
+const pageSizes = new Map();   // rayon → valeurs du filtre « Taille » proposées par Kiabi (xs, m, 38, s/m, 37…)
+
 async function readPage(browser, slug) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   try {
-    // filtres du site « Marques › Kiabi » (pas de marketplace) et « Genre › Femme » (ni homme, ni enfant, ni bébé),
-    // tri « Nouveautés » : les nouveaux articles de chaque rayon passent en premier
-    await page.goto('https://www.kiabi.com/v/' + slug + '?itemsperpage=90&display=grid&fieldnametosort=isnew&filter=marques%3Akiabi;genre%3Afemme', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.goto(pageUrl(slug), { waitUntil: 'domcontentloaded', timeout: 60000 });
     await PAUSE(3000);
     if (await page.evaluate(() => /captcha|access denied/i.test(document.title + document.body.innerText.slice(0, 400)))) {
       console.log(`  ${slug}: bloqué par une vérification anti-robots, page ignorée`); return [];
@@ -36,6 +39,8 @@ async function readPage(browser, slug) {
       return { url: href, slug: m[1], pid: m[2], cid: m[3], size: a.dataset.id || '', name: (w.querySelector('.products-item-info__title')?.innerText || '').trim(),
                prices, imgs, rating: rating ? +rating[1].replace(',', '.') : null };
     }).filter(Boolean));
+    pageSizes.set(slug, await page.evaluate(() => [...document.querySelectorAll('[data-filter]')]
+      .filter(e => /^taille/.test(e.querySelector('input')?.name || '')).map(e => e.dataset.filter)));
     console.log(`  ${slug}: ${items.length} couleurs`);
     return items.map(x => ({ ...x, src: slug }));
   } catch (e) {
@@ -102,7 +107,6 @@ function build(all) {
 const browser = await chromium.launch();
 const all = [];
 for (const slug of pages) { all.push(...await readPage(browser, slug)); await PAUSE(3000); }
-await browser.close();
 // ---------- nouveautés et équilibre ----------
 const prev = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')).products : [];
 const firstSeen = new Map(prev.map(p => [p.id, p.a || '2026-01-01']));   // articles d'avant le suivi des dates : « anciens »
@@ -114,6 +118,66 @@ const MAX_SHARE = .22;
 const groups = {}; built.forEach(p => (groups[p.k] = groups[p.k] || []).push(p));
 const cap = Math.max(60, Math.round(built.length * MAX_SHARE));
 const products = Object.values(groups).flatMap(l => l.sort((x, y) => y.a.localeCompare(x.a) || (y.r || 0) - (x.r || 0)).slice(0, cap));
+// ---------- tailles disponibles ----------
+// Les pages produit ne sont pas lisibles par un robot ; on utilise donc le filtre « Taille » des rayons :
+// pour chaque taille, on rouvre un minimum de rayons filtrés sur cette taille et on note les couleurs qui y apparaissent.
+// Résultat dans chaque couleur : c.s = ['S', 'M'] (vêtements) ou ['37', '38'] (chaussures) ; c.s absent = tailles inconnues.
+const CLOTHES = { XS: ['xxs', 'xs', '32', '34', 'xs/s', '32/34', '34/36'], S: ['s', '36', 'xs/s', 's/m', '34/36', '36/38'],
+  M: ['m', '38', 's/m', 'm/l', '36/38', '38/40'], L: ['l', '40', 'm/l', 'l/xl', '38/40', '40/42'],
+  XL: ['xl', '42', 'l/xl', 'xl/xxl', '40/42', '42/44'], XXL: ['xxl', '44', 'xl/xxl', 'xxl/3xl', '42/44', '44/46'] };
+const SHOES = Object.fromEntries([35, 36, 37, 38, 39, 40, 41, 42].map(n => [String(n), [String(n), n - .5 + '', n + .5 + '', `${n - 1}/${n}`, `${n}/${n + 1}`]]));
+const keyOf = u => (u.match(/_P(\d+)C(\d+)$/) || []).slice(1).join(':');
+
+async function readSized(browser, slug, values) {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    await page.goto(pageUrl(slug, ';taille%3A' + values.map(encodeURIComponent).join(',')), { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await PAUSE(2500);
+    const r = await page.evaluate(() => {
+      const on = f => !!document.querySelector(`[data-filter="${f}"] input`)?.checked;
+      const sized = [...document.querySelectorAll('[data-filter] input:checked')].some(i => /^taille/.test(i.name));
+      return { ok: on('kiabi') && on('femme') && sized,
+               keys: [...document.querySelectorAll('.products-item-wrapper a[href*="_P"]')].map(a => (a.href.split('?')[0].match(/_P(\d+)C(\d+)$/) || []).slice(1).join(':')) };
+    });
+    return r.ok ? r.keys : null;
+  } catch (e) { return null; } finally { await page.close(); }
+}
+
+async function sizePass(browser) {
+  const colour = new Map(); products.forEach(p => { if (p.k !== 'accessoire') p.c.forEach(c => colour.set(keyOf(c.u), { c, shoe: p.k === 'chaussures' })); });
+  const onPage = new Map(); all.forEach(it => { const k = it.pid + ':' + it.cid; if (colour.has(k)) { if (!onPage.has(it.src)) onPage.set(it.src, new Set()); onPage.get(it.src).add(k); } });
+  // le moins de rayons possible pour couvrir toutes les couleurs (rayons qui proposent un filtre Taille)
+  const todo = new Set(colour.keys()), chosen = [];
+  while (todo.size) {
+    let best = null, gain = 0;
+    for (const [slug, ks] of onPage) { if (!(pageSizes.get(slug) || []).length) continue; let g = 0; for (const k of ks) if (todo.has(k)) g++; if (g > gain) { gain = g; best = slug; } }
+    if (!best) break;
+    chosen.push(best); for (const k of onPage.get(best)) todo.delete(k);
+  }
+  console.log(`Tailles : ${chosen.length} rayons à relire pour ${colour.size} couleurs`);
+  for (const slug of chosen) {
+    const ks = [...onPage.get(slug)], shoe = ks.filter(k => colour.get(k).shoe).length > ks.length / 2;
+    const groups = shoe ? SHOES : CLOTHES, offered = new Set(pageSizes.get(slug)), found = {};
+    let ok = true;
+    for (const [label, vals] of Object.entries(groups)) {
+      const v = vals.filter(x => offered.has(x));
+      if (!v.length) { found[label] = new Set(); continue; }          // aucune pièce du rayon dans cette taille
+      const keys = await readSized(browser, slug, v); await PAUSE(2000);
+      if (!keys) { ok = false; break; }
+      found[label] = new Set(keys); if (keys.length >= 90) found[label].full = true;   // liste tronquée : on ne conclut pas « indisponible »
+    }
+    if (!ok) { console.log(`  ${slug}: tailles non lues`); continue; }
+    for (const k of ks) {
+      const { c } = colour.get(k); const s = new Set(c.s || []);
+      for (const [label, set] of Object.entries(found)) if (set.has(k) || set.full) s.add(label);
+      const order = Object.keys(groups); c.s = [...s].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+    }
+    console.log(`  ${slug}: tailles lues (${shoe ? 'pointures' : 'vêtements'})`);
+  }
+}
+await sizePass(browser);
+await browser.close();
+
 const previous = prev.length;
 const fresh = products.filter(p => !firstSeen.has(p.id)).length;
 console.log('Par catégorie :', Object.fromEntries(Object.entries(groups).map(([k, l]) => [k, Math.min(l.length, cap)])), `· ${fresh} nouveaux`);
