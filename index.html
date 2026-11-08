@@ -46,10 +46,10 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .brand { display: flex; align-items: baseline; gap: 6px; text-decoration: none; color: var(--ink); }
 .brand b { font-family: var(--font-display); font-weight: 800; font-size: 1.55rem; letter-spacing: -.01em; line-height: 1; }
 .brand span { font-family: var(--font-display); font-weight: 500; font-size: .85rem; color: var(--muted); }
-.brand img { height: 18px; width: auto; align-self: center; }
-.coll-btn { display: inline-flex; align-items: center; gap: 7px; border: 1.5px solid var(--ink); color: var(--ink); background: var(--surface);
-  border-radius: 50px; padding: 7px 8px 7px 13px; font-family: var(--font-display); font-weight: 700; font-size: .9rem; flex-shrink: 0; }
-.coll-btn svg { width: 16px; height: 16px; color: var(--red); }
+.brand img { height: 24px; width: auto; align-self: center; }
+.coll-btn { position: relative; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--surface); display: grid; place-items: center; padding: 0; flex-shrink: 0; }
+.coll-btn svg { width: 22px; height: 22px; color: var(--ink); }
+.coll-btn .badge { position: absolute; top: -2px; right: -4px; }
 .badge { background: var(--red); color: #fff; border-radius: 50px; min-width: 22px; padding: 2px 7px; font-size: .78rem; text-align: center; font-variant-numeric: tabular-nums; font-family: var(--font-body); }
 
 .chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0;
@@ -63,7 +63,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 
 /* ---------- Cartes ---------- */
 .stage { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; container-type: size; }
-.deck { --info: 128px; --w: min(100cqw, calc((100cqh - var(--info)) * .75), 460px); position: relative; width: var(--w); height: calc(var(--w) * 4 / 3 + var(--info)); max-width: 100%; }
+.deck { --info: 86px; --w: min(100cqw, calc((100cqh - var(--info)) * .75), 460px); position: relative; width: var(--w); height: calc(var(--w) * 4 / 3 + var(--info)); max-width: 100%; }
 .card { position: absolute; inset: 0; border-radius: 8px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow);
   touch-action: none; user-select: none; will-change: transform; display: flex; flex-direction: column; }
 .card .photo { position: relative; width: 100%; aspect-ratio: 3 / 4; flex-shrink: 0; background: var(--line); }
@@ -80,19 +80,20 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .tap-hint { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); background: rgba(4, 0, 55, .78); color: #fff; font-size: .75rem;
   padding: 5px 11px; border-radius: 50px; white-space: nowrap; pointer-events: none; }
 .card .info { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 7px; flex: 1; min-height: 0; }
-.card .name { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.02rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.name-btn { flex: 1; min-width: 0; border: 0; background: none; padding: 0; text-align: left; display: flex; flex-direction: column; gap: 2px; color: var(--ink); }
+.card .name { font-family: var(--font-display); font-weight: 600; font-size: 1.02rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .price { display: flex; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
 .price .now { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; }
 .price.is-promo .now { color: var(--red); }
 .price s { color: var(--muted); font-size: .85rem; }
 .actions { display: flex; gap: 6px; flex-shrink: 0; }
-.buy { display: inline-flex; align-items: center; gap: 6px; background: var(--ink); color: #fff; text-decoration: none; font-family: var(--font-display); font-weight: 700;
-  font-size: .92rem; padding: 8px 15px; border-radius: 50px; }
+.buy { width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; flex-shrink: 0; }
+.buy svg { width: 20px !important; height: 20px !important; }
 .buy svg, .icon-btn svg { width: 16px; height: 16px; }
 .icon-btn { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--surface); display: grid; place-items: center; padding: 0; color: var(--ink); }
 .swatches { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 28px; }
-.swatches button { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--soft); padding: 0; }
+.swatches button { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--soft); padding: 0; }
 .swatches button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
 .swatches .cname { font-size: .8rem; color: var(--muted); }
 .card.under { transform: scale(.95) translateY(10px); opacity: .7; }
@@ -104,15 +105,15 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .stamp.yes { left: 18px; color: var(--ink); transform: rotate(-12deg); }
 .stamp.no { right: 18px; color: var(--red); transform: rotate(12deg); }
 
-.controls { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; }
-.verdict { display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 50px; padding: 13px 10px; border: 2px solid var(--ink);
-  font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; text-transform: uppercase; letter-spacing: .03em; transition: transform .12s; }
-.verdict svg { width: 20px; height: 20px; flex-shrink: 0; }
+.controls { display: flex; justify-content: center; align-items: center; gap: 22px; padding-bottom: 4px; }
+.verdict { width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; padding: 0; transition: transform .12s; box-shadow: 0 8px 20px -12px rgba(4,0,55,.5); }
+.verdict svg { width: 26px; height: 26px; }
+.verdict span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .verdict.no { background: var(--surface); color: var(--ink); }
 .verdict.yes { background: var(--ink); color: #fff; }
 .verdict.yes svg { color: var(--red); }
 .verdict:active, .verdict.flash { transform: scale(.96); }
-.undo { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; color: var(--muted); }
+.undo { width: 40px; height: 40px; border-radius: 50%; border: 0; background: transparent; display: grid; place-items: center; color: var(--muted); }
 .undo svg { width: 20px; height: 20px; } .undo:disabled { opacity: .35; cursor: default; }
 .keys { text-align: center; font-size: .74rem; color: var(--muted); margin: -4px 0 0; }
 @media (max-height: 700px) { .keys { display: none; } }
@@ -184,15 +185,20 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .toast span { font-size: .88rem; white-space: nowrap; padding-right: 4px; }
 .toast a, .toast button { background: var(--red); color: #fff; border: 0; border-radius: 50px; padding: 8px 14px; font-family: var(--font-display); font-weight: 700; font-size: .9rem; white-space: nowrap; text-decoration: none; }
 
-/* ---------- Animation d'ouverture : le gâteau qui craque ---------- */
-.splash { position: fixed; inset: 0; z-index: 50; background: var(--surface); display: grid; place-items: center; cursor: pointer; }
-.splash-inner { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
-.splash svg.cake { width: min(62vw, 280px); height: auto; overflow: visible; }
-.splash .title { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 12vw, 4rem); letter-spacing: -.02em; color: var(--ink); line-height: 1; opacity: 0; margin-top: -40px; }
-.splash .by { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; color: var(--muted); opacity: 0; }
-.splash .by img { height: 28px; width: auto; }
+/* ---------- Animation d'ouverture : « Craquage » se fissure, puis « by K » ---------- */
+.splash { position: fixed; inset: 0; z-index: 50; background: var(--surface); display: grid; place-items: center; cursor: pointer; overflow: hidden; }
+.splash-inner { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.word { position: relative; font-family: var(--font-display); font-weight: 800; font-size: clamp(3rem, 15vw, 5rem); letter-spacing: -.02em; line-height: 1; color: var(--ink); }
+.word .half { display: block; }
+.word .half.r { position: absolute; inset: 0; }
+.word .half.l { clip-path: polygon(0 0, 53% 0, 48% 34%, 56% 58%, 49% 80%, 54% 100%, 0 100%); }
+.word .half.r { clip-path: polygon(53% 0, 100% 0, 100% 100%, 54% 100%, 49% 80%, 56% 58%, 48% 34%); }
+.word svg { position: absolute; inset: -6% 0; width: 100%; height: 112%; overflow: visible; pointer-events: none; }
+.word polyline { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.shard { position: absolute; left: 51%; width: 7px; height: 7px; background: var(--ink); clip-path: polygon(50% 0, 100% 100%, 0 80%); opacity: 0; }
+.splash .by { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; color: var(--muted); opacity: 0; }
+.splash .by img { height: 42px; width: auto; }
 .splash .skip { position: absolute; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; font-size: .78rem; color: var(--soft); }
-.crumb { position: absolute; border-radius: 2px; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .photo.loading::after { animation: none; } .card.fly, .card.back { transition: none; } }
 @media (max-width: 380px) { .brand b { font-size: 1.3rem; } .verdict { font-size: .95rem; } }
 </style>
@@ -201,44 +207,21 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 
 <div class="splash" id="splash" role="img" aria-label="Craquage by Kiabi">
   <div class="splash-inner">
-    <svg class="cake" id="cake" viewBox="0 0 300 250" aria-hidden="true">
-      <defs>
-        <g id="cakeArt">
-          <ellipse cx="150" cy="222" rx="128" ry="18" fill="#040037"/>
-          <rect x="52" y="96" width="196" height="122" rx="10" fill="#e9c48a"/>
-          <rect x="52" y="128" width="196" height="10" fill="#fff6e5"/>
-          <rect x="52" y="138" width="196" height="6" fill="#ed2237"/>
-          <rect x="52" y="172" width="196" height="10" fill="#fff6e5"/>
-          <rect x="52" y="182" width="196" height="6" fill="#ed2237"/>
-          <path d="M52 106 Q52 86 72 86 H228 Q248 86 248 106 V112 Q236 124 226 112 Q214 126 202 112 Q190 128 178 112 Q166 124 154 112 Q142 128 130 112 Q118 124 106 112 Q94 128 82 112 Q70 124 60 112 Q55 118 52 112 Z" fill="#ffffff" stroke="#e6e6eb" stroke-width="2"/>
-          <circle cx="150" cy="74" r="13" fill="#ed2237"/>
-          <path d="M150 62 Q156 46 170 42" stroke="#040037" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <circle cx="98" cy="98" r="3" fill="#ed2237"/><circle cx="200" cy="99" r="3" fill="#040037"/><circle cx="125" cy="101" r="2.5" fill="#040037"/><circle cx="178" cy="97" r="2.5" fill="#ed2237"/>
-        </g>
-        <clipPath id="pL"><path d="M0 0 H126 L116 70 L134 110 L112 150 L130 190 L118 250 H0 Z"/></clipPath>
-        <clipPath id="pM"><path d="M126 0 H186 L176 60 L194 104 L172 148 L190 196 L178 250 H118 L130 190 L112 150 L134 110 L116 70 Z"/></clipPath>
-        <clipPath id="pR"><path d="M186 0 H300 V250 H178 L190 196 L172 148 L194 104 L176 60 Z"/></clipPath>
-      </defs>
-      <g id="pieces">
-        <g class="piece" clip-path="url(#pL)"><use href="#cakeArt"/></g>
-        <g class="piece" clip-path="url(#pM)"><use href="#cakeArt"/></g>
-        <g class="piece" clip-path="url(#pR)"><use href="#cakeArt"/></g>
-      </g>
-      <path class="crack" d="M126 82 L116 120 L134 150 L112 180 L124 215" fill="none" stroke="#040037" stroke-width="3" stroke-linejoin="round" stroke-dasharray="200" stroke-dashoffset="200"/>
-      <path class="crack" d="M186 82 L176 110 L194 140 L172 170 L188 212" fill="none" stroke="#040037" stroke-width="3" stroke-linejoin="round" stroke-dasharray="200" stroke-dashoffset="200"/>
-    </svg>
-    <div class="title">Craquage</div>
-    <div class="by">by <img src="assets/kiabi-logo.svg" alt="Kiabi"></div>
+    <div class="word" id="word">
+      <span class="half l">Craquage</span><span class="half r" aria-hidden="true">Craquage</span>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline pathLength="1" points="53,-4 48,34 56,58 49,80 54,104"/></svg>
+    </div>
+    <div class="by">by <img src="assets/kiabi-k.svg" alt="Kiabi"></div>
   </div>
   <div class="skip">Touchez pour passer</div>
 </div>
 
 <div class="app">
   <header>
-    <a class="brand" href="./" aria-label="Craquage by Kiabi"><b>Craquage</b><span>by</span><img src="assets/kiabi-logo.svg" alt="Kiabi"></a>
+    <a class="brand" href="./" aria-label="Craquage by Kiabi"><b>Craquage</b><span>by</span><img src="assets/kiabi-k.svg" alt="Kiabi"></a>
     <button class="coll-btn" id="coll-btn" type="button" aria-label="Voir ma collection">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg>
-      Mes envies <span class="badge" id="coll-count">0</span>
+      <span class="badge" id="coll-count">0</span>
     </button>
   </header>
   <div class="chips" id="chips" role="group" aria-label="Catégories"></div>
@@ -266,7 +249,6 @@ header { display: flex; align-items: center; justify-content: space-between; gap
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg><span>Go</span>
       </button>
     </div>
-    <p class="keys">Glisse la carte ou utilise les flèches ← →. Touche la photo pour changer de couleur.</p>
   </section>
 
   <section class="state" id="end" hidden>
@@ -289,9 +271,11 @@ header { display: flex; align-items: center; justify-content: space-between; gap
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-items" aria-selected="true" type="button">Articles</button>
       <button class="tab" role="tab" id="tab-styles" aria-selected="false" type="button">Mes styles</button>
+      <button class="tab" role="tab" id="tab-looks" aria-selected="false" type="button">Mes looks</button>
     </div>
     <div class="coll-body" id="pane-items"><p class="empty" id="coll-hint"></p><div class="grid" id="coll-grid"></div></div>
     <div class="coll-body" id="pane-styles" hidden></div>
+    <div class="coll-body" id="pane-looks" hidden></div>
   </div>
 </div>
 
@@ -330,42 +314,32 @@ header { display: flex; align-items: center; justify-content: space-between; gap
   // ---------- Animation d'ouverture ----------
   function playSplash() {
     const sp = $('splash'); let done = false;
-    const finish = () => { if (done) return; done = true; sp.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 350, fill: 'forwards' }).onfinish = () => sp.remove(); };
+    const finish = () => { if (done) return; done = true; sp.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, fill: 'forwards' }).onfinish = () => sp.remove(); };
     sp.addEventListener('click', finish);
-    const title = sp.querySelector('.title'), by = sp.querySelector('.by');
-    if (reduced || !sp.animate) {
-      title.style.opacity = 1; by.style.opacity = 1; sp.querySelector('#cake').style.display = 'none';
-      return setTimeout(finish, 1100);
+    const word = $('word'), by = sp.querySelector('.by'), L = word.querySelector('.half.l'), R = word.querySelector('.half.r'), line = word.querySelector('polyline');
+    if (reduced || !sp.animate) { by.style.opacity = 1; return setTimeout(finish, 1100); }
+    const ease = 'cubic-bezier(.3,.7,.4,1)';
+    word.animate([{ opacity: 0, transform: 'scale(.86)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 420, easing: ease, fill: 'both' });
+    // la fissure se dessine, le mot encaisse le choc
+    line.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 170, delay: 520, easing: 'ease-in', fill: 'both' });
+    word.animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-3px,1px)' }, { transform: 'translate(3px,-1px)' }, { transform: 'translate(-2px,0)' }, { transform: 'translate(0,0)' }],
+      { duration: 260, delay: 600, composite: 'add' });
+    L.animate([{ transform: 'translate(0,0) rotate(0)' }, { transform: 'translate(-7px,3px) rotate(-2.5deg)', offset: .35 }, { transform: 'translate(-3px,1px) rotate(-1deg)' }],
+      { duration: 520, delay: 690, easing: ease, fill: 'forwards' });
+    R.animate([{ transform: 'translate(0,0) rotate(0)' }, { transform: 'translate(7px,-2px) rotate(2.5deg)', offset: .35 }, { transform: 'translate(3px,-1px) rotate(1deg)' }],
+      { duration: 520, delay: 690, easing: ease, fill: 'forwards' });
+    line.animate([{ opacity: 1 }, { opacity: .35 }], { duration: 400, delay: 900, fill: 'forwards' });
+    // quelques éclats s'échappent de la fissure
+    for (let i = 0; i < 7; i++) {
+      const sh = document.createElement('i'); sh.className = 'shard'; sh.style.top = (20 + Math.random() * 60) + '%'; word.appendChild(sh);
+      const dx = (i % 2 ? 1 : -1) * (14 + Math.random() * 34), dy = -20 - Math.random() * 30, fall = 40 + Math.random() * 50;
+      sh.animate([{ opacity: 0, transform: 'translate(0,0) rotate(0)' }, { opacity: 1, transform: `translate(${dx * .5}px,${dy}px) rotate(90deg)`, offset: .3 },
+        { opacity: 0, transform: `translate(${dx}px,${fall}px) rotate(240deg)` }], { duration: 650, delay: 700, easing: 'cubic-bezier(.2,.6,.6,1)', fill: 'both' });
     }
-    const cake = $('cake'), pieces = cake.querySelectorAll('.piece'), cracks = cake.querySelectorAll('.crack');
-    cake.animate([{ transform: 'translateY(-60px)', opacity: 0 }, { transform: 'translateY(6px)', opacity: 1, offset: .7 }, { transform: 'translateY(0)' }],
-      { duration: 520, easing: 'cubic-bezier(.3,.7,.4,1)', fill: 'both' });
-    cake.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-3deg)' }, { transform: 'rotate(3deg)' }, { transform: 'rotate(-2deg)' }, { transform: 'rotate(0)' }],
-      { duration: 360, delay: 560 });
-    cracks.forEach((c, i) => c.animate([{ strokeDashoffset: 200 }, { strokeDashoffset: 0 }], { duration: 260, delay: 600 + i * 60, fill: 'forwards' }));
-    const fly = [['-95px, 70px', -28], ['0px, 150px', 10], ['95px, 80px', 26]];
-    pieces.forEach((p, i) => {
-      p.style.transformBox = 'fill-box'; p.style.transformOrigin = 'center';
-      p.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 1 }, { transform: `translate(${fly[i][0]}) rotate(${fly[i][1]}deg)`, opacity: 0 }],
-        { duration: 650, delay: 950, easing: 'cubic-bezier(.5,0,.8,.6)', fill: 'forwards' });
-    });
-    cracks.forEach(c => c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, delay: 950, fill: 'forwards' }));
-    // miettes
-    const box = cake.getBoundingClientRect(), host = sp.querySelector('.splash-inner'), hb = host.getBoundingClientRect();
-    const colors = ['#e9c48a', '#e9c48a', '#fff6e5', '#ed2237', '#040037', '#d9ad6c'];
-    for (let i = 0; i < 26; i++) {
-      const c = document.createElement('i'); c.className = 'crumb';
-      const s = 4 + Math.random() * 7; c.style.width = c.style.height = s + 'px'; c.style.background = colors[i % colors.length]; c.style.opacity = 0;
-      c.style.left = (box.left - hb.left + box.width * (.35 + Math.random() * .3)) + 'px'; c.style.top = (box.top - hb.top + box.height * (.4 + Math.random() * .3)) + 'px';
-      host.appendChild(c);
-      const dx = (Math.random() - .5) * 260, up = -40 - Math.random() * 90, down = 160 + Math.random() * 160;
-      c.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 0 }, { transform: `translate(${dx * .5}px, ${up}px) rotate(120deg)`, opacity: 1, offset: .35 },
-        { transform: `translate(${dx}px, ${down}px) rotate(300deg)`, opacity: 0 }], { duration: 900 + Math.random() * 300, delay: 960, easing: 'cubic-bezier(.2,.6,.6,1)', fill: 'both' });
-    }
-    title.animate([{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1.06)', offset: .7 }, { opacity: 1, transform: 'scale(1)' }],
-      { duration: 520, delay: 1250, easing: 'cubic-bezier(.3,.7,.4,1)', fill: 'forwards' });
-    by.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 380, delay: 1600, fill: 'forwards' });
-    setTimeout(finish, 2700);
+    // puis « by K » apparaît
+    by.animate([{ opacity: 0, transform: 'translateY(10px) scale(.8)' }, { opacity: 1, transform: 'translateY(0) scale(1.08)', offset: .65 }, { opacity: 1, transform: 'translateY(0) scale(1)' }],
+      { duration: 480, delay: 1080, easing: ease, fill: 'forwards' });
+    setTimeout(finish, 2300);
   }
   playSplash();
 
@@ -452,25 +426,23 @@ header { display: flex; align-items: center; justify-content: space-between; gap
     setPhoto(img, id, 'hd', () => markBroken(id)); img.alt = p.n + ', ' + c.c;
     el.querySelector('.segs').innerHTML = p.c.length > 1 ? p.c.map((_, j) => `<i class="${j === k ? 'on' : ''}"></i>`).join('') : '';
     const promo = el.querySelector('.promo'); promo.hidden = !d; promo.textContent = d ? '−' + d + ' %' : '';
-    const st = el.querySelector('.stars'); st.hidden = !p.r; st.textContent = p.r ? '★ ' + String(p.r).replace('.', ',') : '';
     el.querySelector('.tap-hint').hidden = !(p.c.length > 1 && !hintShown && el.classList.contains('top'));
     el.querySelector('.name').textContent = p.n;
     const pr = el.querySelector('.price'); pr.className = 'price' + (d ? ' is-promo' : ''); pr.innerHTML = priceHtml(c);
     el.querySelector('.buy').href = c.u;
     const sw = el.querySelector('.swatches'); sw.innerHTML = ''; sw.appendChild(swatchButtons(id, () => fillCard(el, id)));
-    const cn = document.createElement('span'); cn.className = 'cname'; cn.textContent = p.c.length > 1 ? `${c.c} · ${p.c.length} couleurs` : c.c; sw.appendChild(cn);
+    if (p.c.length < 2) sw.hidden = true;
     if (el.classList.contains('top')) p.c.forEach((_, j) => { if (j !== k) { const im = new Image(); im.src = photo(p.c[j], 'hd', 0); } });
   }
   function makeCard(id, cls) {
     const el = document.createElement('article'); el.className = 'card ' + cls;
-    el.innerHTML = `<div class="photo"><img alt="" draggable="false"><div class="segs"></div><span class="promo" hidden></span><span class="stars" hidden></span>
+    el.innerHTML = `<div class="photo"><img alt="" draggable="false"><div class="segs"></div><span class="promo" hidden></span>
       <span class="tap-hint" hidden>Touche la photo pour changer de couleur</span><div class="stamp yes">Go</div><div class="stamp no">No go</div></div>
-      <div class="info"><p class="name"></p><div class="row"><div class="price"></div><div class="actions">
-      <button class="icon-btn share" type="button" aria-label="Envoyer à une amie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg></button>
-      <a class="buy" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg>Acheter</a>
-      </div></div><div class="swatches" role="group" aria-label="Couleurs"></div></div>`;
-    el.querySelectorAll('.buy, .share').forEach(b => b.addEventListener('pointerdown', e => e.stopPropagation()));
-    el.querySelector('.share').addEventListener('click', e => { e.stopPropagation(); share(id); });
+      <div class="info"><div class="row"><button class="name-btn" type="button"><span class="name"></span><span class="price"></span></button>
+      <a class="buy" target="_blank" rel="noopener" aria-label="Acheter sur kiabi.com"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg></a>
+      </div><div class="swatches" role="group" aria-label="Couleurs"></div></div>`;
+    el.querySelectorAll('.buy, .name-btn').forEach(b => b.addEventListener('pointerdown', e => e.stopPropagation()));
+    el.querySelector('.name-btn').addEventListener('click', e => { e.stopPropagation(); openSheet(id, true); });
     fillCard(el, id);
     return el;
   }
@@ -482,7 +454,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
     $('swipe-view').style.display = done ? 'none' : 'contents';
     $('end').hidden = !done;
     $('btn-undo').disabled = history.length === 0;
-    $('coll-count').textContent = goIds().length;
+    const nGo = goIds().length; $('coll-count').textContent = nGo; $('coll-count').hidden = !nGo;
     renderChips();
     if (done) {
       const label = (CATS.find(c => c[0] === cat) || CATS[0])[1], n = goIds().length;
@@ -574,7 +546,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
   function renderColl() {
     const ids = goIds().slice().reverse(), grid = $('coll-grid');
     $('coll-n').textContent = ids.length ? `${ids.length} article${ids.length > 1 ? 's' : ''}` : '';
-    $('coll-hint').textContent = ids.length ? 'Touche un article pour l’acheter, l’envoyer à une amie ou changer sa couleur.' : 'Rien pour l’instant. Glisse à droite (Go) les articles qui te plaisent.';
+    $('coll-hint').textContent = ids.length ? 'Touche un article pour l’acheter, l’envoyer à une amie ou changer sa couleur.' : 'Rien pour l’instant. Glisse à droite (Go) les articles qui te plaisent. Tout est enregistré sur ce téléphone.';
     grid.innerHTML = ''; ids.forEach(id => grid.appendChild(thumbBtn(id)));
   }
   function openColl() { hideToast(); renderColl(); showTab('items'); $('coll').hidden = false; $('coll-close').focus(); }
@@ -653,16 +625,47 @@ header { display: flex; align-items: center; justify-content: space-between; gap
       const row = document.createElement('div'); row.className = 'look-row'; L.look.forEach(id => row.appendChild(thumbBtn(id, CATLABEL[meta(id).cat])));
       el.appendChild(row);
       const p = document.createElement('p'); p.className = 'look-items'; p.textContent = L.look.map(id => byId.get(id).n).join(' + '); el.appendChild(p);
+      const sv = document.createElement('button'); sv.className = 'pill dark'; sv.type = 'button'; sv.style.alignSelf = 'flex-start';
+      const already = savedLooks.some(l => lookKey(l.items) === lookKey(L.look.map(id => ({ id }))));
+      sv.textContent = already ? 'Enregistré' : 'Enregistrer ce look'; sv.disabled = already; sv.onclick = () => saveLook(L.look, sv);
+      el.appendChild(sv);
       pane.appendChild(el);
     });
   }
   function showTab(which) {
-    const styles = which === 'styles';
-    $('tab-items').setAttribute('aria-selected', String(!styles)); $('tab-styles').setAttribute('aria-selected', String(styles));
-    $('pane-items').hidden = styles; $('pane-styles').hidden = !styles; if (styles) renderStyles();
+    ['items', 'styles', 'looks'].forEach(t => { $('tab-' + t).setAttribute('aria-selected', String(t === which)); $('pane-' + t).hidden = t !== which; });
+    if (which === 'styles') renderStyles();
+    if (which === 'looks') renderSavedLooks();
   }
   $('tab-items').onclick = () => showTab('items');
   $('tab-styles').onclick = () => showTab('styles');
+  $('tab-looks').onclick = () => showTab('looks');
+
+  // ---------- Mes looks (enregistrés sur cet appareil) ----------
+  const LOOKS_KEY = 'craquage-looks-v1';
+  let savedLooks = (store.get(LOOKS_KEY) || []).filter(l => Array.isArray(l.items));
+  const lookKey = items => items.map(x => x.id).sort().join('|');
+  function saveLook(ids, btn) {
+    const items = ids.map(id => ({ id, k: colorIdx(id) })), key = lookKey(items);
+    if (!savedLooks.some(l => lookKey(l.items) === key)) { savedLooks.unshift({ items, at: Date.now() }); store.set(LOOKS_KEY, savedLooks); }
+    if (btn) { btn.textContent = 'Enregistré'; btn.disabled = true; }
+    flash('Look enregistré dans « Mes looks »');
+  }
+  function renderSavedLooks() {
+    const pane = $('pane-looks'); pane.innerHTML = '';
+    const list = savedLooks.map(l => ({ ...l, items: l.items.filter(x => byId.has(x.id)) })).filter(l => l.items.length >= 2);
+    if (!list.length) { pane.innerHTML = '<p class="empty">Aucun look enregistré. Dans « Mes styles », touche « Enregistrer » sous un look qui te plaît. Tes looks restent sur ce téléphone.</p>'; return; }
+    list.forEach((L, n) => {
+      L.items.forEach(x => { if (chosen[x.id] == null) chosen[x.id] = x.k; });
+      const el = document.createElement('div'); el.className = 'look';
+      const total = L.items.reduce((s, x) => s + Math.min(...byId.get(x.id).c[Math.min(x.k, byId.get(x.id).c.length - 1)].p), 0);
+      el.innerHTML = `<div class="look-head"><strong>Look ${list.length - n}</strong><span>${L.items.length} pièces · ${eur(total)}</span></div>`;
+      const row = document.createElement('div'); row.className = 'look-row'; L.items.forEach(x => row.appendChild(thumbBtn(x.id))); el.appendChild(row);
+      const del = document.createElement('button'); del.className = 'pill'; del.type = 'button'; del.textContent = 'Supprimer ce look'; del.style.alignSelf = 'flex-start';
+      del.onclick = () => { savedLooks = savedLooks.filter(l => lookKey(l.items) !== lookKey(L.items)); store.set(LOOKS_KEY, savedLooks); renderSavedLooks(); };
+      el.appendChild(del); pane.appendChild(el);
+    });
+  }
 
   // ---------- Fiche article ----------
   let sheetId = null, toastTimer = null;
@@ -672,6 +675,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
     $('sheet-title').textContent = p.n;
     $('sheet-price').innerHTML = priceHtml(c); $('sheet-price').className = 'price' + (discount(c) ? ' is-promo' : '');
     $('sheet-buy').href = c.u;
+    $('sheet-move').hidden = verdicts[id] !== 'yes';
     const sw = $('sheet-sw'); sw.innerHTML = ''; sw.appendChild(swatchButtons(id, () => { fillSheet(); if (!$('coll').hidden) { renderColl(); if (!$('pane-styles').hidden) renderStyles(); } }));
   }
   function openSheet(id) { hideToast(); sheetId = id; fillSheet(); $('sheet').hidden = false; $('sheet-buy').focus(); }
