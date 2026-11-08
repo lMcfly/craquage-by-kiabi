@@ -62,6 +62,12 @@ header .brand { justify-self: center; gap: 4px; }
 .seg.three { grid-template-columns: repeat(3, 1fr); } .seg.two { grid-template-columns: 1fr 1fr; }
 .seg button { border: 0; background: transparent; color: var(--ink); border-radius: 14px; padding: 11px 6px; font-weight: 600; font-size: .92rem; }
 .seg button[aria-pressed="true"] { background: var(--surface); box-shadow: var(--shadow-s); font-weight: 800; }
+.install { background: var(--bg); border-radius: 18px; padding: 14px; display: flex; align-items: center; gap: 12px; }
+.install img { width: 46px; height: 46px; border-radius: 11px; flex-shrink: 0; box-shadow: var(--shadow-s); }
+.install p { margin: 0; flex: 1; font-size: .88rem; color: var(--muted); line-height: 1.35; }
+.install .btn { width: auto; padding: 10px 16px; font-size: .9rem; flex-shrink: 0; }
+.steps { margin: 4px 0 0; padding: 12px 14px 12px 34px; background: var(--bg); border-radius: 18px; font-size: .9rem; line-height: 1.5; color: var(--ink); }
+.steps li + li { margin-top: 4px; } .steps svg { width: 16px; height: 16px; vertical-align: -3px; }
 .account { background: var(--bg); border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 .account p { margin: 0; font-size: .9rem; line-height: 1.45; color: var(--muted); }
 .btn.danger { background: transparent; color: var(--red); border: 1.5px solid var(--red); }
@@ -76,7 +82,7 @@ header .brand { justify-self: center; gap: 4px; }
 .catbtn svg { width: 18px; height: 18px; }
 .catbtn.deal { color: var(--red); }
 .catsheet { position: fixed; inset: 0; z-index: 35; background: var(--scrim); display: flex; align-items: flex-end; justify-content: center; }
-.catpanel { width: 100%; max-width: 520px; background: var(--surface); border-radius: 28px 28px 0 0; padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px)); animation: sheetUp .22s ease-out; }
+.catpanel { width: 100%; max-width: 520px; background: var(--surface); border-radius: 28px 28px 0 0; padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px)); animation: sheetUp .22s ease-out; max-height: calc(100% - 24px - env(safe-area-inset-top, 0px)); overflow-y: auto; overscroll-behavior: contain; }
 .catpanel .grab { width: 40px; height: 5px; border-radius: 5px; background: var(--line); margin: 0 auto 12px; }
 .catpanel h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; letter-spacing: -.02em; margin: 0 0 14px; text-align: center; }
 .cattiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -323,6 +329,9 @@ header .brand { justify-self: center; gap: 4px; }
 <div class="catsheet" id="catsheet" hidden><div class="catpanel" role="dialog" aria-modal="true" aria-labelledby="cat-title"><div class="grab"></div><h3 id="cat-title" data-i18n="i_want"></h3><div class="cattiles" id="cattiles"></div></div></div>
 
 <div class="catsheet" id="setsheet" hidden><div class="catpanel" role="dialog" aria-modal="true" aria-labelledby="set-title"><div class="grab"></div><h3 id="set-title" data-i18n="settings"></h3>
+  <div class="setgroup" id="set-install"><h4 data-i18n="shortcut"></h4>
+    <div class="install"><img src="icons/icon-192.png" alt=""><p data-i18n="shortcut_txt"></p><button class="btn primary" type="button" id="install-btn" data-i18n="add"></button></div>
+    <ol class="steps" id="install-steps" hidden></ol></div>
   <div class="setgroup"><h4 data-i18n="appearance"></h4><div class="seg three" id="set-theme">
     <button type="button" data-v="auto" data-i18n="th_auto"></button><button type="button" data-v="light" data-i18n="th_light"></button><button type="button" data-v="dark" data-i18n="th_dark"></button></div></div>
   <div class="setgroup"><h4 data-i18n="language"></h4><div class="seg two" id="set-lang">
@@ -368,7 +377,8 @@ header .brand { justify-self: center; gap: 4px; }
 
   // ---------- Langues ----------
   const I18N = {
-    fr: { new: 'Nouveau', skip: 'Touchez pour passer', loading: 'Chargement…', loading_txt: 'On prépare les dernières nouveautés Kiabi.', offline: 'Pas de connexion',
+    fr: { new: 'Nouveau', shortcut: "Raccourci", shortcut_txt: "Mets Craquage sur ton écran d’accueil, comme une vraie appli.", add: "Ajouter", installed: "Raccourci ajouté à ton écran d’accueil", ios_steps: ["Touche le bouton Partager {share} en bas de Safari.", "Choisis « Sur l’écran d’accueil ».", "Touche « Ajouter » : c’est prêt !"], other_steps: ["Ouvre le menu ⋮ de ton navigateur.", "Choisis « Ajouter à l’écran d’accueil » ou « Installer l’application ».", "Confirme : c’est prêt !"], inapp: "Ouvre d’abord ce lien dans Safari (menu ··· → « Ouvrir dans Safari »).",
+      skip: 'Touchez pour passer', loading: 'Chargement…', loading_txt: 'On prépare les dernières nouveautés Kiabi.', offline: 'Pas de connexion',
       offline_txt: 'Impossible de charger les articles. Vérifie ta connexion internet, puis réessaie.', retry: 'Réessayer', undo: 'Annuler le dernier choix',
       see_wishlist: 'Voir mes envies', replay_no: 'Revoir mes « No go »', all_cats: 'Toutes les catégories', i_want: 'Je veux voir…', buy: 'Acheter', buy_on: 'Acheter sur kiabi.com',
       back: 'Retour', share: 'Envoyer à une amie', add_wish: 'Ajouter à mes envies', remove_wish: 'Retirer de mes envies', tab_swipe: 'Craquage', tab_wish: 'Envies', tab_style: 'Style',
@@ -384,7 +394,8 @@ header .brand { justify-self: center; gap: 4px; }
       eyebrow: 'D’après {n} coups de cœur', desc1: 'Tu craques surtout pour {a}.', desc2: 'Tu craques surtout pour {a}, avec une touche {b}.', tastes: 'Craquage te propose désormais en priorité : {l}.',
       my_looks: 'Mes looks', looks_for_you: 'Looks pour toi', look_n: 'Look {n}', del: 'Supprimer', save: 'Enregistrer', saved: 'Enregistré', pieces: '{n} pièces',
       looks_empty1: 'Mets au moins 2 articles en Go : on te propose ensuite des tenues avec tes envies.', looks_empty2: 'Mets un haut, un bas ou une veste en Go pour obtenir des tenues.' },
-    en: { new: 'New', skip: 'Tap to skip', loading: 'Loading…', loading_txt: 'Getting the latest Kiabi arrivals ready.', offline: 'No connection',
+    en: { new: 'New', shortcut: "Shortcut", shortcut_txt: "Put Craquage on your home screen, like a real app.", add: "Add", installed: "Shortcut added to your home screen", ios_steps: ["Tap the Share button {share} at the bottom of Safari.", "Choose “Add to Home Screen”.", "Tap “Add”: you’re all set!"], other_steps: ["Open your browser’s ⋮ menu.", "Choose “Add to Home screen” or “Install app”.", "Confirm: you’re all set!"], inapp: "First open this link in Safari (··· menu → “Open in Safari”).",
+      skip: 'Tap to skip', loading: 'Loading…', loading_txt: 'Getting the latest Kiabi arrivals ready.', offline: 'No connection',
       offline_txt: 'The items could not be loaded. Check your internet connection and try again.', retry: 'Try again', undo: 'Undo last choice',
       see_wishlist: 'See my wishlist', replay_no: 'Review my “No go”', all_cats: 'All categories', i_want: 'I want to see…', buy: 'Buy', buy_on: 'Buy on kiabi.com',
       back: 'Back', share: 'Send to a friend', add_wish: 'Add to my wishlist', remove_wish: 'Remove from my wishlist', tab_swipe: 'Craquage', tab_wish: 'Wishlist', tab_style: 'Style',
@@ -400,7 +411,8 @@ header .brand { justify-self: center; gap: 4px; }
       eyebrow: 'Based on {n} favourites', desc1: 'You mostly fall for {a}.', desc2: 'You mostly fall for {a}, with a touch of {b}.', tastes: 'Craquage now shows you first: {l}.',
       my_looks: 'My looks', looks_for_you: 'Looks for you', look_n: 'Look {n}', del: 'Delete', save: 'Save', saved: 'Saved', pieces: '{n} pieces',
       looks_empty1: 'Swipe at least 2 items to Go: we’ll then suggest outfits from your wishlist.', looks_empty2: 'Swipe a top, a bottom or a jacket to Go to get outfits.' },
-    es: { new: 'Nuevo', skip: 'Toca para saltar', loading: 'Cargando…', loading_txt: 'Preparamos las últimas novedades de Kiabi.', offline: 'Sin conexión',
+    es: { new: 'Nuevo', shortcut: "Acceso directo", shortcut_txt: "Pon Craquage en tu pantalla de inicio, como una app de verdad.", add: "Añadir", installed: "Acceso directo añadido a tu pantalla de inicio", ios_steps: ["Toca el botón Compartir {share} abajo en Safari.", "Elige «Añadir a pantalla de inicio».", "Toca «Añadir»: ¡listo!"], other_steps: ["Abre el menú ⋮ de tu navegador.", "Elige «Añadir a pantalla de inicio» o «Instalar aplicación».", "Confirma: ¡listo!"], inapp: "Primero abre este enlace en Safari (menú ··· → «Abrir en Safari»).",
+      skip: 'Toca para saltar', loading: 'Cargando…', loading_txt: 'Preparamos las últimas novedades de Kiabi.', offline: 'Sin conexión',
       offline_txt: 'No se pudieron cargar los artículos. Comprueba tu conexión a internet y vuelve a intentarlo.', retry: 'Reintentar', undo: 'Deshacer la última elección',
       see_wishlist: 'Ver mis favoritos', replay_no: 'Volver a ver mis «No go»', all_cats: 'Todas las categorías', i_want: 'Quiero ver…', buy: 'Comprar', buy_on: 'Comprar en kiabi.com',
       back: 'Volver', share: 'Enviar a una amiga', add_wish: 'Añadir a favoritos', remove_wish: 'Quitar de favoritos', tab_swipe: 'Craquage', tab_wish: 'Favoritos', tab_style: 'Estilo',
@@ -416,7 +428,8 @@ header .brand { justify-self: center; gap: 4px; }
       eyebrow: 'Según {n} flechazos', desc1: 'Te encantan sobre todo {a}.', desc2: 'Te encantan sobre todo {a}, con un toque {b}.', tastes: 'Craquage te muestra ahora primero: {l}.',
       my_looks: 'Mis looks', looks_for_you: 'Looks para ti', look_n: 'Look {n}', del: 'Eliminar', save: 'Guardar', saved: 'Guardado', pieces: '{n} prendas',
       looks_empty1: 'Pon al menos 2 artículos en Go: te propondremos conjuntos con tus favoritos.', looks_empty2: 'Pon en Go una prenda de arriba, una de abajo o una chaqueta para obtener conjuntos.' },
-    de: { new: 'Neu', skip: 'Tippen zum Überspringen', loading: 'Wird geladen…', loading_txt: 'Wir bereiten die neuesten Kiabi-Teile vor.', offline: 'Keine Verbindung',
+    de: { new: 'Neu', shortcut: "Verknüpfung", shortcut_txt: "Lege Craquage auf deinen Home-Bildschirm, wie eine echte App.", add: "Hinzufügen", installed: "Verknüpfung zum Home-Bildschirm hinzugefügt", ios_steps: ["Tippe unten in Safari auf Teilen {share}.", "Wähle „Zum Home-Bildschirm“.", "Tippe auf „Hinzufügen“: fertig!"], other_steps: ["Öffne das Menü ⋮ deines Browsers.", "Wähle „Zum Startbildschirm hinzufügen“ oder „App installieren“.", "Bestätige: fertig!"], inapp: "Öffne diesen Link zuerst in Safari (Menü ··· → „In Safari öffnen“).",
+      skip: 'Tippen zum Überspringen', loading: 'Wird geladen…', loading_txt: 'Wir bereiten die neuesten Kiabi-Teile vor.', offline: 'Keine Verbindung',
       offline_txt: 'Die Artikel konnten nicht geladen werden. Prüfe deine Internetverbindung und versuche es erneut.', retry: 'Erneut versuchen', undo: 'Letzte Wahl rückgängig',
       see_wishlist: 'Meine Wunschliste ansehen', replay_no: 'Meine „No go“ erneut ansehen', all_cats: 'Alle Kategorien', i_want: 'Ich möchte sehen…', buy: 'Kaufen', buy_on: 'Auf kiabi.com kaufen',
       back: 'Zurück', share: 'An eine Freundin senden', add_wish: 'Zur Wunschliste hinzufügen', remove_wish: 'Von der Wunschliste entfernen', tab_swipe: 'Craquage', tab_wish: 'Wunschliste', tab_style: 'Stil',
@@ -453,6 +466,7 @@ header .brand { justify-self: center; gap: 4px; }
   const settings = Object.assign({ theme: 'auto', lang: (navigator.language || 'fr').slice(0, 2) }, store.get(SETTINGS_KEY) || {});
   if (!I18N[settings.lang]) settings.lang = 'fr';
   const t = (k, v = {}) => String((I18N[settings.lang] || I18N.fr)[k] ?? I18N.fr[k] ?? k).replace(/\{(\w+)\}/g, (_, x) => v[x] ?? '');
+  const tl = k => (I18N[settings.lang] || I18N.fr)[k] || I18N.fr[k];
   const arts = n => t(n > 1 ? 'artN' : 'art1', { n: n.toLocaleString(settings.lang) });
   const colourName = c => settings.lang === 'fr' ? c.c : ((COLOURS_I18N[settings.lang] || {})[c.f] || c.c);
   const STYLE = new Proxy({}, { get: (_, k) => (STYLES_I18N[settings.lang] || STYLES_I18N.fr)[k] });
@@ -729,9 +743,33 @@ header .brand { justify-self: center; gap: 4px; }
     $('set-theme').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === settings.theme)));
     $('set-lang').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === settings.lang)));
   }
-  function openSettings() { hideToast(); syncSettings(); $('wipe-confirm').hidden = true; $('wipe').hidden = false; $('setsheet').hidden = false; }
+  function openSettings() { hideToast(); syncSettings(); syncInstall(); $('install-steps').hidden = true; $('wipe-confirm').hidden = true; $('wipe').hidden = false; $('setsheet').hidden = false; }
   const closeSettings = () => { $('setsheet').hidden = true; };
   $('gear').onclick = openSettings;
+
+  // ---------- Raccourci sur l'écran d'accueil ----------
+  // Déjà installée (ouverte depuis l'icône) : l'option disparaît. Android/Chrome : vraie fenêtre d'installation.
+  // iPhone : Safari ne permet pas d'installer automatiquement, on montre les 3 gestes.
+  let installEvt = null;
+  const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const inApp = /FBAN|FBAV|Instagram|Line\/|Snapchat|TikTok|musical_ly|GSA\//i.test(navigator.userAgent);
+  const SHARE_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Partager"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>';
+  function syncInstall() { $('set-install').hidden = standalone() || !!store.get('craquage-installed'); }
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
+  window.addEventListener('appinstalled', () => { store.set('craquage-installed', 1); installEvt = null; syncInstall(); flash(t('installed')); });
+  $('install-btn').onclick = async () => {
+    if (installEvt) {
+      installEvt.prompt(); const r = await installEvt.userChoice.catch(() => null); installEvt = null;
+      if (r && r.outcome === 'accepted') { store.set('craquage-installed', 1); syncInstall(); flash(t('installed')); }
+      return;
+    }
+    const ol = $('install-steps');
+    ol.innerHTML = (isIOS && inApp ? [t('inapp')] : []).concat(tl(isIOS ? 'ios_steps' : 'other_steps'))
+      .map(x => '<li>' + esc(x).replace('{share}', SHARE_ICO) + '</li>').join('');
+    ol.hidden = !ol.hidden;
+  };
+  syncInstall();
   $('setsheet').addEventListener('click', e => { if (e.target.id === 'setsheet') closeSettings(); });
   $('set-theme').addEventListener('click', e => { const v = e.target.closest('button')?.dataset.v; if (!v) return;
     settings.theme = v; store.set(SETTINGS_KEY, settings); applyTheme(); syncSettings(); });
