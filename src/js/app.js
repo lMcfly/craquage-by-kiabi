@@ -201,7 +201,9 @@ function render() {
     const label = filterLabel(), n = goIds().length;
     $('end-title').textContent = cat === 'all' && !occ ? t('end_all') : t('end_cat', { c: label });
     $('end-text').textContent = t('end_txt', { a: arts(n) });
-    $('end-all').hidden = cat === 'all';
+    $('end-all').hidden = cat === 'all' && !occ;
+    // des articles restent mais pas dans ma taille : on propose d'élargir la fourchette
+    $('end-sizes').hidden = !order.some(id => { const p = byId.get(id); return !verdicts[id] && !broken.has(id) && !p.c.some(c => fits(p, c)); });
     $('end-restart').hidden = !Object.values(verdicts).includes('no');
     return;
   }
@@ -364,7 +366,8 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'Backspace') { e.preventDefault(); undo(); }
 });
 $('end-restart').onclick = () => { Object.keys(verdicts).forEach(id => { if (verdicts[id] === 'no') delete verdicts[id]; }); history = history.filter(h => h.choice === 'yes'); render(); };
-$('end-all').onclick = () => { cat = 'all'; render(); };
+$('end-all').onclick = () => { cat = 'all'; occ = null; rerank(0); render(); };
+$('end-sizes').onclick = () => openSettings();
 $('end-coll').onclick = () => openColl();
 
 // ---------- Mes envies ----------
