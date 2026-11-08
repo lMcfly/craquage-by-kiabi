@@ -572,22 +572,52 @@ header .brand { justify-self: center; }
   }
   function learn(id, amount) {
     if (!byId.has(id)) return;
+    for (const f in prefs.w) prefs.w[f] *= .97;                // les goûts évoluent : les anciens gestes comptent un peu moins
     feats(id).forEach(f => { prefs.w[f] = Math.max(-8, Math.min(8, (prefs.w[f] || 0) + amount)); });
     prefs.n++; store.set(PREF_KEY, prefs);
   }
-  function affinity(id) {
+  // affinité d'un article ; sur « Tout », la catégorie est gérée à part (quotas) pour garder un peu de tout
+  function affinity(id, withCat = true) {
     const p = byId.get(id); let best = -Infinity;
-    p.c.forEach((_, ci) => { const f = feats(id, ci); const v = f.reduce((s, x) => s + (prefs.w[x] || 0), 0) / Math.sqrt(f.length); if (v > best) best = v; });
+    p.c.forEach((_, ci) => { const f = feats(id, ci).filter(x => withCat || x[0] !== 'k');
+      const v = f.reduce((s, x) => s + (prefs.w[x] || 0), 0) / Math.sqrt(f.length); if (v > best) best = v; });
     return best;
   }
+  // part d'une catégorie dans la pile : entre 0,5× et 2× la normale selon tes goûts (jamais plus d'environ 1 carte sur 4)
+  const catShare = k => Math.max(.5, Math.min(2, Math.exp(.18 * (prefs.w['k:' + k] || 0))));
   function rerank(pin = 1) {
     if (prefs.n < 4) return;                                   // il faut quelques gestes avant de personnaliser
     // la (ou les) carte(s) déjà affichée(s) derrière, photo chargée, restent en tête : on ne casse pas le rythme
-    const win = order.filter(id => !verdicts[id] && matches(id)).slice(pin);
+    const pending = order.filter(id => !verdicts[id] && matches(id)), win = pending.slice(pin);
     if (win.length < 3) return;
-    const ranked = win.map(id => ({ id, s: affinity(id) + Math.random() * 1.4 })).sort((a, b) => b.s - a.s).map(x => x.id);
-    for (let i = 3; i < ranked.length; i += 4) {                // 1 carte sur 4 : découverte au hasard
-      const j = i + Math.floor(Math.random() * (ranked.length - i)); [ranked[i], ranked[j]] = [ranked[j], ranked[i]];
+    const mixed = cat === 'all';
+    const score = id => affinity(id, !mixed) + Math.random() * 1.4;
+    let ranked;
+    if (!mixed) {
+      ranked = win.map(id => ({ id, s: score(id) })).sort((a, b) => b.s - a.s).map(x => x.id);
+      for (let i = 3; i < ranked.length; i += 4) {              // 1 carte sur 4 : découverte au hasard
+        const j = i + Math.floor(Math.random() * (ranked.length - i)); [ranked[i], ranked[j]] = [ranked[j], ranked[i]];
+      }
+    } else {
+      // une file par catégorie, triée par affinité (couleur, style, prix…), puis on pioche à tour de rôle
+      const q = {}; win.forEach(id => { const k = byId.get(id).k; (q[k] = q[k] || []).push({ id, s: score(id) }); });
+      Object.values(q).forEach(l => l.sort((a, b) => b.s - a.s));
+      const keys = Object.keys(q), credit = {}; keys.forEach(k => credit[k] = Math.random());
+      const recent = pending.slice(0, pin).map(id => byId.get(id).k);
+      ranked = [];
+      while (ranked.length < win.length) {
+        const live = keys.filter(k => q[k].length), tot = live.reduce((s, k) => s + catShare(k), 0);
+        live.forEach(k => credit[k] += catShare(k) / tot);
+        // pas deux fois de suite la même catégorie (ni trois sur les quatre dernières) tant que c'est possible
+        const last = recent.slice(-3), ok = live.filter(k => k !== last[last.length - 1] && last.filter(x => x === k).length < 2);
+        const pool = ok.length ? ok : live;
+        let k;
+        if (ranked.length % 4 === 3) k = pool[Math.floor(Math.random() * pool.length)];   // 1 sur 4 : catégorie au hasard
+        else k = pool.reduce((m, x) => credit[x] > credit[m] ? x : m, pool[0]);
+        credit[k] -= 1;
+        const l = q[k], it = ranked.length % 4 === 3 ? l.splice(Math.floor(Math.random() * l.length), 1)[0] : l.shift();
+        ranked.push(it.id); recent.push(k);
+      }
     }
     const inWin = new Set(win), slots = []; order.forEach((id, i) => { if (inWin.has(id)) slots.push(i); });
     slots.forEach((pos, k) => { order[pos] = ranked[k]; });
