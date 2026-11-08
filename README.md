@@ -39,6 +39,7 @@ src/
     catalog.js              Catégories, occasions (soirée, bureau, week-end, cocooning), pastilles, photos, promos
     splash.js               Animation « Craquage by K »
     platform.js             Comportement d'appli (pas de zoom) et service worker
+    sheets.js               Panneaux du bas : fermeture en glissant vers le bas
     utils.js                Petits outils partagés (DOM, stockage local)
 assets/
   brand/                    Logo K Kiabi (version claire et version blanche)

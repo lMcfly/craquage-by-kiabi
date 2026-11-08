@@ -92,19 +92,15 @@
 
 <div class="catsheet" id="welcome" hidden><div class="catpanel" role="dialog" aria-modal="true" aria-labelledby="wel-title"><div class="grab"></div>
   <h3 id="wel-title" data-i18n="welcome"></h3><p class="wel-txt" data-i18n="welcome_txt"></p>
-  <div class="setgroup"><h4 data-i18n="clothes_size"></h4><div class="chips" id="wel-sizes"></div></div>
-  <div class="setgroup"><h4 data-i18n="bottoms_size"></h4><div class="chips" id="wel-bottoms"></div></div>
-  <div class="setgroup"><h4 data-i18n="shoe_size"></h4><div class="chips shoes" id="wel-shoes"></div></div>
+  <div class="size-rows" id="wel-rows"></div>
   <div class="stack"><button class="btn primary" type="button" id="wel-go" data-i18n="lets_go"></button><button class="btn link" type="button" id="wel-skip" data-i18n="skip_step"></button></div>
 </div></div>
 
 <div class="catsheet" id="setsheet" hidden><div class="catpanel" role="dialog" aria-modal="true" aria-labelledby="set-title"><div class="grab"></div><h3 id="set-title" data-i18n="settings"></h3>
   <div class="setgroup"><h4 data-i18n="my_info"></h4><div class="account">
-    <p class="lbl" data-i18n="clothes_size"></p><div class="chips" id="set-sizes"></div>
-    <p class="lbl" data-i18n="bottoms_size"></p><div class="chips" id="set-bottoms"></div>
-    <p class="lbl" data-i18n="shoe_size"></p><div class="chips shoes" id="set-shoes"></div>
-    <label class="switch"><input type="checkbox" id="set-only"><span data-i18n="only_mine"></span></label>
     <p class="note" data-i18n="info_txt"></p>
+    <div class="size-rows" id="set-rows"></div>
+    <label class="switch"><input type="checkbox" id="set-only"><span data-i18n="only_mine"></span></label>
   </div></div>
   <div class="setgroup" id="set-install"><h4 data-i18n="shortcut"></h4>
     <div class="install"><img src="assets/icons/icon-192.png" alt=""><p data-i18n="shortcut_txt"></p><button class="btn primary" type="button" id="install-btn" data-i18n="add"></button></div>

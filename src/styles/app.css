@@ -34,7 +34,8 @@ header .brand { justify-self: center; gap: 4px; }
 .catbtn.deal { color: var(--red); }
 .catsheet { position: fixed; inset: 0; z-index: 35; background: var(--scrim); display: flex; align-items: flex-end; justify-content: center; }
 .catpanel { width: 100%; max-width: 520px; background: var(--surface); border-radius: 28px 28px 0 0; padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px)); animation: sheetUp .22s ease-out; max-height: calc(100% - 24px - env(safe-area-inset-top, 0px)); overflow-y: auto; overscroll-behavior: contain; }
-.catpanel .grab { width: 40px; height: 5px; border-radius: 5px; background: var(--line); margin: 0 auto 12px; }
+.catpanel .grab { width: 44px; height: 5px; border-radius: 5px; background: var(--soft); margin: 0 auto 12px; position: relative; cursor: grab; touch-action: none; }
+.catpanel .grab::before { content: ""; position: absolute; inset: -14px -40px; }   /* zone de prise plus large */
 .catpanel h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; letter-spacing: -.02em; margin: 0 0 14px; text-align: center; }
 .cattiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .cattile { border: 0; background: var(--bg); border-radius: 18px; padding: 14px 14px; text-align: left; display: flex; flex-direction: column; gap: 2px; color: var(--ink); }
@@ -133,6 +134,19 @@ header .brand { justify-self: center; gap: 4px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .thumb { position: relative; aspect-ratio: 3 / 4; max-width: 100%; border-radius: 20px; overflow: hidden; padding: 0; border: 0; background: var(--surface); box-shadow: 0 4px 14px -8px rgba(4,0,55,.25); }
 .thumb { background: var(--photo); }
+.size-rows { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.account .size-rows { margin-bottom: 0; }
+.size-row { background: var(--bg); border-radius: 18px; padding: 12px; }
+.account .size-row { background: var(--surface); }
+.size-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.size-ico { width: 36px; height: 36px; border-radius: 11px; background: var(--active); color: var(--ink); display: grid; place-items: center; flex-shrink: 0; }
+.size-ico svg { width: 21px; height: 21px; }
+.size-name { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.size-name b { font-size: .95rem; color: var(--ink); } .size-name small { font-size: .76rem; color: var(--muted); }
+.size-sum { flex-shrink: 0; font-weight: 800; font-size: .82rem; padding: 5px 11px; border-radius: 50px; background: var(--btn-bg); color: var(--btn-fg); white-space: nowrap; }
+.size-sum.empty { background: transparent; color: var(--muted); font-weight: 600; border: 1.5px dashed var(--line); }
+.size-row .chip { padding: 9px 0; font-size: .88rem; border-radius: 12px; }
+.switch { background: var(--surface); border-radius: 18px; padding: 12px 14px; }
 .chips { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; } .chips.shoes { grid-template-columns: repeat(4, 1fr); }
 .chip { min-width: 0; padding: 10px 0; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 700; font-size: .92rem; }
 .chip[aria-pressed="true"] { background: var(--btn-bg); color: var(--btn-fg); border-color: var(--btn-bg); }

@@ -3,7 +3,8 @@ import { $, esc, reduced, store, shuffle } from './utils.js';
 import { settings, SETTINGS_KEY, t, tl, eur, arts, colourName, STYLE, applyStatic, applyTheme } from './i18n.js';
 import { IMG, SW, CATS, catLabel, LOOK, photo, discount, OCCASIONS, occLabel, occFits } from './catalog.js';
 import { playSplash } from './splash.js';
-import { profile, saveProfile, fits, setSizeData, sizeText, sizePicker, CLOTHES, BOTTOMS, SHOES } from './profile.js';
+import { profile, saveProfile, fits, setSizeData, sizeText, sizeRows } from './profile.js';
+import { swipeToClose } from './sheets.js';
 import { setupPlatform } from './platform.js';
 
 applyTheme(); applyStatic();
@@ -238,7 +239,7 @@ function openCats() {
 }
 const closeCats = () => { $('catsheet').hidden = true; };
 $('catbtn').onclick = openCats;
-$('catsheet').addEventListener('click', e => { if (e.target.id === 'catsheet') closeCats(); });
+swipeToClose($('catsheet'), closeCats);
 
 // ---------- Réglages (écrou) ----------
 function syncSettings() {
@@ -252,17 +253,18 @@ $('gear').onclick = openSettings;
 // ---------- Mes infos (tailles) ----------
 function profileChanged() { if (!PRODUCTS.length) return; rerank(0); render(); if (!$('coll').hidden) { renderColl(); if (!$('pane-styles').hidden) renderStyles(); } }
 function renderProfile() {
-  sizePicker($('set-sizes'), CLOTHES, 'sizes', profileChanged); sizePicker($('set-bottoms'), BOTTOMS, 'bottoms', profileChanged); sizePicker($('set-shoes'), SHOES, 'shoes', profileChanged);
+  sizeRows($('set-rows'), profileChanged);
   $('set-only').checked = profile.onlyMine;
 }
 $('set-only').onchange = e => { profile.onlyMine = e.target.checked; saveProfile(); profileChanged(); };
 // première visite : on demande la taille (on peut passer)
 const closeWelcome = () => { profile.asked = true; saveProfile(); $('welcome').hidden = true; profileChanged(); };
 if (!profile.asked) {
-  sizePicker($('wel-sizes'), CLOTHES, 'sizes'); sizePicker($('wel-bottoms'), BOTTOMS, 'bottoms'); sizePicker($('wel-shoes'), SHOES, 'shoes');
+  sizeRows($('wel-rows'));
   $('wel-go').onclick = closeWelcome; $('wel-skip').onclick = closeWelcome;
   $('welcome').hidden = false;
 }
+swipeToClose($('welcome'), closeWelcome);
 
 // ---------- Raccourci sur l'écran d'accueil ----------
 // Déjà installée (ouverte depuis l'icône) : l'option disparaît. Android/Chrome : vraie fenêtre d'installation.
@@ -287,11 +289,11 @@ $('install-btn').onclick = async () => {
   ol.hidden = !ol.hidden;
 };
 syncInstall();
-$('setsheet').addEventListener('click', e => { if (e.target.id === 'setsheet') closeSettings(); });
+swipeToClose($('setsheet'), closeSettings);
 $('set-theme').addEventListener('click', e => { const v = e.target.closest('button')?.dataset.v; if (!v) return;
   settings.theme = v; store.set(SETTINGS_KEY, settings); applyTheme(); syncSettings(); });
 $('set-lang').addEventListener('click', e => { const v = e.target.closest('button')?.dataset.v; if (!v || v === settings.lang) return;
-  settings.lang = v; store.set(SETTINGS_KEY, settings); applyStatic(); syncSettings();
+  settings.lang = v; store.set(SETTINGS_KEY, settings); applyStatic(); syncSettings(); renderProfile();
   render(); if (!$('coll').hidden) { renderColl(); renderStyles(); }
   if (!$('sheet').hidden) fillSheet(); });
 $('wipe').onclick = () => { $('wipe').hidden = true; $('wipe-confirm').hidden = false; $('wipe-yes').focus(); };

@@ -2,6 +2,7 @@
 // Sert à ne montrer que les articles disponibles dans la taille de l'utilisatrice.
 // Les tailles disponibles de chaque couleur viennent du robot : c.s = ['S', 'M'] ou ['37', '38'] (absent = inconnues).
 import { store } from './utils.js';
+import { t } from './i18n.js';
 
 export const CLOTHES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 export const SHOES = ['35', '36', '37', '38', '39', '40', '41', '42'];
@@ -65,4 +66,26 @@ export function sizePicker(box, list, key, onChange) {
     box.appendChild(b);
   });
   paint();
+}
+
+// ---------- Présentation « Mes infos » ----------
+// Une carte par type d'article : icône, nom, fourchette choisie, puis les tailles à toucher.
+const ICONS = {
+  sizes: '<path d="M8.5 3.5L4 6l1.8 4L8 9v11.5h8V9l2.2 1L20 6l-4.5-2.5a3.5 3.5 0 01-7 0z"/>',
+  bottoms: '<path d="M6.5 3.5h11l1 17h-4.5L12 10l-2 10.5H5.5z"/><path d="M6.5 7h11"/>',
+  shoes: '<path d="M3 17.5V11l4-1.5 2.5 3 5 1.5 5.5 1.5a2 2 0 011.5 2v1H3z"/><path d="M3 20.5h18"/>'
+};
+const ROWS = [['sizes', CLOTHES, 'size_tops'], ['bottoms', BOTTOMS, 'size_bottoms'], ['shoes', SHOES, 'size_shoes']];
+export function sizeRows(box, onChange) {
+  box.innerHTML = '';
+  ROWS.forEach(([key, list, label]) => {
+    const row = document.createElement('div'); row.className = 'size-row';
+    row.innerHTML = `<div class="size-head"><span class="size-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${ICONS[key]}</svg></span>
+      <span class="size-name"><b>${t(label)}</b><small>${t(label + '_sub')}</small></span><span class="size-sum" aria-live="polite"></span></div>
+      <div class="chips${key === 'shoes' ? ' shoes' : ''}" role="group" aria-label="${t(label)}"></div>`;
+    const sum = row.querySelector('.size-sum');
+    const update = () => { const v = profile[key]; sum.textContent = !v.length ? t('size_any') : v.length === 1 ? v[0] : `${v[0]} – ${v[v.length - 1]}`; sum.classList.toggle('empty', !v.length); };
+    sizePicker(row.querySelector('.chips'), list, key, () => { update(); onChange && onChange(); });
+    update(); box.appendChild(row);
+  });
 }
