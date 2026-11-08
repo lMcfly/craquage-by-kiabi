@@ -36,7 +36,7 @@ src/
     profile.js              Mes infos : fourchettes de tailles (hauts, pantalons/jupes, chaussures), filtre « ma taille »
     i18n.js                 Langue et thème choisis, traduction, format des prix et des couleurs
     translations.js         Tous les textes en français, anglais, espagnol, allemand
-    catalog.js              Catégories, pastilles de couleur, photos Kiabi, calcul des promos
+    catalog.js              Catégories, occasions (soirée, bureau, week-end, cocooning), pastilles, photos, promos
     splash.js               Animation « Craquage by K »
     platform.js             Comportement d'appli (pas de zoom) et service worker
     utils.js                Petits outils partagés (DOM, stockage local)

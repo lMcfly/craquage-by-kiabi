@@ -43,6 +43,9 @@ header .brand { justify-self: center; gap: 4px; }
 .cattile[aria-pressed="true"] { background: var(--btn-bg); color: var(--btn-fg); }
 .cattile[aria-pressed="true"] span { color: inherit; opacity: .7; }
 .cattile.deal b { color: var(--red); }
+.occ-title { margin: 18px 0 10px; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.occ-title.first { margin-top: 0; }
+.cattiles.occ { grid-template-columns: repeat(3, 1fr); } .cattiles.occ .cattile { padding: 11px 12px; } .cattiles.occ .cattile b { font-size: .92rem; }
 .cattile.deal[aria-pressed="true"] { background: var(--red); } .cattile.deal[aria-pressed="true"] b { color: #fff; }
 @keyframes sheetUp { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
 

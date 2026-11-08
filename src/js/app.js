@@ -1,7 +1,7 @@
 // Craquage by Kiabi : point d'entrée de l'app (swipe, préférences, envies, styles, looks, fiche article, réglages).
 import { $, esc, reduced, store, shuffle } from './utils.js';
 import { settings, SETTINGS_KEY, t, tl, eur, arts, colourName, STYLE, applyStatic, applyTheme } from './i18n.js';
-import { IMG, SW, CATS, catLabel, LOOK, photo, discount } from './catalog.js';
+import { IMG, SW, CATS, catLabel, LOOK, photo, discount, OCCASIONS, occLabel, occFits } from './catalog.js';
 import { playSplash } from './splash.js';
 import { profile, saveProfile, fits, sizeText, sizePicker, CLOTHES, BOTTOMS, SHOES } from './profile.js';
 import { setupPlatform } from './platform.js';
@@ -16,7 +16,7 @@ let PRODUCTS = [], byId = new Map();
 
 // ---------- État ----------
 const KEY = 'craquage-kiabi-v1';
-let order = [], history = [], verdicts = {}, chosen = {}, cat = 'all', busy = false;
+let order = [], history = [], verdicts = {}, chosen = {}, cat = 'all', occ = null, busy = false;
 const broken = new Set(), photoIdx = {};
 // couleur affichée : celle choisie, sinon la première disponible dans ma taille
 const colorIdx = id => { const p = byId.get(id); if (chosen[id] != null) return Math.min(chosen[id], p.c.length - 1); const j = p.c.findIndex(c => fits(p, c)); return j < 0 ? 0 : j; };
@@ -24,6 +24,7 @@ const curColor = id => byId.get(id).c[colorIdx(id)];
 const matches = id => {
   const p = byId.get(id); if (broken.has(id)) return false;
   if (!p.c.some(c => fits(p, c))) return false;                 // rien dans ma taille
+  if (occ && !occFits(p, occ)) return false;                    // pas pour cette occasion
   if (cat === 'all') return true;
   if (cat === 'deal') return p.c.some(c => discount(c) >= 30);
   return p.k === cat;
@@ -32,7 +33,7 @@ const upcoming = n => { const out = []; for (const id of order) { if (!verdicts[
 const currentId = () => upcoming(1)[0];
 const goIds = () => order.filter(id => verdicts[id] === 'yes' && !broken.has(id));
 let saveTimer = null;
-const save = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => store.set(KEY, { order, history, verdicts, chosen, cat }), 400); };
+const save = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => store.set(KEY, { order, history, verdicts, chosen, cat, occ }), 400); };
 
 // ---------- Photos (avec repli si une image Kiabi manque) ----------
 function setPhoto(img, id, size, onFail) {
@@ -195,8 +196,8 @@ function render() {
   const nGo = goIds().length; $('coll-count').textContent = nGo; $('coll-count').hidden = !nGo;
   renderChips();
   if (done) {
-    const label = catLabel(cat), n = goIds().length;
-    $('end-title').textContent = cat === 'all' ? t('end_all') : t('end_cat', { c: label });
+    const label = filterLabel(), n = goIds().length;
+    $('end-title').textContent = cat === 'all' && !occ ? t('end_all') : t('end_cat', { c: label });
     $('end-text').textContent = t('end_txt', { a: arts(n) });
     $('end-all').hidden = cat === 'all';
     $('end-restart').hidden = !Object.values(verdicts).includes('no');
@@ -206,19 +207,32 @@ function render() {
   const top = makeCard(next[0], 'top'); deckEl.appendChild(top); attachDrag(top);
   next.slice(1).forEach(preload);
 }
+// « Robes · Soirée », « Soirée » ou « Tout »
+const filterLabel = () => occ ? (cat === 'all' ? occLabel(occ) : catLabel(cat) + ' · ' + occLabel(occ)) : catLabel(cat);
 function renderChips() {          // bouton de catégorie en haut
-  const label = catLabel(cat);
+  const label = filterLabel();
   $('catlabel').textContent = label; $('catbtn').classList.toggle('deal', cat === 'deal');
 }
 function openCats() {
   const box = $('cattiles'); box.innerHTML = '';
-  const left = k => { const save = cat; cat = k; const n = order.filter(id => !verdicts[id] && matches(id)).length; cat = save; return n; };
+  const count = () => order.filter(id => !verdicts[id] && matches(id)).length;
+  const left = k => { const save = cat; cat = k; const n = count(); cat = save; return n; };
   CATS.forEach(([k]) => { const label = catLabel(k);
     const b = document.createElement('button'); b.type = 'button'; b.className = 'cattile' + (k === 'deal' ? ' deal' : '');
     b.setAttribute('aria-pressed', String(cat === k)); const n = left(k);
     b.innerHTML = `<b>${label}</b><span>${arts(n)}</span>`;
     b.onclick = () => { cat = k; closeCats(); hideToast(); rerank(0); render(); };
     box.appendChild(b);
+  });
+  // occasions : se combinent avec la catégorie choisie
+  const ob = $('occtiles'); ob.innerHTML = '';
+  [null, ...Object.keys(OCCASIONS)].forEach(k => {
+    const save = occ; occ = k; const n = count(); occ = save;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'cattile';
+    b.setAttribute('aria-pressed', String(occ === k));
+    b.innerHTML = `<b>${k ? occLabel(k) : t('occ_all')}</b><span>${arts(n)}</span>`;
+    b.onclick = () => { occ = k; closeCats(); hideToast(); rerank(0); render(); };
+    ob.appendChild(b);
   });
   $('catsheet').hidden = false;
 }
@@ -549,6 +563,7 @@ fetch('data/products.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw 
     Object.entries(st.chosen || {}).forEach(([id, k]) => { if (byId.has(id) && Number.isInteger(k)) chosen[id] = k; });
     history = (st.history || []).filter(h => h && byId.has(h.id));
     if (CATS.some(c => c[0] === st.cat)) cat = st.cat;
+    if (OCCASIONS[st.occ]) occ = st.occ;
   } else order = all;
   $('loading').hidden = true; render();
   try { if (sessionStorage.getItem('craquage-wiped')) { sessionStorage.removeItem('craquage-wiped'); flash(t('wiped')); } } catch (e) {}
