@@ -1,0 +1,7 @@
+{
+  "name": "craquage-by-kiabi",
+  "private": true,
+  "type": "module",
+  "scripts": { "update-catalog": "node scripts/update-catalog.mjs" },
+  "devDependencies": { "playwright": "1.49.1" }
+}

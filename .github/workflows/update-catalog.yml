@@ -1,0 +1,43 @@
+name: Mise à jour du catalogue Kiabi
+
+on:
+  schedule:
+    - cron: '17 3 * * *'   # chaque nuit vers 4 h 17 (heure de Paris en hiver)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: catalog
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Installer le navigateur
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Récupérer les articles
+        run: node scripts/update-catalog.mjs
+      - name: Enregistrer s'il y a du nouveau
+        run: |
+          if git diff --quiet -- data/products.json; then echo "Catalogue inchangé"; exit 0; fi
+          git config user.name "craquage-bot"
+          git config user.email "craquage-bot@users.noreply.github.com"
+          git add data/products.json
+          git commit -m "Catalogue Kiabi mis à jour"
+          git push
+      - name: Relancer la mise en ligne
+        if: success()
+        run: gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

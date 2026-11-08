@@ -1,0 +1,13 @@
+{
+  "_comment": "Pages thématiques Kiabi parcourues chaque nuit. Ajouter un rayon = ajouter son adresse /v/... ici.",
+  "pages": [
+    "robe-hiver-femme", "robe-maille-femme", "robe-pull-longue", "robe-chemise-longue",
+    "manteau-femme-hiver", "manteau-long-femme", "veste-courte-femme", "veste-femme-ecru", "doudoune-femme-legere", "trench-court",
+    "pull-femme-camel", "pull-col-v-femme", "gilet-femme-maille", "gilet-long", "sous-pull-col-roule", "cardigan-noel-femme",
+    "chemise-fluide-femme", "chemise-oversize-femme", "chemise-pull-femme", "blouse-femme-ecru", "top-dentelle", "crop-top-femme", "sweat-femme-long",
+    "pantalon-fluide-et-large-femme", "pantalon-large-femme-ecru", "pantalon-tailleur-femme-chocolat", "jean-femme-ecru", "jean-flare-taille-haute",
+    "jupe-femme-hiver", "jupe-femme-camel", "jupe-longue-fendue",
+    "bottines-cowboy-femme", "bottes-femme-dore",
+    "bonnet-femme-ecru", "sac-a-main-femme-ete"
+  ]
+}
