@@ -199,7 +199,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
 .sheet-tools { position: absolute; z-index: 3; top: calc(12px + env(safe-area-inset-top, 0px)); right: 16px; display: flex; gap: 4px; border-radius: 50px; padding: 4px 6px; }
 .sheet-tools button { width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; display: grid; place-items: center; padding: 0; color: var(--ink); }
 .sheet-tools .liked svg { fill: var(--red); color: var(--red); }
-.sheet-body { max-width: 560px; margin: 0 auto; padding: 4px max(20px, env(safe-area-inset-left, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; }
+.sheet-body { max-width: 560px; margin: 0 auto; padding: 12px max(20px, env(safe-area-inset-left, 0px)) calc(36px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; }
 .cthumbs { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding: 3px; }
 .cthumbs button { flex: 0 0 auto; width: 64px; aspect-ratio: 3 / 4; border-radius: 14px; overflow: hidden; padding: 0; border: 2px solid transparent; background: var(--line); }
 .cthumbs button[aria-pressed="true"] { border-color: var(--ink); }
@@ -531,10 +531,9 @@ header { display: flex; align-items: center; justify-content: center; min-height
       <div class="card-tools glass"><button class="share" type="button" aria-label="Envoyer à une amie"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></button>
       <a class="buy" target="_blank" rel="noopener" aria-label="Acheter sur kiabi.com"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg></a></div>
       <span class="tap-hint" hidden>Touche pour d’autres photos</span><div class="stamp yes">Go</div><div class="stamp no">No go</div></div>
-      <div class="info"><div class="headline"><button class="name-btn" type="button"><span class="name"></span></button><div class="price"></div></div>
+      <div class="info"><div class="headline"><span class="name-btn"><span class="name"></span></span><div class="price"></div></div>
       <div class="swatches" role="group" aria-label="Couleurs"></div></div>`;
-    el.querySelectorAll('.buy, .share, .name-btn').forEach(b => b.addEventListener('pointerdown', e => e.stopPropagation()));
-    el.querySelector('.name-btn').addEventListener('click', e => { e.stopPropagation(); openSheet(id); });
+    el.querySelectorAll('.buy, .share').forEach(b => b.addEventListener('pointerdown', e => e.stopPropagation()));
     el.querySelector('.share').addEventListener('click', e => { e.stopPropagation(); share(id); });
     el.querySelector('.buy').addEventListener('click', () => learn(id, 1.5));
     fillCard(el, id);
@@ -786,7 +785,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
     const sw = $('sheet-sw'); sw.innerHTML = ''; sw.hidden = p.c.length < 2;
     p.c.forEach((cc, k) => {            // vignettes des couleurs, comme sur la fiche produit Kiabi
       const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', 'Couleur ' + cc.c); b.setAttribute('aria-pressed', String(k === colorIdx(id)));
-      b.innerHTML = '<img alt="" loading="lazy">'; b.querySelector('img').src = photo(cc, 'fr', 0);
+      b.innerHTML = '<img alt="">'; const im = b.querySelector('img'); im.onerror = () => { im.onerror = null; im.src = photo(cc, 'hd', 0); }; im.src = photo(cc, 'fr', 0);
       b.onclick = () => { chosen[id] = k; learn(id, .1); save(); fillSheet(); if (!$('coll').hidden) { renderColl(); if (!$('pane-styles').hidden) renderStyles(); } };
       sw.appendChild(b);
     });
