@@ -339,10 +339,21 @@ function thumbBtn(id, label) {
   setPhoto(b.querySelector('img'), id, 'fr'); b.onclick = () => openSheet(id);
   return b;
 }
+// Vignette d'envie : touche la photo pour la fiche, petit bouton panier pour aller directement sur l'article Kiabi
+function wishItem(id) {
+  const box = document.createElement('div'); box.className = 'wish-item';
+  box.appendChild(thumbBtn(id));
+  const a = document.createElement('a'); a.className = 'kbuy'; a.href = curColor(id).u; a.target = '_blank'; a.rel = 'noopener';
+  a.setAttribute('aria-label', t('buy_on') + ' : ' + byId.get(id).n); a.title = t('buy_on');
+  a.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg>';
+  a.addEventListener('click', () => learn(id, 1.5));
+  box.appendChild(a);
+  return box;
+}
 function renderColl() {
   const ids = goIds().slice().reverse(), grid = $('coll-grid');
   $('coll-n').textContent = ids.length ? t('coll_n', { a: arts(ids.length) }) : '';
-  grid.innerHTML = ''; ids.forEach(id => grid.appendChild(thumbBtn(id)));
+  grid.innerHTML = ''; ids.forEach(id => grid.appendChild(wishItem(id)));
   if (!ids.length) {
     grid.innerHTML = `<div class="empty-hero" style="grid-column:1/-1"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg><h3>${t('title_items')}</h3>
       <p>${t('empty_txt')}</p><div class="stack" style="width:min(100%,320px);margin-top:12px"><button class="btn primary" type="button" id="empty-go">${t('empty_go')}</button></div></div>`;

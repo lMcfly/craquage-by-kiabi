@@ -130,6 +130,11 @@ header .brand { justify-self: center; gap: 4px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .thumb { position: relative; aspect-ratio: 3 / 4; max-width: 100%; border-radius: 20px; overflow: hidden; padding: 0; border: 0; background: var(--surface); box-shadow: 0 4px 14px -8px rgba(4,0,55,.25); }
 .thumb { background: var(--photo); }
+.wish-item { position: relative; }
+.wish-item .thumb { display: block; width: 100%; }
+.kbuy { position: absolute; right: 8px; bottom: 8px; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--btn-bg); color: var(--btn-fg); box-shadow: var(--shadow-s); }
+.kbuy svg { width: 19px; height: 19px; }
+.kbuy:active { transform: scale(.92); }
 .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 .thumb .tag { position: absolute; left: 8px; bottom: 8px; font-size: .78rem; font-weight: 700; background: var(--glass); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink); padding: 4px 9px; border-radius: 50px; font-variant-numeric: tabular-nums; }
 .empty { color: var(--muted); font-size: .92rem; margin: 0; text-align: center; line-height: 1.5; }
