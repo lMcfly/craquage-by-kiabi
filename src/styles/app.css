@@ -34,6 +34,8 @@ header .brand { justify-self: center; gap: 4px; }
 .catbtn.deal { color: var(--red); }
 .catsheet { position: fixed; inset: 0; z-index: 35; background: var(--scrim); display: flex; align-items: flex-end; justify-content: center; }
 .catpanel { width: 100%; max-width: 520px; background: var(--surface); border-radius: 28px 28px 0 0; padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px)); animation: sheetUp .22s ease-out; max-height: calc(100% - 24px - env(safe-area-inset-top, 0px)); overflow-y: auto; overscroll-behavior: contain; }
+/* Réglages : toujours ouverts à la même hauteur, juste sous le logo et l'écrou qui restent visibles */
+#setsheet .catpanel { height: calc(100% - 52px - env(safe-area-inset-top, 0px)); max-height: none; }
 .catpanel .grab { width: 44px; height: 5px; border-radius: 5px; background: var(--soft); margin: 0 auto 12px; position: relative; cursor: grab; touch-action: none; }
 .catpanel .grab::before { content: ""; position: absolute; inset: -14px -40px; }   /* zone de prise plus large */
 .catpanel h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; letter-spacing: -.02em; margin: 0 0 14px; text-align: center; }

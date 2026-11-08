@@ -246,7 +246,7 @@ function syncSettings() {
   $('set-theme').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === settings.theme)));
   $('set-lang').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === settings.lang)));
 }
-function openSettings() { hideToast(); syncSettings(); renderProfile(); syncInstall(); $('install-steps').hidden = true; $('wipe-confirm').hidden = true; $('wipe').hidden = false; $('setsheet').hidden = false; }
+function openSettings() { hideToast(); syncSettings(); renderProfile(); syncInstall(); $('install-steps').hidden = true; $('wipe-confirm').hidden = true; $('wipe').hidden = false; $('setsheet').hidden = false; $('setsheet').querySelector('.catpanel').scrollTop = 0; }
 const closeSettings = () => { $('setsheet').hidden = true; };
 $('gear').onclick = openSettings;
 
