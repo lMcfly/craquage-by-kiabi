@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Craquage by Kiabi</title>
 <meta name="description" content="Swipe les articles Kiabi : Go ou No go, change de couleur, garde tes coups de cœur et achète en un clic.">
 <meta name="theme-color" content="#040037">
@@ -31,8 +31,9 @@ html, body { height: 100%; margin: 0; }
 body {
   background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  box-sizing: border-box; overflow: hidden; -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box; overflow: hidden; -webkit-tap-highlight-color: transparent; touch-action: pan-x pan-y; -webkit-text-size-adjust: 100%;
 }
+button, a { touch-action: manipulation; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 img { max-width: 100%; }
@@ -63,7 +64,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 
 /* ---------- Cartes ---------- */
 .stage { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; container-type: size; }
-.deck { --info: 86px; --w: min(100cqw, calc((100cqh - var(--info)) * .75), 460px); position: relative; width: var(--w); height: calc(var(--w) * 4 / 3 + var(--info)); max-width: 100%; }
+.deck { --info: 104px; --w: min(100cqw, calc((100cqh - var(--info)) * .75), 460px); position: relative; width: var(--w); height: calc(var(--w) * 4 / 3 + var(--info)); max-width: 100%; }
 .card { position: absolute; inset: 0; border-radius: 8px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow);
   touch-action: none; user-select: none; will-change: transform; display: flex; flex-direction: column; }
 .card .photo { position: relative; width: 100%; aspect-ratio: 3 / 4; flex-shrink: 0; background: var(--line); }
@@ -179,7 +180,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .sheet-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
 .sheet-btn.primary { background: var(--ink); color: #fff; }
 .sheet-row { display: flex; gap: 8px; flex-wrap: wrap; } .sheet-row > * { flex: 1; }
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(118px + env(safe-area-inset-bottom, 0px)); z-index: 25; display: flex; align-items: center; gap: 10px;
+.toast { position: fixed; left: 50%; transform: translateX(-50%); top: calc(108px + env(safe-area-inset-top, 0px)); z-index: 25; animation: toastIn .25s ease-out; display: flex; align-items: center; gap: 10px;
   background: var(--ink); color: #fff; border-radius: 50px; padding: 6px 6px 6px 8px; box-shadow: var(--shadow); max-width: calc(100% - 32px); }
 .toast img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; object-position: top; background: var(--surface); }
 .toast span { font-size: .88rem; white-space: nowrap; padding-right: 4px; }
@@ -196,7 +197,8 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .trails { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
 .trails path { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
 .splash .skip { position: absolute; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; font-size: .78rem; color: var(--soft); }
-@media (prefers-reduced-motion: reduce) { .photo.loading::after { animation: none; } .card.fly, .card.back { transition: none; } }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } .photo.loading::after { animation: none; } .card.fly, .card.back { transition: none; } }
 @media (max-width: 380px) { .brand b { font-size: 1.3rem; } .verdict { font-size: .95rem; } }
 </style>
 </head>
@@ -723,6 +725,12 @@ header { display: flex; align-items: center; justify-content: space-between; gap
     } else order = all;
     $('loading').hidden = true; render();
   }).catch(() => { $('loading').hidden = true; $('error').hidden = false; });
+
+  // pas de zoom : pincement et double-tap bloqués (Safari ignore la balise viewport)
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+  document.addEventListener('touchmove', e => { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+  let lastTouch = 0;
+  document.addEventListener('touchend', e => { const now = Date.now(); if (now - lastTouch < 320 && !e.target.closest('input, textarea')) e.preventDefault(); lastTouch = now; }, { passive: false });
 
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 })();
