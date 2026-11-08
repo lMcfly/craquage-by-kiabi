@@ -19,6 +19,9 @@ async function readPage(browser, slug) {
     if (await page.evaluate(() => /captcha|access denied/i.test(document.title + document.body.innerText.slice(0, 400)))) {
       console.log(`  ${slug}: bloqué par une vérification anti-robots, page ignorée`); return [];
     }
+    // Le filtre n'est appliqué que si la marque Kiabi existe dans ce rayon ; sinon le site renvoie toutes les marques.
+    const filtered = await page.evaluate(() => { const i = document.querySelector('[data-filter="kiabi"] input'); return !!(i && i.checked); });
+    if (!filtered) { console.log(`  ${slug}: aucun article de marque Kiabi, page ignorée`); return []; }
     // Pas de « Voir plus » : ce bouton charge la suite sans le filtre de marque (articles de la marketplace).
     // La page filtrée contient jusqu'à 90 articles Kiabi par rayon ; on élargit en ajoutant des rayons.
     const items = await page.evaluate(() => [...document.querySelectorAll('.products-item-wrapper')].map(w => {
