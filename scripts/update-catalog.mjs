@@ -1,5 +1,5 @@
 // Récupère le catalogue femme de la marque Kiabi (hors marketplace) à partir des pages thématiques publiques (kiabi.com/v/...).
-// Pour chaque page : ouverture dans un navigateur, appui sur « Voir plus d'articles » jusqu'au bout,
+// Pour chaque page : ouverture dans un navigateur avec le filtre « Marques › Kiabi », lecture des cartes produit,
 // lecture des cartes produit, puis regroupement des couleurs et rangement par catégorie.
 // Usage : node scripts/update-catalog.mjs   →   écrit data/products.json
 import { chromium } from 'playwright';
@@ -19,14 +19,8 @@ async function readPage(browser, slug) {
     if (await page.evaluate(() => /captcha|access denied/i.test(document.title + document.body.innerText.slice(0, 400)))) {
       console.log(`  ${slug}: bloqué par une vérification anti-robots, page ignorée`); return [];
     }
-    const count = () => page.evaluate(() => document.querySelectorAll('.products-item-wrapper').length);
-    let last = await count();
-    for (let i = 0; i < 15; i++) {                       // « Voir plus d'articles »
-      const clicked = await page.evaluate(() => { const b = document.querySelector('.load-more-products button'); if (!b) return false; b.click(); return true; });
-      if (!clicked) break;
-      await PAUSE(4000);
-      const n = await count(); if (n === last) break; last = n;
-    }
+    // Pas de « Voir plus » : ce bouton charge la suite sans le filtre de marque (articles de la marketplace).
+    // La page filtrée contient jusqu'à 90 articles Kiabi par rayon ; on élargit en ajoutant des rayons.
     const items = await page.evaluate(() => [...document.querySelectorAll('.products-item-wrapper')].map(w => {
       const a = w.querySelector('a[href*="_P"]'); if (!a) return null;
       const href = a.href.split('?')[0];
