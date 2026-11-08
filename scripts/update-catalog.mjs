@@ -13,8 +13,9 @@ const PAUSE = ms => new Promise(r => setTimeout(r, ms));
 async function readPage(browser, slug) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   try {
-    // filtres du site « Marques › Kiabi » (pas de marketplace) et « Genre › Femme » (ni homme, ni enfant, ni bébé)
-    await page.goto('https://www.kiabi.com/v/' + slug + '?itemsperpage=90&sort=relevant&display=grid&filter=marques%3Akiabi;genre%3Afemme', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    // filtres du site « Marques › Kiabi » (pas de marketplace) et « Genre › Femme » (ni homme, ni enfant, ni bébé),
+    // tri « Nouveautés » : les nouveaux articles de chaque rayon passent en premier
+    await page.goto('https://www.kiabi.com/v/' + slug + '?itemsperpage=90&display=grid&fieldnametosort=isnew&filter=marques%3Akiabi;genre%3Afemme', { waitUntil: 'domcontentloaded', timeout: 60000 });
     await PAUSE(3000);
     if (await page.evaluate(() => /captcha|access denied/i.test(document.title + document.body.innerText.slice(0, 400)))) {
       console.log(`  ${slug}: bloqué par une vérification anti-robots, page ignorée`); return [];
@@ -102,9 +103,21 @@ const browser = await chromium.launch();
 const all = [];
 for (const slug of pages) { all.push(...await readPage(browser, slug)); await PAUSE(3000); }
 await browser.close();
-const products = build(all);
-const previous = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')).products.length : 0;
-if (products.length < 50) {   // garde-fou : si Kiabi a bloqué, on ne casse pas le catalogue
+// ---------- nouveautés et équilibre ----------
+const prev = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')).products : [];
+const firstSeen = new Map(prev.map(p => [p.id, p.a || '2026-01-01']));   // articles d'avant le suivi des dates : « anciens »
+const today = new Date().toISOString().slice(0, 10);
+const built = build(all);
+built.forEach(p => { p.a = firstSeen.get(p.id) || today; });   // date d'arrivée dans Craquage (pour le badge « Nouveau »)
+// Un peu de tout : aucune catégorie ne dépasse 22 % du catalogue ; dans chaque catégorie on garde d'abord les nouveautés.
+const MAX_SHARE = .22;
+const groups = {}; built.forEach(p => (groups[p.k] = groups[p.k] || []).push(p));
+const cap = Math.max(60, Math.round(built.length * MAX_SHARE));
+const products = Object.values(groups).flatMap(l => l.sort((x, y) => y.a.localeCompare(x.a) || (y.r || 0) - (x.r || 0)).slice(0, cap));
+const previous = prev.length;
+const fresh = products.filter(p => !firstSeen.has(p.id)).length;
+console.log('Par catégorie :', Object.fromEntries(Object.entries(groups).map(([k, l]) => [k, Math.min(l.length, cap)])), `· ${fresh} nouveaux`);
+if (products.length < 50 || products.length < previous * .5) {   // garde-fou : si Kiabi a bloqué une partie des pages, on ne casse pas le catalogue
   console.log(`Seulement ${products.length} articles récupérés (avant : ${previous}). Catalogue conservé tel quel.`);
   process.exit(0);
 }

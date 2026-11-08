@@ -102,6 +102,8 @@ header .brand { justify-self: center; gap: 4px; }
 .dots { position: absolute; top: 8px; left: 14px; right: 14px; z-index: 3; display: flex; gap: 4px; pointer-events: none; }
 .dots i { flex: 1; height: 3px; border-radius: 3px; background: rgba(4, 0, 55, .16); }
 .dots i.on { background: var(--ink); }
+.newb { position: absolute; top: 20px; left: 14px; z-index: 2; background: var(--ink); color: var(--bg); font-size: .78rem; font-weight: 800; padding: 6px 11px; border-radius: 50px; letter-spacing: .02em; }
+.promo:not([hidden]) + .newb { top: 56px; }
 .promo { position: absolute; top: 20px; left: 14px; z-index: 2; background: var(--red); color: #fff; font-size: .85rem; font-weight: 700; padding: 6px 11px; border-radius: 50px; font-variant-numeric: tabular-nums; }
 .card-tools { position: absolute; top: 18px; right: 12px; z-index: 3; display: flex; align-items: center; border-radius: 50px; padding: 4px; }
 .card-tools button, .card-tools a { width: 42px; height: 42px; border-radius: 50%; border: 0; background: transparent; display: grid; place-items: center; color: var(--ink); padding: 0; }
@@ -366,7 +368,7 @@ header .brand { justify-self: center; gap: 4px; }
 
   // ---------- Langues ----------
   const I18N = {
-    fr: { skip: 'Touchez pour passer', loading: 'Chargement…', loading_txt: 'On prépare les dernières nouveautés Kiabi.', offline: 'Pas de connexion',
+    fr: { new: 'Nouveau', skip: 'Touchez pour passer', loading: 'Chargement…', loading_txt: 'On prépare les dernières nouveautés Kiabi.', offline: 'Pas de connexion',
       offline_txt: 'Impossible de charger les articles. Vérifie ta connexion internet, puis réessaie.', retry: 'Réessayer', undo: 'Annuler le dernier choix',
       see_wishlist: 'Voir mes envies', replay_no: 'Revoir mes « No go »', all_cats: 'Toutes les catégories', i_want: 'Je veux voir…', buy: 'Acheter', buy_on: 'Acheter sur kiabi.com',
       back: 'Retour', share: 'Envoyer à une amie', add_wish: 'Ajouter à mes envies', remove_wish: 'Retirer de mes envies', tab_swipe: 'Craquage', tab_wish: 'Envies', tab_style: 'Style',
@@ -382,7 +384,7 @@ header .brand { justify-self: center; gap: 4px; }
       eyebrow: 'D’après {n} coups de cœur', desc1: 'Tu craques surtout pour {a}.', desc2: 'Tu craques surtout pour {a}, avec une touche {b}.', tastes: 'Craquage te propose désormais en priorité : {l}.',
       my_looks: 'Mes looks', looks_for_you: 'Looks pour toi', look_n: 'Look {n}', del: 'Supprimer', save: 'Enregistrer', saved: 'Enregistré', pieces: '{n} pièces',
       looks_empty1: 'Mets au moins 2 articles en Go : on te propose ensuite des tenues avec tes envies.', looks_empty2: 'Mets un haut, un bas ou une veste en Go pour obtenir des tenues.' },
-    en: { skip: 'Tap to skip', loading: 'Loading…', loading_txt: 'Getting the latest Kiabi arrivals ready.', offline: 'No connection',
+    en: { new: 'New', skip: 'Tap to skip', loading: 'Loading…', loading_txt: 'Getting the latest Kiabi arrivals ready.', offline: 'No connection',
       offline_txt: 'The items could not be loaded. Check your internet connection and try again.', retry: 'Try again', undo: 'Undo last choice',
       see_wishlist: 'See my wishlist', replay_no: 'Review my “No go”', all_cats: 'All categories', i_want: 'I want to see…', buy: 'Buy', buy_on: 'Buy on kiabi.com',
       back: 'Back', share: 'Send to a friend', add_wish: 'Add to my wishlist', remove_wish: 'Remove from my wishlist', tab_swipe: 'Craquage', tab_wish: 'Wishlist', tab_style: 'Style',
@@ -398,7 +400,7 @@ header .brand { justify-self: center; gap: 4px; }
       eyebrow: 'Based on {n} favourites', desc1: 'You mostly fall for {a}.', desc2: 'You mostly fall for {a}, with a touch of {b}.', tastes: 'Craquage now shows you first: {l}.',
       my_looks: 'My looks', looks_for_you: 'Looks for you', look_n: 'Look {n}', del: 'Delete', save: 'Save', saved: 'Saved', pieces: '{n} pieces',
       looks_empty1: 'Swipe at least 2 items to Go: we’ll then suggest outfits from your wishlist.', looks_empty2: 'Swipe a top, a bottom or a jacket to Go to get outfits.' },
-    es: { skip: 'Toca para saltar', loading: 'Cargando…', loading_txt: 'Preparamos las últimas novedades de Kiabi.', offline: 'Sin conexión',
+    es: { new: 'Nuevo', skip: 'Toca para saltar', loading: 'Cargando…', loading_txt: 'Preparamos las últimas novedades de Kiabi.', offline: 'Sin conexión',
       offline_txt: 'No se pudieron cargar los artículos. Comprueba tu conexión a internet y vuelve a intentarlo.', retry: 'Reintentar', undo: 'Deshacer la última elección',
       see_wishlist: 'Ver mis favoritos', replay_no: 'Volver a ver mis «No go»', all_cats: 'Todas las categorías', i_want: 'Quiero ver…', buy: 'Comprar', buy_on: 'Comprar en kiabi.com',
       back: 'Volver', share: 'Enviar a una amiga', add_wish: 'Añadir a favoritos', remove_wish: 'Quitar de favoritos', tab_swipe: 'Craquage', tab_wish: 'Favoritos', tab_style: 'Estilo',
@@ -414,7 +416,7 @@ header .brand { justify-self: center; gap: 4px; }
       eyebrow: 'Según {n} flechazos', desc1: 'Te encantan sobre todo {a}.', desc2: 'Te encantan sobre todo {a}, con un toque {b}.', tastes: 'Craquage te muestra ahora primero: {l}.',
       my_looks: 'Mis looks', looks_for_you: 'Looks para ti', look_n: 'Look {n}', del: 'Eliminar', save: 'Guardar', saved: 'Guardado', pieces: '{n} prendas',
       looks_empty1: 'Pon al menos 2 artículos en Go: te propondremos conjuntos con tus favoritos.', looks_empty2: 'Pon en Go una prenda de arriba, una de abajo o una chaqueta para obtener conjuntos.' },
-    de: { skip: 'Tippen zum Überspringen', loading: 'Wird geladen…', loading_txt: 'Wir bereiten die neuesten Kiabi-Teile vor.', offline: 'Keine Verbindung',
+    de: { new: 'Neu', skip: 'Tippen zum Überspringen', loading: 'Wird geladen…', loading_txt: 'Wir bereiten die neuesten Kiabi-Teile vor.', offline: 'Keine Verbindung',
       offline_txt: 'Die Artikel konnten nicht geladen werden. Prüfe deine Internetverbindung und versuche es erneut.', retry: 'Erneut versuchen', undo: 'Letzte Wahl rückgängig',
       see_wishlist: 'Meine Wunschliste ansehen', replay_no: 'Meine „No go“ erneut ansehen', all_cats: 'Alle Kategorien', i_want: 'Ich möchte sehen…', buy: 'Kaufen', buy_on: 'Auf kiabi.com kaufen',
       back: 'Zurück', share: 'An eine Freundin senden', add_wish: 'Zur Wunschliste hinzufügen', remove_wish: 'Von der Wunschliste entfernen', tab_swipe: 'Craquage', tab_wish: 'Wunschliste', tab_style: 'Stil',
@@ -591,7 +593,7 @@ header .brand { justify-self: center; gap: 4px; }
     const pending = order.filter(id => !verdicts[id] && matches(id)), win = pending.slice(pin);
     if (win.length < 3) return;
     const mixed = cat === 'all';
-    const score = id => affinity(id, !mixed) + Math.random() * 1.4;
+    const score = id => affinity(id, !mixed) + Math.random() * 1.4 + (isNew(id) ? 1 : 0);   // petit coup de pouce aux nouveautés
     let ranked;
     if (!mixed) {
       ranked = win.map(id => ({ id, s: score(id) })).sort((a, b) => b.s - a.s).map(x => x.id);
@@ -657,6 +659,7 @@ header .brand { justify-self: center; gap: 4px; }
     const p = byId.get(id), c = curColor(id), k = colorIdx(id), d = discount(c);
     showCardPhoto(el, id); el.querySelector('.photo img').alt = p.n + ', ' + c.c;
     const promo = el.querySelector('.promo'); promo.hidden = !d; promo.textContent = d ? '−' + d + ' %' : '';
+    el.querySelector('.newb').hidden = !isNew(id);
     el.querySelector('.tap-hint').hidden = !(photosOf(c).length > 1 && !hintShown && el.classList.contains('top'));
     el.querySelector('.name').textContent = p.n;
     const pr = el.querySelector('.price'); pr.className = 'price' + (d ? ' is-promo' : ''); pr.innerHTML = priceHtml(c);
@@ -667,7 +670,7 @@ header .brand { justify-self: center; gap: 4px; }
   }
   function makeCard(id, cls) {
     const el = document.createElement('article'); el.className = 'card ' + cls;
-    el.innerHTML = `<div class="photo"><img alt="" draggable="false"><span class="promo" hidden></span><div class="dots" hidden></div>
+    el.innerHTML = `<div class="photo"><img alt="" draggable="false"><span class="promo" hidden></span><span class="newb" hidden>${t('new')}</span><div class="dots" hidden></div>
       <div class="card-tools glass"><button class="share" type="button" aria-label="${t('share')}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></button>
       <a class="buy" target="_blank" rel="noopener" aria-label="${t('buy_on')}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg></a></div>
       <span class="tap-hint" hidden>${t('tap_hint')}</span><div class="stamp yes">Go</div><div class="stamp no">No go</div></div>
@@ -972,15 +975,22 @@ header .brand { justify-self: center; gap: 4px; }
   }
   function hideToast() { clearTimeout(toastTimer); $('toast').hidden = true; }
 
+  // ---------- Nouveautés ----------
+  let CAT_DATE = Date.now();
+  const isNew = id => { const a = byId.get(id)?.a; return !!a && (CAT_DATE - Date.parse(a)) / 864e5 <= 7; };   // arrivé il y a 7 jours ou moins
+
   // ---------- Démarrage ----------
   fetch('data/products.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(data => {
-    PRODUCTS = data.products; byId = new Map(PRODUCTS.map(p => [p.id, p]));
+    PRODUCTS = data.products; byId = new Map(PRODUCTS.map(p => [p.id, p])); CAT_DATE = Date.parse(data.updated) || Date.now();
     const st = store.get(KEY);
     const all = shuffle(PRODUCTS.map(p => p.id));
     if (st && Array.isArray(st.order)) {
       const kept = st.order.filter(id => byId.has(id)), seen = new Set(kept);
-      order = kept.concat(all.filter(id => !seen.has(id)));                 // les nouveautés rejoignent la pile
       Object.entries(st.verdicts || {}).forEach(([id, v]) => { if (byId.has(id) && (v === 'yes' || v === 'no')) verdicts[id] = v; });
+      // les articles arrivés depuis la dernière visite sont glissés dans la pile, 1 carte sur 3 au début (pas tout au fond)
+      const fresh = all.filter(id => !seen.has(id)), decided = kept.filter(id => verdicts[id]), todo = kept.filter(id => !verdicts[id]);
+      const mix = []; while (todo.length || fresh.length) { if (fresh.length && (mix.length % 3 === 1 || !todo.length)) mix.push(fresh.shift()); else mix.push(todo.shift()); }
+      order = decided.concat(mix);
       Object.entries(st.chosen || {}).forEach(([id, k]) => { if (byId.has(id) && Number.isInteger(k)) chosen[id] = k; });
       history = (st.history || []).filter(h => h && byId.has(h.id));
       if (CATS.some(c => c[0] === st.cat)) cat = st.cat;
