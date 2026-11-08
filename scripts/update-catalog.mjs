@@ -1,4 +1,4 @@
-// Récupère le catalogue femme Kiabi à partir des pages thématiques publiques (kiabi.com/v/...).
+// Récupère le catalogue femme de la marque Kiabi (hors marketplace) à partir des pages thématiques publiques (kiabi.com/v/...).
 // Pour chaque page : ouverture dans un navigateur, appui sur « Voir plus d'articles » jusqu'au bout,
 // lecture des cartes produit, puis regroupement des couleurs et rangement par catégorie.
 // Usage : node scripts/update-catalog.mjs   →   écrit data/products.json
@@ -13,7 +13,8 @@ const PAUSE = ms => new Promise(r => setTimeout(r, ms));
 async function readPage(browser, slug) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   try {
-    await page.goto('https://www.kiabi.com/v/' + slug, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    // filtre « Marques › Kiabi » du site : uniquement les articles de la marque Kiabi, pas ceux de la marketplace
+    await page.goto('https://www.kiabi.com/v/' + slug + '?itemsperpage=90&sort=relevant&display=grid&filter=marques%3Akiabi', { waitUntil: 'domcontentloaded', timeout: 60000 });
     await PAUSE(3000);
     if (await page.evaluate(() => /captcha|access denied/i.test(document.title + document.body.innerText.slice(0, 400)))) {
       console.log(`  ${slug}: bloqué par une vérification anti-robots, page ignorée`); return [];
@@ -104,7 +105,7 @@ for (const slug of pages) { all.push(...await readPage(browser, slug)); await PA
 await browser.close();
 const products = build(all);
 const previous = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')).products.length : 0;
-if (products.length < Math.max(50, previous * 0.5)) {   // garde-fou : si Kiabi a bloqué, on ne casse pas le catalogue
+if (products.length < 50) {   // garde-fou : si Kiabi a bloqué, on ne casse pas le catalogue
   console.log(`Seulement ${products.length} articles récupérés (avant : ${previous}). Catalogue conservé tel quel.`);
   process.exit(0);
 }
