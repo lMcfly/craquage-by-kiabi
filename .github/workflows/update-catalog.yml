@@ -1,8 +1,9 @@
-name: Mise à jour du catalogue Kiabi
+name: Robot 1 · Ajout des articles
 
+# Ajoute les nouveautés Kiabi femme 3 fois par jour, puis lance le robot 2 sur les nouveaux articles.
 on:
   schedule:
-    - cron: '17 3 * * *'   # chaque nuit vers 4 h 17 (heure de Paris en hiver)
+    - cron: '17 1,9,17 * * *'   # vers 2 h 17, 10 h 17 et 18 h 17 (heure de Paris en hiver)
   workflow_dispatch:
 
 permissions:
@@ -16,7 +17,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,15 +31,17 @@ jobs:
         run: node scripts/update-catalog.mjs
       - name: Enregistrer s'il y a du nouveau
         run: |
-          if git diff --quiet -- data/products.json; then echo "Catalogue inchangé"; exit 0; fi
+          if git diff --quiet -- data/products.json scripts/catalog-index.json; then echo "Catalogue inchangé"; exit 0; fi
           git config user.name "craquage-bot"
           git config user.email "craquage-bot@users.noreply.github.com"
-          git add data/products.json
-          git commit -m "Catalogue Kiabi mis à jour"
+          git add data/products.json scripts/catalog-index.json
+          git commit -m "Robot 1 : nouveaux articles Kiabi"
           git pull --rebase origin main
           git push origin HEAD:main
-      - name: Relancer la mise en ligne
+      - name: Remettre le site en ligne et vérifier les tailles des nouveaux articles
         if: success()
-        run: gh workflow run deploy.yml --ref main
+        run: |
+          gh workflow run deploy.yml --ref main
+          gh workflow run check-sizes.yml --ref main -f mode=new
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

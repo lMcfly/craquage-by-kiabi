@@ -47,12 +47,16 @@ assets/
   icons/                    Icônes de l'app
 data/products.json          Le catalogue (articles, prix, couleurs, liens, photos, date d'arrivée)
 scripts/
-  update-catalog.mjs        Le robot qui récupère le catalogue sur kiabi.com
+  update-catalog.mjs        Robot 1 : ajoute les articles (3 fois par jour), garde les tailles déjà connues
+  check-sizes.mjs           Robot 2 : vérifie les tailles disponibles (nouveaux articles après chaque ajout, tout une fois par jour)
+  lib/kiabi.mjs             Outils communs aux deux robots
   pages.json                Les rayons parcourus : ajouter une page /v/... ici pour élargir le catalogue
+  catalog-index.json        Écrit par le robot 1 : quel rayon contient quelle couleur (utilisé par le robot 2)
 tests/smoke.mjs             Test de l'app dans un iPhone simulé (npm test)
 .github/workflows/
   deploy.yml                Vérifie le code puis met le site en ligne à chaque modification
-  update-catalog.yml        Met le catalogue à jour chaque nuit, puis remet le site en ligne
+  update-catalog.yml        Robot 1 · Ajout des articles (2 h, 10 h et 18 h), puis lance le robot 2
+  check-sizes.yml           Robot 2 · Vérification des tailles (après chaque ajout, et tout revérifié chaque jour vers 13 h 40)
 ```
 
 Les photos ne sont pas stockées ici : elles sont affichées directement depuis `static.kiabi.com`.
@@ -72,6 +76,7 @@ En local :
 ```bash
 npm install
 npx playwright install chromium
-npm run update-catalog   # met à jour data/products.json
+npm run update-catalog   # robot 1 : met à jour data/products.json
+npm run check-sizes      # robot 2 : vérifie les tailles (ajouter -- --new pour les nouveaux seulement)
 npm test                 # vérifie l'app dans un iPhone simulé
 ```

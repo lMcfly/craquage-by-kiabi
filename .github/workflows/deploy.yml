@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Vérifier le code (syntaxe des scripts, catalogue lisible)
         run: |
-          for f in src/js/*.js sw.js scripts/*.mjs; do node --check "$f"; done
+          for f in src/js/*.js sw.js scripts/*.mjs scripts/lib/*.mjs; do node --check "$f"; done
           node -e "const d=require('./data/products.json'); if(!Array.isArray(d.products)||d.products.length<50) process.exit(1); console.log(d.products.length+' articles')"
       - name: Préparer le site
         run: |

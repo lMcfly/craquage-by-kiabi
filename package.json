@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "update-catalog": "node scripts/update-catalog.mjs",
+    "check-sizes": "node scripts/check-sizes.mjs",
     "test": "node tests/smoke.mjs"
   },
   "devDependencies": {

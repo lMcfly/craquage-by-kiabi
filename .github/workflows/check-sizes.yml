@@ -1,0 +1,52 @@
+name: Robot 2 · Vérification des tailles
+
+# Après chaque ajout (robot 1) : tailles des nouveaux articles seulement.
+# Une fois par jour : revérifie toutes les tailles (ruptures de stock, retours en stock).
+on:
+  schedule:
+    - cron: '41 12 * * *'   # vers 13 h 41 (heure de Paris en hiver) : vérification complète
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "new = nouveaux articles seulement, all = tout revérifier"
+        default: all
+        type: choice
+        options: [all, new]
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: catalog
+  cancel-in-progress: false
+
+jobs:
+  sizes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Installer le navigateur
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Vérifier les tailles
+        run: node scripts/check-sizes.mjs ${{ inputs.mode == 'new' && '--new' || '' }}
+      - name: Enregistrer
+        run: |
+          if git diff --quiet -- data/products.json; then echo "Tailles inchangées"; exit 0; fi
+          git config user.name "craquage-bot"
+          git config user.email "craquage-bot@users.noreply.github.com"
+          git add data/products.json
+          git commit -m "Robot 2 : tailles vérifiées"
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - name: Remettre le site en ligne
+        if: success()
+        run: gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
