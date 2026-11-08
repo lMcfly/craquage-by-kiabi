@@ -3,7 +3,7 @@ import { $, esc, reduced, store, shuffle } from './utils.js';
 import { settings, SETTINGS_KEY, t, tl, eur, arts, colourName, STYLE, applyStatic, applyTheme } from './i18n.js';
 import { IMG, SW, CATS, catLabel, LOOK, photo, discount } from './catalog.js';
 import { playSplash } from './splash.js';
-import { profile, saveProfile, fits, sizeText, sizePicker, CLOTHES, SHOES } from './profile.js';
+import { profile, saveProfile, fits, sizeText, sizePicker, CLOTHES, BOTTOMS, SHOES } from './profile.js';
 import { setupPlatform } from './platform.js';
 
 applyTheme(); applyStatic();
@@ -238,14 +238,14 @@ $('gear').onclick = openSettings;
 // ---------- Mes infos (tailles) ----------
 function profileChanged() { if (!PRODUCTS.length) return; rerank(0); render(); if (!$('coll').hidden) { renderColl(); if (!$('pane-styles').hidden) renderStyles(); } }
 function renderProfile() {
-  sizePicker($('set-sizes'), CLOTHES, 'sizes', profileChanged); sizePicker($('set-shoes'), SHOES, 'shoes', profileChanged);
+  sizePicker($('set-sizes'), CLOTHES, 'sizes', profileChanged); sizePicker($('set-bottoms'), BOTTOMS, 'bottoms', profileChanged); sizePicker($('set-shoes'), SHOES, 'shoes', profileChanged);
   $('set-only').checked = profile.onlyMine;
 }
 $('set-only').onchange = e => { profile.onlyMine = e.target.checked; saveProfile(); profileChanged(); };
 // première visite : on demande la taille (on peut passer)
 const closeWelcome = () => { profile.asked = true; saveProfile(); $('welcome').hidden = true; profileChanged(); };
 if (!profile.asked) {
-  sizePicker($('wel-sizes'), CLOTHES, 'sizes'); sizePicker($('wel-shoes'), SHOES, 'shoes');
+  sizePicker($('wel-sizes'), CLOTHES, 'sizes'); sizePicker($('wel-bottoms'), BOTTOMS, 'bottoms'); sizePicker($('wel-shoes'), SHOES, 'shoes');
   $('wel-go').onclick = closeWelcome; $('wel-skip').onclick = closeWelcome;
   $('welcome').hidden = false;
 }

@@ -33,7 +33,7 @@ src/
     splash.css              Animation d'ouverture
   js/                       Modules JavaScript (ES modules, sans outil de build)
     app.js                  Point d'entrée : état, algorithme de préférences, swipe, envies, styles, looks, réglages
-    profile.js              Mes infos : tailles et pointures, filtre « ma taille »
+    profile.js              Mes infos : fourchettes de tailles (hauts, pantalons/jupes, chaussures), filtre « ma taille »
     i18n.js                 Langue et thème choisis, traduction, format des prix et des couleurs
     translations.js         Tous les textes en français, anglais, espagnol, allemand
     catalog.js              Catégories, pastilles de couleur, photos Kiabi, calcul des promos

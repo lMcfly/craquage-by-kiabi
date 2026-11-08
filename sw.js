@@ -1,7 +1,7 @@
 // Ouverture hors ligne, sans jamais bloquer les mises à jour :
 // la page et le catalogue viennent d'abord du réseau (copie gardée en secours) ;
 // seuls les fichiers fixes (icônes, logo) sont servis depuis la copie.
-const CACHE = 'craquage-v13';
+const CACHE = 'craquage-v14';
 const STATIC = ['assets/brand/kiabi-k.svg', 'assets/brand/kiabi-k-white.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'assets/icons/apple-touch-icon.png', 'assets/icons/icon-maskable-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
