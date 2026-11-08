@@ -834,7 +834,12 @@ header { display: flex; align-items: center; justify-content: center; min-height
   let lastTouch = 0;
   document.addEventListener('touchend', e => { const now = Date.now(); if (now - lastTouch < 320 && !e.target.closest('input, textarea')) e.preventDefault(); lastTouch = now; }, { passive: false });
 
-  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => reg.update()).catch(() => {});
+    // quand une nouvelle version prend le relais, on recharge une fois pour l'afficher
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloaded && !sessionStorage.getItem('craquage-sw-reload')) { reloaded = true; sessionStorage.setItem('craquage-sw-reload', 1); location.reload(); } });
+  }
 })();
 </script>
 </body>
