@@ -1,6 +1,6 @@
 // Fonctionnement hors ligne : l'app s'ouvre même sans réseau ; le catalogue est rafraîchi dès que possible.
-const SHELL = 'craquage-shell-v1';
-const FILES = ['./', 'index.html', 'manifest.webmanifest', 'assets/kiabi-logo.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
+const SHELL = 'craquage-shell-v2';
+const FILES = ['./', 'index.html', 'manifest.webmanifest', 'assets/kiabi-logo.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/icon-maskable-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== SHELL && k !== 'craquage-data').map(k => caches.delete(k)))));
