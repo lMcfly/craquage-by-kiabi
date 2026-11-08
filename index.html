@@ -173,7 +173,12 @@ header { display: flex; align-items: center; justify-content: space-between; gap
   padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
 @media (min-width: 640px) { .sheet { place-items: center; } }
 .sheet-panel { width: 100%; max-width: 440px; max-height: 100%; overflow-y: auto; background: var(--surface); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow); }
-.sheet-img { width: min(100%, calc(42vh * .75)); aspect-ratio: 3 / 4; object-fit: cover; object-position: top; border-radius: 6px; align-self: center; background: var(--line); }
+.gallery { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+.gallery::-webkit-scrollbar { display: none; }
+.gallery img { flex: 0 0 auto; width: min(78%, calc(42vh * .75)); aspect-ratio: 3 / 4; object-fit: cover; object-position: top; border-radius: 6px; background: var(--line); scroll-snap-align: center; }
+.gdots { display: flex; justify-content: center; gap: 5px; margin-top: -4px; }
+.gdots i { width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
+.gdots i.on { background: var(--ink); }
 .sheet-title { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin: 0; line-height: 1.25; }
 .sheet-btn { display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; text-align: center; border-radius: 50px; padding: 12px 14px;
   font-family: var(--font-display); font-weight: 700; font-size: 1rem; border: 1.5px solid var(--ink); background: var(--surface); color: var(--ink); }
@@ -279,7 +284,8 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 
 <div class="sheet" id="sheet" hidden>
   <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
-    <img class="sheet-img" id="sheet-img" alt="">
+    <div class="gallery" id="sheet-gallery" aria-label="Photos de l’article"></div>
+    <div class="gdots" id="sheet-dots" aria-hidden="true"></div>
     <p class="sheet-title" id="sheet-title"></p>
     <div class="row" style="flex-wrap:wrap"><div class="price" id="sheet-price"></div><div class="swatches" id="sheet-sw"></div></div>
     <a class="sheet-btn primary" id="sheet-buy" href="#" target="_blank" rel="noopener">
@@ -403,6 +409,61 @@ header { display: flex; align-items: center; justify-content: space-between; gap
   const preload = id => { const im = new Image(); im.src = photo(curColor(id), 'hd', photoIdx[id + ':' + colorIdx(id) + ':hd'] || 0); };
   function markBroken(id) { if (broken.has(id)) return; broken.add(id); if (!verdicts[id]) render(); }
 
+  // ---------- Plusieurs photos par couleur ----------
+  const badPhoto = new Set(), photoPos = {}, viewed = {};
+  const photosOf = c => c.x.filter(n => !badPhoto.has(c.i + '_' + n));
+  function showCardPhoto(el, id) {
+    const c = curColor(id), list = photosOf(c), ph = el.querySelector('.photo'), img = ph.querySelector('img');
+    if (!list.length) return markBroken(id);
+    const pi = Math.min(photoPos[id] || 0, list.length - 1); photoPos[id] = pi;
+    ph.classList.add('loading'); img.onload = () => ph.classList.remove('loading');
+    img.onerror = () => { badPhoto.add(c.i + '_' + list[pi]); showCardPhoto(el, id); };
+    img.src = IMG + c.i + '_hd' + list[pi] + '.jpg';
+    el.querySelector('.segs').innerHTML = list.length > 1 ? list.map((_, j) => `<i class="${j === pi ? 'on' : ''}"></i>`).join('') : '';
+    if (list[pi + 1]) { const im = new Image(); im.src = IMG + c.i + '_hd' + list[pi + 1] + '.jpg'; }   // photo suivante prête
+  }
+
+  // ---------- Algorithme de préférences (appris sur cet appareil) ----------
+  // Chaque geste ajuste le poids des caractéristiques de l'article (catégorie, couleur, style, prix, promo) ;
+  // les prochaines cartes sont triées par affinité, avec une part de hasard pour continuer à surprendre.
+  const PREF_KEY = 'craquage-prefs-v1';
+  const prefs = store.get(PREF_KEY) || { w: {}, n: 0 };
+  const band = v => v < 15 ? 'p:<15' : v < 30 ? 'p:15-30' : v < 50 ? 'p:30-50' : 'p:50+';
+  function feats(id, ci) {
+    const p = byId.get(id), c = p.c[ci == null ? colorIdx(id) : ci];
+    return ['k:' + p.k, 'f:' + c.f, ...p.t.map(t => 't:' + t), band(Math.min(...c.p)), discount(c) >= 30 ? 'd:deal' : 'd:full'];
+  }
+  function learn(id, amount) {
+    if (!byId.has(id)) return;
+    feats(id).forEach(f => { prefs.w[f] = Math.max(-8, Math.min(8, (prefs.w[f] || 0) + amount)); });
+    prefs.n++; store.set(PREF_KEY, prefs);
+  }
+  function affinity(id) {
+    const p = byId.get(id); let best = -Infinity;
+    p.c.forEach((_, ci) => { const f = feats(id, ci); const v = f.reduce((s, x) => s + (prefs.w[x] || 0), 0) / Math.sqrt(f.length); if (v > best) best = v; });
+    return best;
+  }
+  function rerank() {
+    if (prefs.n < 4) return;                                   // il faut quelques gestes avant de personnaliser
+    const win = order.filter(id => !verdicts[id] && matches(id));   // toutes les cartes restantes de la catégorie
+    if (win.length < 3) return;
+    const ranked = win.map(id => ({ id, s: affinity(id) + Math.random() * 1.4 })).sort((a, b) => b.s - a.s).map(x => x.id);
+    for (let i = 3; i < ranked.length; i += 4) {                // 1 carte sur 4 : découverte au hasard
+      const j = i + Math.floor(Math.random() * (ranked.length - i)); [ranked[i], ranked[j]] = [ranked[j], ranked[i]];
+    }
+    const inWin = new Set(win), slots = []; order.forEach((id, i) => { if (inWin.has(id)) slots.push(i); });
+    slots.forEach((pos, k) => { order[pos] = ranked[k]; });
+  }
+  function topTastes() {
+    const label = { k: { robe: 'les robes', pull: 'les pulls et gilets', haut: 'les hauts', pantalon: 'les pantalons', jupe: 'les jupes', veste: 'les manteaux et vestes', chaussures: 'les chaussures', accessoire: 'les accessoires' } };
+    return Object.entries(prefs.w).filter(([, v]) => v > 1).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([f]) => {
+      const [t, v] = f.split(':');
+      if (t === 'k') return label.k[v]; if (t === 'f') return 'le ' + v; if (t === 't') return 'le style ' + (STYLE[v] ? STYLE[v][0].toLowerCase() : v);
+      if (t === 'd') return v === 'deal' ? 'les bons plans' : null; if (t === 'p') return 'les prix ' + v.replace('<', 'sous ').replace('+', ' € et plus').replace(/(\d+)-(\d+)/, 'entre $1 et $2 €');
+      return null;
+    }).filter(Boolean);
+  }
+
   // ---------- Couleurs ----------
   function swatchButtons(id, onPick) {
     const p = byId.get(id), frag = document.createDocumentFragment();
@@ -419,6 +480,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 
   // ---------- Partage ----------
   async function share(id) {
+    learn(id, 1);
     const p = byId.get(id), c = curColor(id), text = `Regarde ce que j’ai trouvé sur Kiabi : ${p.n} à ${eur(Math.min(...c.p))}`;
     try {
       if (navigator.share) { await navigator.share({ title: p.n, text, url: c.u }); return; }
@@ -435,28 +497,26 @@ header { display: flex; align-items: center; justify-content: space-between; gap
   let hintShown = !!store.get('craquage-hint');
   function fillCard(el, id) {
     const p = byId.get(id), c = curColor(id), k = colorIdx(id), d = discount(c);
-    const ph = el.querySelector('.photo'), img = ph.querySelector('img');
-    ph.classList.add('loading'); img.onload = () => ph.classList.remove('loading');
-    setPhoto(img, id, 'hd', () => markBroken(id)); img.alt = p.n + ', ' + c.c;
-    el.querySelector('.segs').innerHTML = p.c.length > 1 ? p.c.map((_, j) => `<i class="${j === k ? 'on' : ''}"></i>`).join('') : '';
+    showCardPhoto(el, id); el.querySelector('.photo img').alt = p.n + ', ' + c.c;
     const promo = el.querySelector('.promo'); promo.hidden = !d; promo.textContent = d ? '−' + d + ' %' : '';
-    el.querySelector('.tap-hint').hidden = !(p.c.length > 1 && !hintShown && el.classList.contains('top'));
+    el.querySelector('.tap-hint').hidden = !(photosOf(c).length > 1 && !hintShown && el.classList.contains('top'));
     el.querySelector('.name').textContent = p.n;
     const pr = el.querySelector('.price'); pr.className = 'price' + (d ? ' is-promo' : ''); pr.innerHTML = priceHtml(c);
     el.querySelector('.buy').href = c.u;
-    const sw = el.querySelector('.swatches'); sw.innerHTML = ''; sw.appendChild(swatchButtons(id, () => fillCard(el, id)));
+    const sw = el.querySelector('.swatches'); sw.innerHTML = ''; sw.appendChild(swatchButtons(id, () => { photoPos[id] = 0; learn(id, .1); fillCard(el, id); }));
     if (p.c.length < 2) sw.hidden = true;
-    if (el.classList.contains('top')) p.c.forEach((_, j) => { if (j !== k) { const im = new Image(); im.src = photo(p.c[j], 'hd', 0); } });
+    if (el.classList.contains('top')) p.c.forEach((cc, j) => { if (j !== k) { const im = new Image(); im.src = photo(cc, 'hd', 0); } });
   }
   function makeCard(id, cls) {
     const el = document.createElement('article'); el.className = 'card ' + cls;
     el.innerHTML = `<div class="photo"><img alt="" draggable="false"><div class="segs"></div><span class="promo" hidden></span>
-      <span class="tap-hint" hidden>Touche la photo pour changer de couleur</span><div class="stamp yes">Go</div><div class="stamp no">No go</div></div>
+      <span class="tap-hint" hidden>Touche la photo pour voir d’autres vues</span><div class="stamp yes">Go</div><div class="stamp no">No go</div></div>
       <div class="info"><div class="row"><button class="name-btn" type="button"><span class="name"></span><span class="price"></span></button>
       <a class="buy" target="_blank" rel="noopener" aria-label="Acheter sur kiabi.com"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg></a>
       </div><div class="swatches" role="group" aria-label="Couleurs"></div></div>`;
     el.querySelectorAll('.buy, .name-btn').forEach(b => b.addEventListener('pointerdown', e => e.stopPropagation()));
     el.querySelector('.name-btn').addEventListener('click', e => { e.stopPropagation(); openSheet(id, true); });
+    el.querySelector('.buy').addEventListener('click', () => learn(id, 1.5));
     fillCard(el, id);
     return el;
   }
@@ -487,7 +547,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
     CATS.forEach(([k, label]) => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (k === 'deal' ? ' deal' : '');
       b.textContent = label; b.setAttribute('aria-pressed', String(cat === k));
-      b.onclick = () => { cat = k; hideToast(); render(); };
+      b.onclick = () => { cat = k; hideToast(); rerank(); render(); };
       box.appendChild(b);
     });
     const on = box.querySelector('.chip[aria-pressed="true"]');
@@ -498,7 +558,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
     const id = currentId(); if (busy || !id) return;
     const top = $('deck').querySelector('.card.top');
     const btn = $(choice === 'yes' ? 'btn-yes' : 'btn-no'); btn.classList.add('flash'); setTimeout(() => btn.classList.remove('flash'), 160);
-    const commit = () => { verdicts[id] = choice; history.push({ id, choice }); busy = false; render(); if (choice === 'yes') showToast(id); else hideToast(); };
+    const commit = () => { verdicts[id] = choice; history.push({ id, choice }); learn(id, choice === 'yes' ? 1 : -.6); rerank(); busy = false; render(); if (choice === 'yes') showToast(id); else hideToast(); };
     if (!top || reduced) return commit();
     busy = true;
     const dir = choice === 'yes' ? 1 : -1;
@@ -529,9 +589,14 @@ header { display: flex; align-items: center; justify-content: space-between; gap
       if (!active) return; active = false;
       if (Math.abs(dx) > Math.min(110, card.offsetWidth * .28)) return decide(dx > 0 ? 'yes' : 'no');
       card.classList.add('back'); card.style.transform = ''; yes.style.opacity = 0; no.style.opacity = 0;
-      if (Math.abs(dx) < 6 && Math.abs(dy) < 6 && onPhoto) {          // toucher la photo = couleur suivante
-        const id = currentId(), n = byId.get(id).c.length;
-        if (n > 1) { chosen[id] = (colorIdx(id) + 1) % n; fillCard(card, id); save(); if (!hintShown) { hintShown = true; store.set('craquage-hint', 1); card.querySelector('.tap-hint').hidden = true; } }
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6 && onPhoto) {          // toucher la photo : à droite = photo suivante, à gauche = précédente
+        const id = currentId(), n = photosOf(curColor(id)).length;
+        if (n > 1) {
+          const r = card.getBoundingClientRect(), back = x0 - r.left < r.width / 3;
+          photoPos[id] = ((photoPos[id] || 0) + (back ? -1 : 1) + n) % n; showCardPhoto(card, id);
+          viewed[id] = (viewed[id] || 0) + 1; if (viewed[id] <= 3) learn(id, .08);   // la curiosité compte un peu
+          if (!hintShown) { hintShown = true; store.set('craquage-hint', 1); card.querySelector('.tap-hint').hidden = true; }
+        }
       }
     };
     card.addEventListener('pointerup', end); card.addEventListener('pointercancel', end);
@@ -614,6 +679,8 @@ header { display: flex; align-items: center; justify-content: space-between; gap
     prof.innerHTML = `<p class="eyebrow">Ton style, d’après ${ids.length} coups de cœur</p><p class="profile-name">${esc(name)}</p><p class="profile-desc">${esc(desc)}</p>
       <div class="bars">${ranked.slice(0, 4).map(t => { const pct = Math.round(w[t] / total * 100); return `<span>${STYLE[t][0]}</span><span class="bar"><i style="width:${pct}%"></i></span><span class="pct">${pct} %</span>`; }).join('')}</div>
       <div><p class="eyebrow" style="margin-bottom:8px">Ta palette</p><div class="palette">${palette.map(c => `<span><b style="background:${SW[c] || '#999'}"></b>${esc(c)}</span>`).join('')}</div></div>`;
+    const tastes = topTastes();
+    if (tastes.length) { const t = document.createElement('p'); t.className = 'profile-desc'; t.textContent = 'Craquage te propose désormais en priorité ' + tastes.join(', ') + '.'; prof.appendChild(t); }
     pane.appendChild(prof);
     const unis = ranked.filter(t => ids.filter(id => meta(id).tags.includes(t)).length >= 2);
     if (unis.length) {
@@ -685,7 +752,14 @@ header { display: flex; align-items: center; justify-content: space-between; gap
   let sheetId = null, toastTimer = null;
   function fillSheet() {
     const id = sheetId, p = byId.get(id), c = curColor(id);
-    setPhoto($('sheet-img'), id, 'hd'); $('sheet-img').alt = p.n + ', ' + c.c;
+    const g = $('sheet-gallery'), dots = $('sheet-dots'), list = photosOf(c); g.innerHTML = '';
+    list.forEach((n, j) => { const im = document.createElement('img'); im.alt = `${p.n}, ${c.c}, vue ${j + 1}`; im.loading = j < 2 ? 'eager' : 'lazy';
+      im.onerror = () => { badPhoto.add(c.i + '_' + n); im.remove(); }; im.src = IMG + c.i + '_hd' + n + '.jpg'; g.appendChild(im); });
+    dots.innerHTML = list.length > 1 ? list.map((_, j) => `<i class="${j ? '' : 'on'}"></i>`).join('') : '';
+    g.scrollLeft = 0;
+    g.onscroll = () => { const w = g.firstElementChild ? g.firstElementChild.offsetWidth + 8 : 1, k = Math.round(g.scrollLeft / w);
+      dots.querySelectorAll('i').forEach((d, j) => d.classList.toggle('on', j === k)); if (k > 0 && !g.dataset.learned) { g.dataset.learned = 1; learn(id, .08); } };
+    delete g.dataset.learned;
     $('sheet-title').textContent = p.n;
     $('sheet-price').innerHTML = priceHtml(c); $('sheet-price').className = 'price' + (discount(c) ? ' is-promo' : '');
     $('sheet-buy').href = c.u;
@@ -695,6 +769,8 @@ header { display: flex; align-items: center; justify-content: space-between; gap
   function openSheet(id) { hideToast(); sheetId = id; fillSheet(); $('sheet').hidden = false; $('sheet-buy').focus(); }
   function closeSheet() { $('sheet').hidden = true; sheetId = null; }
   $('sheet-close').onclick = closeSheet;
+  $('sheet-buy').addEventListener('click', () => sheetId && learn(sheetId, 1.5));
+  $('toast-buy').addEventListener('click', () => { const id = history.length && history[history.length - 1].id; if (id) learn(id, 1.5); });
   $('sheet-share').onclick = () => sheetId && share(sheetId);
   $('sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
   $('sheet-move').onclick = () => {
