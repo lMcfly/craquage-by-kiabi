@@ -1,4 +1,4 @@
-// Récupère le catalogue femme de la marque Kiabi (hors marketplace) à partir des pages thématiques publiques (kiabi.com/v/...).
+// Récupère le catalogue FEMME de la marque Kiabi (hors marketplace) à partir des pages thématiques publiques (kiabi.com/v/...).
 // Pour chaque page : ouverture dans un navigateur avec le filtre « Marques › Kiabi », lecture des cartes produit,
 // lecture des cartes produit, puis regroupement des couleurs et rangement par catégorie.
 // Usage : node scripts/update-catalog.mjs   →   écrit data/products.json
@@ -13,15 +13,16 @@ const PAUSE = ms => new Promise(r => setTimeout(r, ms));
 async function readPage(browser, slug) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   try {
-    // filtre « Marques › Kiabi » du site : uniquement les articles de la marque Kiabi, pas ceux de la marketplace
-    await page.goto('https://www.kiabi.com/v/' + slug + '?itemsperpage=90&sort=relevant&display=grid&filter=marques%3Akiabi', { waitUntil: 'domcontentloaded', timeout: 60000 });
+    // filtres du site « Marques › Kiabi » (pas de marketplace) et « Genre › Femme » (ni homme, ni enfant, ni bébé)
+    await page.goto('https://www.kiabi.com/v/' + slug + '?itemsperpage=90&sort=relevant&display=grid&filter=marques%3Akiabi;genre%3Afemme', { waitUntil: 'domcontentloaded', timeout: 60000 });
     await PAUSE(3000);
     if (await page.evaluate(() => /captcha|access denied/i.test(document.title + document.body.innerText.slice(0, 400)))) {
       console.log(`  ${slug}: bloqué par une vérification anti-robots, page ignorée`); return [];
     }
     // Le filtre n'est appliqué que si la marque Kiabi existe dans ce rayon ; sinon le site renvoie toutes les marques.
-    const filtered = await page.evaluate(() => { const i = document.querySelector('[data-filter="kiabi"] input'); return !!(i && i.checked); });
-    if (!filtered) { console.log(`  ${slug}: aucun article de marque Kiabi, page ignorée`); return []; }
+    const on = await page.evaluate(() => ['kiabi', 'femme'].map(f => { const i = document.querySelector(`[data-filter="${f}"] input`); return !!(i && i.checked); }));
+    if (!on[0]) { console.log(`  ${slug}: aucun article de marque Kiabi, page ignorée`); return []; }
+    if (!on[1]) { console.log(`  ${slug}: filtre Femme absent, page ignorée`); return []; }
     // Pas de « Voir plus » : ce bouton charge la suite sans le filtre de marque (articles de la marketplace).
     // La page filtrée contient jusqu'à 90 articles Kiabi par rayon ; on élargit en ajoutant des rayons.
     const items = await page.evaluate(() => [...document.querySelectorAll('.products-item-wrapper')].map(w => {
@@ -31,7 +32,7 @@ async function readPage(browser, slug) {
       const prices = [...(w.querySelector('.products-item-info__price')?.innerText || '').matchAll(/(\d+),(\d{2})\s*€/g)].map(x => +(x[1] + '.' + x[2]));
       const imgs = [...w.querySelectorAll('img')].map(i => i.getAttribute('src') || '').filter(s => s.includes('static.kiabi.com/images/'));
       const rating = (w.querySelector('.stars')?.getAttribute('style') || '').match(/--rating:\s*([\d,.]+)/);
-      return { url: href, slug: m[1], pid: m[2], cid: m[3], name: (w.querySelector('.products-item-info__title')?.innerText || '').trim(),
+      return { url: href, slug: m[1], pid: m[2], cid: m[3], size: a.dataset.id || '', name: (w.querySelector('.products-item-info__title')?.innerText || '').trim(),
                prices, imgs, rating: rating ? +rating[1].replace(',', '.') : null };
     }).filter(Boolean));
     console.log(`  ${slug}: ${items.length} couleurs`);
@@ -73,6 +74,7 @@ function build(all) {
   const byPid = new Map();
   for (const it of all) {
     if (!it.name || !it.imgs.length || KIDS.test(norm(it.name))) continue;
+    if (/-\d+[AM]$/.test(it.size)) continue;                 // taille enfant ou bébé (3A, 12A, 6M…) : sécurité en plus du filtre Femme
     if (!byPid.has(it.pid)) byPid.set(it.pid, new Map());
     const cols = byPid.get(it.pid); if (!cols.has(it.cid)) cols.set(it.cid, it);
   }
