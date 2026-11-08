@@ -9,8 +9,16 @@ Prototype d'app « swipe » pour les articles femme Kiabi : on glisse à droite 
 - **Adresse** : `https://lmcfly.github.io/craquage-by-kiabi/` (une fois GitHub Pages activé, voir plus bas).
 - **iPhone** : ouvrir l'adresse dans Safari → bouton Partager → **Sur l'écran d'accueil**.
 - **Android** : ouvrir l'adresse dans Chrome → menu ⋮ → **Installer l'application**.
+- Dans l'app, l'écrou en haut à droite (**Réglages**) propose aussi le raccourci, le mode jour/nuit, la langue (français, anglais, espagnol, allemand) et la suppression des données.
 
-Les choix (Go, No go, couleurs) sont enregistrés sur le téléphone.
+Les choix (Go, No go, couleurs, looks, réglages) sont enregistrés uniquement sur le téléphone.
+
+## Le catalogue
+
+- **Uniquement femme, uniquement marque Kiabi** (web et magasin, pas de marketplace) : le robot applique les filtres du site « Marques › Kiabi » et « Genre › Femme », écarte les tailles enfant/bébé et les noms qui contiennent homme, enfant, fille, garçon ou bébé.
+- **Un peu de tout** : aucune catégorie ne dépasse 22 % du catalogue ; sur « Tout », l'app alterne les catégories (jamais deux fois la même d'affilée) tout en tenant compte des goûts.
+- **Nouveautés automatiques** : chaque nuit, le robot lit chaque rayon trié par « Nouveautés », note la date d'arrivée des articles ; l'app glisse les nouveautés au début de la pile avec un badge **Nouveau** (7 jours).
+- **Garde-fou** : si le robot récupère moins de la moitié des articles de la veille (blocage, panne), l'ancien catalogue est conservé.
 
 ## Ce qu'il y a dans le dépôt
 
