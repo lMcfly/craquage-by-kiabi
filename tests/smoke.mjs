@@ -24,6 +24,10 @@ try {
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   await page.goto(url); await page.waitForTimeout(600); await page.mouse.click(150, 300);   // passe l'animation
+  await page.waitForSelector('#welcome:not([hidden])', { timeout: 5000 });
+  check(await page.locator('#wel-sizes .chip').count() === 6, 'accueil : choix de la taille');
+  await page.click('#wel-sizes .chip:text-is("M")'); await page.click('#wel-go');
+  check(await page.evaluate(() => JSON.parse(localStorage.getItem('craquage-profile-v1')).sizes.join()) === 'M', 'taille M enregistrée');
   await page.waitForSelector('.card.top', { state: 'attached', timeout: 15000 });
   check(await page.textContent('#catlabel') === 'Tout', 'textes en français');
   const first = await page.textContent('.card.top .name');

@@ -3,6 +3,7 @@ import { $, esc, reduced, store, shuffle } from './utils.js';
 import { settings, SETTINGS_KEY, t, tl, eur, arts, colourName, STYLE, applyStatic, applyTheme } from './i18n.js';
 import { IMG, SW, CATS, catLabel, LOOK, photo, discount } from './catalog.js';
 import { playSplash } from './splash.js';
+import { profile, saveProfile, fits, sizeText, sizePicker, CLOTHES, SHOES } from './profile.js';
 import { setupPlatform } from './platform.js';
 
 applyTheme(); applyStatic();
@@ -17,10 +18,12 @@ let PRODUCTS = [], byId = new Map();
 const KEY = 'craquage-kiabi-v1';
 let order = [], history = [], verdicts = {}, chosen = {}, cat = 'all', busy = false;
 const broken = new Set(), photoIdx = {};
-const colorIdx = id => Math.min(chosen[id] || 0, byId.get(id).c.length - 1);
+// couleur affichée : celle choisie, sinon la première disponible dans ma taille
+const colorIdx = id => { const p = byId.get(id); if (chosen[id] != null) return Math.min(chosen[id], p.c.length - 1); const j = p.c.findIndex(c => fits(p, c)); return j < 0 ? 0 : j; };
 const curColor = id => byId.get(id).c[colorIdx(id)];
 const matches = id => {
   const p = byId.get(id); if (broken.has(id)) return false;
+  if (!p.c.some(c => fits(p, c))) return false;                 // rien dans ma taille
   if (cat === 'all') return true;
   if (cat === 'deal') return p.c.some(c => discount(c) >= 30);
   return p.k === cat;
@@ -126,6 +129,7 @@ function rerank(pin = 1) {
 function swatchButtons(id, onPick) {
   const p = byId.get(id), frag = document.createDocumentFragment();
   p.c.forEach((c, k) => {
+    if (!fits(p, c)) return;                                    // couleur pas disponible dans ma taille
     const b = document.createElement('button'); b.type = 'button'; b.style.background = SW[c.f] || '#b3b2c2';
     b.setAttribute('aria-label', t('colour') + ' ' + colourName(c)); b.title = colourName(c); b.setAttribute('aria-pressed', String(k === colorIdx(id)));
     b.addEventListener('pointerdown', e => e.stopPropagation());
@@ -163,7 +167,7 @@ function fillCard(el, id) {
   const pr = el.querySelector('.price'); pr.className = 'price' + (d ? ' is-promo' : ''); pr.innerHTML = priceHtml(c);
   el.querySelector('.buy').href = c.u;
   const sw = el.querySelector('.swatches'); sw.innerHTML = ''; sw.appendChild(swatchButtons(id, () => { photoPos[id] = 0; learn(id, .1); fillCard(el, id); }));
-  const cn = document.createElement('span'); cn.className = 'cname'; cn.textContent = colourName(c); sw.appendChild(cn);
+  const cn = document.createElement('span'); cn.className = 'cname'; const st = sizeText(p, c); cn.textContent = colourName(c) + (st ? ' · ' + st : ''); sw.appendChild(cn);
   if (el.classList.contains('top')) p.c.forEach((cc, j) => { if (j !== k) { const im = new Image(); im.src = photo(cc, 'hd', 0); } });
 }
 function makeCard(id, cls) {
@@ -227,9 +231,24 @@ function syncSettings() {
   $('set-theme').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === settings.theme)));
   $('set-lang').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === settings.lang)));
 }
-function openSettings() { hideToast(); syncSettings(); syncInstall(); $('install-steps').hidden = true; $('wipe-confirm').hidden = true; $('wipe').hidden = false; $('setsheet').hidden = false; }
+function openSettings() { hideToast(); syncSettings(); renderProfile(); syncInstall(); $('install-steps').hidden = true; $('wipe-confirm').hidden = true; $('wipe').hidden = false; $('setsheet').hidden = false; }
 const closeSettings = () => { $('setsheet').hidden = true; };
 $('gear').onclick = openSettings;
+
+// ---------- Mes infos (tailles) ----------
+function profileChanged() { if (!PRODUCTS.length) return; rerank(0); render(); if (!$('coll').hidden) { renderColl(); if (!$('pane-styles').hidden) renderStyles(); } }
+function renderProfile() {
+  sizePicker($('set-sizes'), CLOTHES, 'sizes', profileChanged); sizePicker($('set-shoes'), SHOES, 'shoes', profileChanged);
+  $('set-only').checked = profile.onlyMine;
+}
+$('set-only').onchange = e => { profile.onlyMine = e.target.checked; saveProfile(); profileChanged(); };
+// première visite : on demande la taille (on peut passer)
+const closeWelcome = () => { profile.asked = true; saveProfile(); $('welcome').hidden = true; profileChanged(); };
+if (!profile.asked) {
+  sizePicker($('wel-sizes'), CLOTHES, 'sizes'); sizePicker($('wel-shoes'), SHOES, 'shoes');
+  $('wel-go').onclick = closeWelcome; $('wel-skip').onclick = closeWelcome;
+  $('welcome').hidden = false;
+}
 
 // ---------- Raccourci sur l'écran d'accueil ----------
 // Déjà installée (ouverte depuis l'icône) : l'option disparaît. Android/Chrome : vraie fenêtre d'installation.
@@ -320,6 +339,7 @@ $('btn-yes').onclick = () => decide('yes');
 $('btn-no').onclick = () => decide('no');
 $('btn-undo').onclick = undo;
 document.addEventListener('keydown', e => {
+  if (!$('welcome').hidden) { if (e.key === 'Escape') closeWelcome(); return; }
   if (!$('setsheet').hidden) { if (e.key === 'Escape') closeSettings(); return; }
   if (!$('catsheet').hidden) { if (e.key === 'Escape') closeCats(); return; }
   if (!$('sheet').hidden || !$('coll').hidden) { if (e.key === 'Escape') { if (!$('sheet').hidden) closeSheet(); else navTo('swipe'); } return; }
@@ -478,6 +498,8 @@ function fillSheet() {
   $('sheet-price').innerHTML = priceHtml(c); $('sheet-price').className = 'price' + (discount(c) ? ' is-promo' : '');
   $('sheet-buy').href = c.u;
   $('sheet-colour').innerHTML = `${t('colour')} <b>${esc(colourName(c))}</b>`;
+  const st = sizeText(p, c), ss = $('sheet-sizes'); ss.hidden = !st;
+  ss.innerHTML = st ? `${t('sizes_av')} : <b>${esc(st)}</b>` + (fits(p, c, true) ? '' : ` · <span class="no">${t('not_my_size')}</span>`) : '';
   const like = $('sheet-like'); like.classList.toggle('liked', verdicts[id] === 'yes'); like.setAttribute('aria-label', verdicts[id] === 'yes' ? t('remove_wish') : t('add_wish'));
   const sw = $('sheet-sw'); sw.innerHTML = ''; sw.hidden = p.c.length < 2;
   p.c.forEach((cc, k) => {            // vignettes des couleurs, comme sur la fiche produit Kiabi

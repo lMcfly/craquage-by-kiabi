@@ -18,6 +18,7 @@ Les choix (Go, No go, couleurs, looks, réglages) sont enregistrés uniquement s
 - **Uniquement femme, uniquement marque Kiabi** (web et magasin, pas de marketplace) : le robot applique les filtres du site « Marques › Kiabi » et « Genre › Femme », écarte les tailles enfant/bébé et les noms qui contiennent homme, enfant, fille, garçon ou bébé.
 - **Un peu de tout** : aucune catégorie ne dépasse 22 % du catalogue ; sur « Tout », l'app alterne les catégories (jamais deux fois la même d'affilée) tout en tenant compte des goûts.
 - **Nouveautés automatiques** : chaque nuit, le robot lit chaque rayon trié par « Nouveautés », note la date d'arrivée des articles ; l'app glisse les nouveautés au début de la pile avec un badge **Nouveau** (7 jours).
+- **Tailles** : pour chaque couleur, le robot note les tailles disponibles (XS à XXL, pointures 35 à 42) grâce au filtre « Taille » des rayons Kiabi. L'app demande la taille au premier lancement (modifiable dans Réglages › Mes infos) et ne montre que ce qui existe dans cette taille.
 - **Garde-fou** : si le robot récupère moins de la moitié des articles de la veille (blocage, panne), l'ancien catalogue est conservé.
 
 ## Architecture
@@ -32,6 +33,7 @@ src/
     splash.css              Animation d'ouverture
   js/                       Modules JavaScript (ES modules, sans outil de build)
     app.js                  Point d'entrée : état, algorithme de préférences, swipe, envies, styles, looks, réglages
+    profile.js              Mes infos : tailles et pointures, filtre « ma taille »
     i18n.js                 Langue et thème choisis, traduction, format des prix et des couleurs
     translations.js         Tous les textes en français, anglais, espagnol, allemand
     catalog.js              Catégories, pastilles de couleur, photos Kiabi, calcul des promos
