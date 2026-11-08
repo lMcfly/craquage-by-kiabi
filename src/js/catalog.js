@@ -20,13 +20,13 @@ const MAIN = ['robe', 'haut', 'pull', 'pantalon', 'jupe'];
 // tags : styles détectés, pris en compte seulement pour les catégories de tagKinds ; rx : mots du nom ; not : exclusions
 export const OCCASIONS = {
   soiree: { tags: ['glam'], tagKinds: ['robe', 'haut', 'jupe'],
-            rx: /sequin|paillet|satin|lurex|strass|metallis|ceremonie|soiree|bustier|escarpin|robe.*(dentelle|velours)|jupe.*(dentelle|velours|plisse)|top.*dentelle|body.*(dentelle|sequin|bijou)|bijou|pochette(?!.*telephone)/,
+            rx: /costume|smoking|noeud papillon|sequin|paillet|satin|lurex|strass|metallis|ceremonie|soiree|bustier|escarpin|robe.*(dentelle|velours)|jupe.*(dentelle|velours|plisse)|top.*dentelle|body.*(dentelle|sequin|bijou)|bijou|pochette(?!.*telephone)/,
             not: /mocassin|denim|jean|cotele|telephone|macrame|\blin\b|echarpe|foulard|maternite|sport|jogging|sweat|chausson|polaire|plage|legging|chaussette|bonnet|banane|gant|doudoune|parka|tee-shirt|t-shirt/ },
   bureau: { tags: [], tagKinds: [],
-            rx: /blazer|tailleur|chemise|chemisier|blouse|lavalliere|cigarette|pantalon (droit|fluide|a pinces|en toile)|pinces|viscose|trench|caban|manteau|mocassin|escarpin|fine jauge|col roule|sous-pull|gilet (en maille|long|boutonne|col rond|court)|pull col|robe (chemise|droite|pull|blazer|portefeuille)|jupe (midi|crayon|plissee)/,
+            rx: /chino|costume|cravate|surchemise|blazer|tailleur|chemise|chemisier|blouse|lavalliere|cigarette|pantalon (droit|fluide|a pinces|en toile)|pinces|viscose|trench|caban|manteau|mocassin|escarpin|fine jauge|col roule|sous-pull|gilet (en maille|long|boutonne|col rond|court)|pull col|robe (chemise|droite|pull|blazer|portefeuille)|jupe (midi|crayon|plissee)/,
             not: /pantalon.*maille|elastique|soft touch|grosse jauge|denim|jean|maternite|paillet|sequin|satin|dentelle|strass|fourrure|astrakan|astracan|moutonne|ceremonie|velours|leopard|multicolore|tee-shirt|t-shirt|doudou|crochet|plage|bain|short|bardot|dos nu|bustier|bretelle|fluo|noel|oversize|nouee|caftan|plumetis|basket|chausson|jogging|sweat|carreaux|rayure|raye|pois/ },
   weekend: { tags: ['casual', 'sport', 'retro'], tagKinds: [...MAIN, 'chaussures'],
-             rx: /jean|denim|sweat|t-shirt|tee-shirt|basket|jogging|salopette|cargo|bob|casquette|banane|mariniere|short|parka|doudoune/,
+             rx: /jean|denim|sweat|t-shirt|tee-shirt|basket|jogging|salopette|cargo|bob|casquette|banane|mariniere|short|bermuda|polo|parka|doudoune/,
              not: /sequin|paillet|satin|escarpin|ceremonie|tailleur|blazer|chausson|maternite/ },
   cocooning: { tags: ['cosy'], tagKinds: [...MAIN, 'veste', 'chaussures', 'accessoire'],
                rx: /maille|pull|gilet|polaire|sherpa|moumoute|teddy|chausson|legging|jogging|doudou|chaussette|bonnet|echarpe|plaid|molleton|sweat|fourre/,

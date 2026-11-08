@@ -1,6 +1,6 @@
 # Craquage by Kiabi
 
-Prototype d'app « swipe » pour les articles femme Kiabi : on glisse à droite (**Go**) ou à gauche (**No go**), on change de couleur en touchant la photo, on garde ses envies, on découvre son style et on achète en un clic sur kiabi.com.
+Prototype d'app « swipe » pour les articles Kiabi femme et homme : on glisse à droite (**Go**) ou à gauche (**No go**), on change de couleur en touchant la photo, on garde ses envies, on découvre son style et on achète en un clic sur kiabi.com.
 
 > Projet réalisé avec l'accord de Kiabi. Lien à ne pas diffuser avant validation.
 
@@ -15,7 +15,8 @@ Les choix (Go, No go, couleurs, looks, réglages) sont enregistrés uniquement s
 
 ## Le catalogue
 
-- **Uniquement femme, uniquement marque Kiabi** (web et magasin, pas de marketplace) : le robot applique les filtres du site « Marques › Kiabi » et « Genre › Femme », écarte les tailles enfant/bébé et les noms qui contiennent homme, enfant, fille, garçon ou bébé.
+- **Femme et homme, uniquement marque Kiabi** (web et magasin, pas de marketplace, jamais enfant) : le robot applique les filtres du site « Marques › Kiabi » et « Genre › Femme » ou « Homme », écarte les tailles enfant/bébé. L'utilisatrice choisit « Je cherche pour : Femme / Homme / Les deux » à l'accueil ou dans Réglages › Mes infos.
+- **Lecture tournante** : environ 2 300 rubriques (femme et homme) ; chaque passage du robot 1 lit les moins récemment lues (650 au plus), celles sans article Kiabi une fois par semaine. Un article reste tant qu'il a été vu dans les 2 derniers jours. Les rubriques renommées par Kiabi sont suivies.
 - **Un peu de tout** : aucune catégorie ne dépasse 22 % du catalogue ; sur « Tout », l'app alterne les catégories (jamais deux fois la même d'affilée) tout en tenant compte des goûts.
 - **Nouveautés automatiques** : 3 fois par jour, le robot 1 lit chaque rayon trié par « Nouveautés », note la date d'arrivée des articles ; l'app glisse les nouveautés au début de la pile avec un badge **Nouveau** (7 jours).
 - **Tailles** : pour chaque couleur, le robot 2 note les tailles disponibles (XS à XXL, pointures 35 à 42) grâce au filtre « Taille » des rayons Kiabi. L'app demande la taille au premier lancement (modifiable dans Réglages › Mes infos) et ne montre que ce qui existe dans cette taille.
@@ -33,7 +34,7 @@ src/
     splash.css              Animation d'ouverture
   js/                       Modules JavaScript (ES modules, sans outil de build)
     app.js                  Point d'entrée : état, algorithme de préférences, swipe, envies, styles, looks, réglages
-    profile.js              Mes infos : fourchettes de tailles (hauts, pantalons/jupes, chaussures), filtre « ma taille »
+    profile.js              Mes infos : femme / homme / les deux, fourchettes de tailles de chacun, filtre « ma taille »
     i18n.js                 Langue et thème choisis, traduction, format des prix et des couleurs
     translations.js         Tous les textes en français, anglais, espagnol, allemand
     catalog.js              Catégories, occasions (soirée, bureau, week-end, cocooning), pastilles, photos, promos
@@ -50,8 +51,8 @@ scripts/
   update-catalog.mjs        Robot 1 : ajoute les articles (3 fois par jour), garde les tailles déjà connues
   check-sizes.mjs           Robot 2 : vérifie les tailles disponibles (nouveaux articles après chaque ajout, tout une fois par jour)
   lib/kiabi.mjs             Outils communs aux deux robots
-  pages.json                Les rayons parcourus : ajouter une page /v/... ici pour élargir le catalogue
-  catalog-index.json        Écrit par le robot 1 : quel rayon contient quelle couleur (utilisé par le robot 2)
+  pages.json                Les rubriques parcourues, par genre (femme, homme) : ajouter une adresse /v/... pour élargir le catalogue
+  catalog-index.json        Écrit par le robot 1 : état de chaque rubrique (dernière lecture, adresse à jour, couleurs, tailles proposées)
 tests/smoke.mjs             Test de l'app dans un iPhone simulé (npm test)
 .github/workflows/
   deploy.yml                Vérifie le code puis met le site en ligne à chaque modification

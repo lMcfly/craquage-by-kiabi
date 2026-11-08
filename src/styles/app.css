@@ -149,6 +149,10 @@ header .brand { justify-self: center; gap: 4px; }
 .thumb { position: relative; aspect-ratio: 3 / 4; max-width: 100%; border-radius: 20px; overflow: hidden; padding: 0; border: 0; background: var(--surface); box-shadow: 0 4px 14px -8px rgba(4,0,55,.25); }
 .thumb { background: var(--photo); }
 .size-rows { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.size-rows > .lbl { margin: 0 0 -2px; }
+.gender-seg { background: var(--surface); }
+.welcome .gender-seg, .account .gender-seg { background: var(--active); }
+.gender-title { margin: 8px 0 -2px; font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--ink); }
 .account .size-rows { margin-bottom: 0; }
 .size-row { background: var(--bg); border-radius: 18px; padding: 12px; }
 .account .size-row { background: var(--surface); }

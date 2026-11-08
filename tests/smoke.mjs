@@ -25,8 +25,8 @@ try {
   page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   await page.goto(url); await page.waitForTimeout(600); await page.mouse.click(150, 300);   // passe l'animation
   await page.waitForSelector('#welcome:not([hidden])', { timeout: 5000 });
-  check(await page.locator('#wel-rows .size-row').count() === 3 && await page.locator('#wel-rows .size-row:nth-child(1) .chip').count() === 6, 'accueil : 3 types de tailles');
-  await page.click('#wel-rows .size-row:nth-child(1) .chip:text-is("M")'); await page.click('#wel-go');
+  check(await page.locator('#wel-rows .size-row').count() === 3 && await page.locator('#wel-rows .size-row').first().locator('.chip').count() === 6, 'accueil : 3 types de tailles');
+  await page.locator('#wel-rows .size-row').first().locator('.chip:text-is("M")').click(); await page.click('#wel-go');
   check(await page.evaluate(() => JSON.parse(localStorage.getItem('craquage-profile-v1')).sizes.join()) === 'M', 'taille M enregistrée');
   await page.waitForSelector('.card.top', { state: 'attached', timeout: 15000 });
   check(await page.textContent('#catlabel') === 'Tout', 'textes en français');

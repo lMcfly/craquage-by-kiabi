@@ -3,7 +3,7 @@ import { $, esc, reduced, store, shuffle } from './utils.js';
 import { settings, SETTINGS_KEY, t, tl, eur, arts, colourName, STYLE, applyStatic, applyTheme } from './i18n.js';
 import { IMG, SW, CATS, catLabel, LOOK, photo, discount, OCCASIONS, occLabel, occFits } from './catalog.js';
 import { playSplash } from './splash.js';
-import { profile, saveProfile, fits, setSizeData, sizeText, sizeRows } from './profile.js';
+import { profile, saveProfile, fits, forMe, setSizeData, sizeText, profileForm } from './profile.js';
 import { swipeToClose } from './sheets.js';
 import { rememberPrice, forgetPrice, priceDrop, takeNewDrops } from './prices.js';
 import { setupPlatform } from './platform.js';
@@ -25,6 +25,7 @@ const colorIdx = id => { const p = byId.get(id); if (chosen[id] != null) return 
 const curColor = id => byId.get(id).c[colorIdx(id)];
 const matches = id => {
   const p = byId.get(id); if (broken.has(id)) return false;
+  if (!forMe(p)) return false;                                  // femme, homme ou les deux
   if (!p.c.some(c => fits(p, c))) return false;                 // rien dans ma taille
   if (occ && !occFits(p, occ)) return false;                    // pas pour cette occasion
   if (cat === 'all') return true;
@@ -224,6 +225,8 @@ function openCats() {
   CATS.forEach(([k]) => { const label = catLabel(k);
     const b = document.createElement('button'); b.type = 'button'; b.className = 'cattile' + (k === 'deal' ? ' deal' : '');
     b.setAttribute('aria-pressed', String(cat === k)); const n = left(k);
+    if (k !== 'all' && cat !== k) {                            // catégorie sans aucun article pour ce profil (ex. robes pour un homme)
+      const save = cat; cat = k; const exists = order.some(id => !broken.has(id) && matches(id)); cat = save; if (!exists) return; }
     b.innerHTML = `<b>${label}</b><span>${arts(n)}</span>`;
     b.onclick = () => { cat = k; closeCats(); hideToast(); rerank(0); render(); };
     box.appendChild(b);
@@ -256,14 +259,14 @@ $('gear').onclick = openSettings;
 // ---------- Mes infos (tailles) ----------
 function profileChanged() { if (!PRODUCTS.length) return; rerank(0); render(); if (!$('coll').hidden) { renderColl(); if (!$('pane-styles').hidden) renderStyles(); } }
 function renderProfile() {
-  sizeRows($('set-rows'), profileChanged);
+  profileForm($('set-rows'), profileChanged);
   $('set-only').checked = profile.onlyMine;
 }
 $('set-only').onchange = e => { profile.onlyMine = e.target.checked; saveProfile(); profileChanged(); };
 // première visite : on demande la taille (on peut passer)
 const closeWelcome = () => { profile.asked = true; saveProfile(); $('welcome').hidden = true; profileChanged(); };
 if (!profile.asked) {
-  sizeRows($('wel-rows'));
+  profileForm($('wel-rows'));
   $('wel-go').onclick = closeWelcome; $('wel-skip').onclick = closeWelcome;
   $('welcome').hidden = false;
 }
@@ -426,17 +429,18 @@ function pairScore(a, b) {
   return shared * 2 + ((NEUTRAL.has(A.col) || NEUTRAL.has(B.col) || A.col === B.col) ? 1 : -1) + (A.tags[0] === B.tags[0] ? 1 : 0);
 }
 function buildLooks(ids) {
-  const by = c => ids.filter(i => meta(i).cat === c), usage = new Map();
+  const gOf = i => byId.get(i).g || 'f';                   // un look reste femme ou homme, jamais mélangé
+  const by = (c, g) => ids.filter(i => meta(i).cat === c && (!g || gOf(i) === g)), usage = new Map();
   const best = (pool, look) => { let top = null, sc = -Infinity;
     for (const p of pool) { if (look.includes(p) || (usage.get(p) || 0) >= 2) continue;
       const v = look.reduce((s, l) => s + pairScore(l, p), 0) / look.length - (usage.get(p) || 0) * 1.5; if (v > sc) { sc = v; top = p; } }
     return sc > 0 ? top : null; };
   const looks = [];
   for (const a of [...by('robe'), ...by('haut')]) {
-    const look = [a];
-    if (meta(a).cat === 'haut') { const b = best(by('bas'), look); if (b) look.push(b); }
-    const v = best(by('veste'), look); if (v) look.push(v);
-    const x = best(by('extra'), look); if (x) look.push(x);
+    const look = [a], g = gOf(a);
+    if (meta(a).cat === 'haut') { const b = best(by('bas', g), look); if (b) look.push(b); }
+    const v = best(by('veste', g), look); if (v) look.push(v);
+    const x = best(by('extra', g), look); if (x) look.push(x);
     if (look.length < 2) continue;
     looks.push({ look, score: look.slice(1).reduce((s, x) => s + pairScore(a, x), 0) / (look.length - 1) + look.length * .5 });
     look.forEach(x => usage.set(x, (usage.get(x) || 0) + 1));

@@ -1,6 +1,6 @@
 name: Robot 1 · Ajout des articles
 
-# Ajoute les nouveautés Kiabi femme 3 fois par jour, puis lance le robot 2 sur les nouveaux articles.
+# Ajoute les nouveautés Kiabi femme et homme 3 fois par jour (lecture tournante des rubriques), puis lance le robot 2 sur les nouveaux articles.
 on:
   schedule:
     - cron: '17 1,9,17 * * *'   # vers 2 h 17, 10 h 17 et 18 h 17 (heure de Paris en hiver)
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

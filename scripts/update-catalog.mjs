@@ -1,33 +1,49 @@
-// Robot 1 « Ajout des articles » : récupère le catalogue FEMME de la marque Kiabi (hors marketplace)
-// à partir des pages thématiques publiques (kiabi.com/v/...), filtres Kiabi + Femme, tri Nouveautés.
-// Regroupe les couleurs, range par catégorie, garde les tailles déjà connues, puis note dans scripts/catalog-index.json
-// quel rayon contient quelle couleur (le robot 2 s'en sert pour vérifier les tailles).
+// Robot 1 « Ajout des articles » : récupère les articles de la marque Kiabi (hors marketplace), FEMME et HOMME,
+// à partir des pages thématiques publiques (kiabi.com/v/...), filtres Kiabi + genre, tri Nouveautés.
+// Lecture tournante : à chaque passage, il lit les rubriques les moins récemment lues (environ un tiers) ;
+// une rubrique sans article Kiabi n'est relue qu'une fois par semaine. Un article reste dans l'app tant qu'il a été vu
+// dans les 2 derniers jours. Les redirections de Kiabi (rubrique renommée) sont suivies, filtres remis.
+// Garde les tailles déjà vérifiées et note dans scripts/catalog-index.json l'état de chaque rubrique (pour le robot 2).
 // Usage : node scripts/update-catalog.mjs   →   écrit data/products.json et scripts/catalog-index.json
+//         MAX_PAGES=50 node scripts/update-catalog.mjs   → limite le nombre de rubriques lues (essais)
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import { PAUSE, pageUrl, keyOf } from './lib/kiabi.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname;
-const { pages } = JSON.parse(fs.readFileSync(ROOT + 'scripts/pages.json', 'utf8'));
+const PAGES = JSON.parse(fs.readFileSync(ROOT + 'scripts/pages.json', 'utf8'));   // { femme: [...], homme: [...] }
 const OUT = ROOT + 'data/products.json';
 const INDEX = ROOT + 'scripts/catalog-index.json';
+const MAX_PAGES = +(process.env.MAX_PAGES || 650);       // rubriques lues par passage (3 passages par jour)
+const GENDERS = { f: 'femme', h: 'homme' };
+const DAY = 864e5, now = Date.now(), today = new Date().toISOString().slice(0, 10);
 
-const pageSizes = new Map();   // rayon → valeurs du filtre « Taille » proposées par Kiabi (xs, m, 38, s/m, 37…)
+// ---------- quelles rubriques lire ce passage ----------
+const state = fs.existsSync(INDEX) ? JSON.parse(fs.readFileSync(INDEX, 'utf8')).pages || {} : {};
+const all = [];
+for (const [g, name] of Object.entries(GENDERS)) for (const slug of PAGES[name] || []) all.push({ g, slug, id: g + ':' + slug });
+const due = all.filter(p => { const s = state[p.id]; if (!s || !s.read) return true;
+  return now - Date.parse(s.read) >= (s.empty >= 2 ? 7 * DAY : 20 * 3600e3); });
+due.sort((a, b) => (Date.parse(state[a.id]?.read || 0) || 0) - (Date.parse(state[b.id]?.read || 0) || 0));
+const todo = due.slice(0, MAX_PAGES);
+console.log(`${todo.length} rubriques à lire (${due.length} à jour de lecture, ${all.length} en tout)`);
 
-async function readPage(browser, slug) {
+async function readPage(browser, g, slug) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   try {
-    await page.goto(pageUrl(slug), { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.goto(pageUrl(slug, '', GENDERS[g]), { waitUntil: 'domcontentloaded', timeout: 60000 });
+    let canonical = slug;
+    // rubrique renommée : Kiabi redirige sans les filtres → on rouvre la nouvelle adresse avec les filtres
+    const landed = (page.url().match(/\/v\/([^?#]+)/) || [])[1];
+    if (landed && landed !== slug) { canonical = landed; await page.goto(pageUrl(landed, '', GENDERS[g]), { waitUntil: 'domcontentloaded', timeout: 60000 }); }
     await PAUSE(3000);
     if (await page.evaluate(() => /captcha|access denied/i.test(document.title + document.body.innerText.slice(0, 400)))) {
-      console.log(`  ${slug}: bloqué par une vérification anti-robots, page ignorée`); return [];
+      console.log(`  ${slug}: bloqué par une vérification anti-robots`); return { ok: false };
     }
-    // Le filtre n'est appliqué que si la marque Kiabi existe dans ce rayon ; sinon le site renvoie toutes les marques.
-    const on = await page.evaluate(() => ['kiabi', 'femme'].map(f => { const i = document.querySelector(`[data-filter="${f}"] input`); return !!(i && i.checked); }));
-    if (!on[0]) { console.log(`  ${slug}: aucun article de marque Kiabi, page ignorée`); return []; }
-    if (!on[1]) { console.log(`  ${slug}: filtre Femme absent, page ignorée`); return []; }
+    // Les filtres ne sont appliqués que si la marque Kiabi et le genre existent dans ce rayon.
+    const on = await page.evaluate(f => ['kiabi', f].map(x => { const i = document.querySelector(`[data-filter="${x}"] input`); return !!(i && i.checked); }), GENDERS[g]);
+    if (!on[0] || !on[1]) { console.log(`  ${g}:${slug}: rien en marque Kiabi ${GENDERS[g]}`); return { ok: true, canonical, items: [], sizes: [] }; }
     // Pas de « Voir plus » : ce bouton charge la suite sans le filtre de marque (articles de la marketplace).
-    // La page filtrée contient jusqu'à 90 articles Kiabi par rayon ; on élargit en ajoutant des rayons.
     const items = await page.evaluate(() => [...document.querySelectorAll('.products-item-wrapper')].map(w => {
       const a = w.querySelector('a[href*="_P"]'); if (!a) return null;
       const href = a.href.split('?')[0];
@@ -38,27 +54,31 @@ async function readPage(browser, slug) {
       return { url: href, slug: m[1], pid: m[2], cid: m[3], size: a.dataset.id || '', name: (w.querySelector('.products-item-info__title')?.innerText || '').trim(),
                prices, imgs, rating: rating ? +rating[1].replace(',', '.') : null };
     }).filter(Boolean));
-    pageSizes.set(slug, await page.evaluate(() => [...document.querySelectorAll('[data-filter]')]
-      .filter(e => /^taille/.test(e.querySelector('input')?.name || '')).map(e => e.dataset.filter)));
-    console.log(`  ${slug}: ${items.length} couleurs`);
-    return items.map(x => ({ ...x, src: slug }));
+    const sizes = await page.evaluate(() => [...document.querySelectorAll('[data-filter]')]
+      .filter(e => /^taille/.test(e.querySelector('input')?.name || '')).map(e => e.dataset.filter));
+    console.log(`  ${g}:${canonical}: ${items.length} couleurs`);
+    return { ok: true, canonical, sizes, items: items.map(x => ({ ...x, src: g + ':' + slug, g })) };
   } catch (e) {
-    console.log(`  ${slug}: erreur (${e.message.split('\n')[0]}), page ignorée`); return [];
+    console.log(`  ${g}:${slug}: erreur (${e.message.split('\n')[0]})`); return { ok: false };
   } finally { await page.close(); }
 }
 
 // ---------- rangement ----------
 const norm = s => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
-const KIDS = /\b(enfant|fille|garcon|bebe|junior|ado|homme|naissance|grossesse)\b|^(peignoir|robe de chambre|pyjama|chemise de nuit|nuisette)/;
+// Articles à écarter selon le genre lu (enfant, autre genre, nuit et sous-vêtements)
+const EXCLUDE = {
+  f: /\b(enfant|fille|garcon|bebe|junior|ado|homme|naissance|grossesse)\b|^(peignoir|robe de chambre|pyjama|chemise de nuit|nuisette)/,
+  h: /\b(enfant|fille|garcon|bebe|junior|ado|femme|naissance)\b|^(peignoir|robe de chambre|pyjama|calecon|boxer|slip|lot de \d+ (boxer|calecon|slip))/
+};
 // La catégorie vient d'abord du premier mot du nom (Kiabi nomme ses articles par leur type), puis du rayon.
 const BY_NAME = [
-  ['chaussures', /^(bottine|botte|basket|escarpin|mocassin|ballerine|sandale|chaussure|derby|sabot|mule|boots|santiag|chausson|pantoufle)/],
+  ['chaussures', /^(bottine|botte|basket|escarpin|mocassin|ballerine|sandale|chaussure|derby|sabot|mule|boots|santiag|chausson|pantoufle|tennis|sneaker|claquette|tong|richelieu|espadrille)/],
   ['pull', /^lot de \d+ (sous-pull|pull|gilet)/],
-  ['accessoire', /^(sac|pochette|cabas|bonnet|echarpe|foulard|gant|mitaine|ceinture|chapeau|casquette|bijou|collier|chaussette|collant|snood|beret|bandeau)/],
+  ['accessoire', /^(sac|sacoche|pochette|cabas|bonnet|echarpe|foulard|gant|mitaine|ceinture|chapeau|casquette|bob|bijou|collier|chaussette|collant|snood|beret|bandeau|cravate|noeud|bretelles|portefeuille|lot de \d+ paires)/],
   ['robe', /^(robe|combinaison|salopette|combishort)/],
   ['jupe', /^(jupe)/],
-  ['pantalon', /^(pantalon|jean|legging|jogging|short|bermuda|jegging|cargo)/],
-  ['veste', /^(manteau|doudoune|veste|blouson|trench|parka|caban|blazer|perfecto|cape|poncho|bomber|gilet sans manches|imper)/],
+  ['pantalon', /^(pantalon|jean|legging|jogging|short|bermuda|jegging|cargo|chino)/],
+  ['veste', /^(manteau|doudoune|veste|blouson|trench|parka|caban|blazer|perfecto|cape|poncho|bomber|gilet sans manches|imper|costume|surchemise|coupe-vent)/],
   ['pull', /^(pull|gilet|cardigan|sous-pull|poncho maille)/],
   ['haut', /^(chemise|chemisier|blouse|top|t-shirt|tee-shirt|tshirt|debardeur|body|sweat|tunique|crop|polo|marinière|mariniere|haut|bustier|caraco)/]
 ];
@@ -75,21 +95,22 @@ const FAM = [['écru', /ecru|creme|ivoire|blanc casse/], ['blanc', /blanc/], ['n
   ['léopard', /leopard/], ['multicolore', /./]];
 const slugify = s => norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-function build(all) {
+function build(items) {
   const byPid = new Map();
-  for (const it of all) {
-    if (!it.name || !it.imgs.length || KIDS.test(norm(it.name))) continue;
-    if (/-\d+[AM]$/.test(it.size)) continue;                 // taille enfant ou bébé (3A, 12A, 6M…) : sécurité en plus du filtre Femme
+  for (const it of items) {
+    if (!it.name || !it.imgs.length || EXCLUDE[it.g].test(norm(it.name))) continue;
+    if (/-\d+[AM]$/.test(it.size)) continue;                 // taille enfant ou bébé (3A, 12A, 6M…) : sécurité en plus du filtre genre
     if (!byPid.has(it.pid)) byPid.set(it.pid, new Map());
     const cols = byPid.get(it.pid); if (!cols.has(it.cid)) cols.set(it.cid, it);
   }
   const products = [];
   for (const [pid, cols] of byPid) {
     const list = [...cols.values()].slice(0, 6), first = list[0], n = norm(first.name);
-    const kind = (BY_NAME.find(([, rx]) => rx.test(n)) || BY_PAGE.find(([, rx]) => rx.test(first.src)))[0];
+    const kind = (BY_NAME.find(([, rx]) => rx.test(n)) || BY_PAGE.find(([, rx]) => rx.test(first.src.slice(2))))[0];
+    if (first.g === 'h' && (kind === 'robe' || kind === 'jupe')) continue;
     const s = slugify(first.name);
     products.push({
-      id: 'k' + pid, n: first.name, r: first.rating, k: kind,
+      id: 'k' + pid, g: first.g, n: first.name, r: first.rating, k: kind,
       t: (Object.entries(TAGS).filter(([, rx]) => rx.test(n)).map(([t]) => t).slice(0, 3)),
       c: list.map(it => {
         const colour = (it.slug.startsWith(s + '-') ? it.slug.slice(s.length + 1) : it.slug.split('-').pop()).replace(/-/g, ' ') || 'unique';
@@ -103,38 +124,59 @@ function build(all) {
   return products;
 }
 
+// ---------- lecture ----------
 const browser = await chromium.launch();
-const all = [];
-for (const slug of pages) { all.push(...await readPage(browser, slug)); await PAUSE(3000); }
-// ---------- nouveautés et équilibre ----------
-const prev = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')).products : [];
-const firstSeen = new Map(prev.map(p => [p.id, p.a || '2026-01-01']));   // articles d'avant le suivi des dates : « anciens »
-const today = new Date().toISOString().slice(0, 10);
-const built = build(all);
-built.forEach(p => { p.a = firstSeen.get(p.id) || today; });   // date d'arrivée dans Craquage (pour le badge « Nouveau »)
-// Un peu de tout : aucune catégorie ne dépasse 22 % du catalogue ; dans chaque catégorie on garde d'abord les nouveautés.
-const MAX_SHARE = .22;
-const groups = {}; built.forEach(p => (groups[p.k] = groups[p.k] || []).push(p));
-const cap = Math.max(60, Math.round(built.length * MAX_SHARE));
-const products = Object.values(groups).flatMap(l => l.sort((x, y) => y.a.localeCompare(x.a) || (y.r || 0) - (x.r || 0)).slice(0, cap));
-// ---------- tailles : on garde celles déjà vérifiées par le robot 2 ----------
-const knownSizes = new Map(prev.flatMap(p => p.c.filter(c => Array.isArray(c.s)).map(c => [keyOf(c.u), c.s])));
-products.forEach(p => p.c.forEach(c => { const s = knownSizes.get(keyOf(c.u)); if (s) c.s = s; }));
+const items = []; let readOk = 0, withItems = 0, blocked = 0;
+for (const p of todo) {
+  const r = await readPage(browser, p.g, p.slug); await PAUSE(3000);
+  if (!r.ok) { blocked++; if (blocked >= 25 && !readOk) { console.log('Trop de blocages : arrêt.'); break; } continue; }
+  readOk++; if (r.items.length) withItems++;
+  items.push(...r.items);
+  const s = state[p.id] || {};
+  state[p.id] = { g: p.g, slug: r.canonical, sizes: r.sizes, keys: [...new Set(r.items.map(it => it.pid + ':' + it.cid))],
+                  read: new Date().toISOString(), empty: r.items.length ? 0 : (s.empty || 0) + 1 };
+}
 await browser.close();
+console.log(`${readOk} rubriques lues (${withItems} avec des articles Kiabi), ${blocked} non lues`);
+if (!withItems) { console.log('Aucun article lu : catalogue conservé tel quel.'); process.exit(0); }
 
-const previous = prev.length;
-const fresh = products.filter(p => !firstSeen.has(p.id)).length;
-console.log('Par catégorie :', Object.fromEntries(Object.entries(groups).map(([k, l]) => [k, Math.min(l.length, cap)])), `· ${fresh} nouveaux`);
-if (products.length < 50 || products.length < previous * .5) {   // garde-fou : si Kiabi a bloqué une partie des pages, on ne casse pas le catalogue
-  console.log(`Seulement ${products.length} articles récupérés (avant : ${previous}). Catalogue conservé tel quel.`);
+// ---------- fusion avec le catalogue existant ----------
+const prev = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')).products : [];
+const prevById = new Map(prev.map(p => [p.id, p]));
+const knownSizes = new Map(prev.flatMap(p => p.c.filter(c => Array.isArray(c.s)).map(c => [keyOf(c.u), c.s])));
+const fresh = build(items);
+fresh.forEach(p => {
+  const old = prevById.get(p.id);
+  p.a = old ? (old.a || '2026-01-01') : today;            // date d'arrivée dans Craquage (badge « Nouveau »)
+  p.v = today;                                             // dernière fois vu sur kiabi.com
+  p.c.forEach(c => { const s = knownSizes.get(keyOf(c.u)); if (s) c.s = s; });   // tailles déjà vérifiées par le robot 2
+});
+const freshIds = new Set(fresh.map(p => p.id));
+// les articles des rubriques pas relues ce passage restent, s'ils ont été vus dans les 2 derniers jours
+const kept = prev.filter(p => !freshIds.has(p.id)).map(p => ({ g: 'f', v: today, ...p }))
+  .filter(p => now - Date.parse(p.v) <= 2 * DAY);
+const merged = [...fresh, ...kept];
+
+// Un peu de tout : par genre, aucune catégorie ne dépasse 22 % ; dans chaque catégorie, les nouveautés d'abord.
+const MAX_SHARE = .22, products = [], summary = {};
+for (const g of Object.keys(GENDERS)) {
+  const mine = merged.filter(p => p.g === g); if (!mine.length) continue;
+  const groups = {}; mine.forEach(p => (groups[p.k] = groups[p.k] || []).push(p));
+  const cap = Math.max(60, Math.round(mine.length * MAX_SHARE));
+  for (const [k, l] of Object.entries(groups)) {
+    const keep = l.sort((x, y) => y.a.localeCompare(x.a) || (y.r || 0) - (x.r || 0)).slice(0, cap);
+    products.push(...keep); summary[g + ':' + k] = keep.length;
+  }
+}
+const added = products.filter(p => !prevById.has(p.id)).length;
+console.log('Par genre et catégorie :', summary, `· ${added} nouveaux · ${products.length} articles`);
+if (products.length < 50 || products.length < prev.length * .5) {   // garde-fou
+  console.log(`Seulement ${products.length} articles (avant : ${prev.length}). Catalogue conservé tel quel.`);
   process.exit(0);
 }
 fs.writeFileSync(OUT, JSON.stringify({ updated: new Date().toISOString(), count: products.length, products }));
-// index pour le robot 2 : rayon → filtre Taille proposé + couleurs du catalogue qu'il contient
-const kept = new Set(products.flatMap(p => p.c.map(c => keyOf(c.u))));
-const index = {};
-all.forEach(it => { const k = it.pid + ':' + it.cid; if (!kept.has(k)) return;
-  (index[it.src] = index[it.src] || { sizes: pageSizes.get(it.src) || [], keys: [] }).keys.push(k); });
-Object.values(index).forEach(v => { v.keys = [...new Set(v.keys)]; });
-fs.writeFileSync(INDEX, JSON.stringify({ updated: new Date().toISOString(), pages: index }));
 console.log(`${products.length} articles écrits dans data/products.json`);
+// état des rubriques pour la lecture tournante et le robot 2 (couleurs limitées à celles du catalogue)
+const inCatalog = new Set(products.flatMap(p => p.c.map(c => keyOf(c.u))));
+Object.values(state).forEach(v => { v.keys = (v.keys || []).filter(k => inCatalog.has(k)); });
+fs.writeFileSync(INDEX, JSON.stringify({ updated: new Date().toISOString(), pages: state }));
