@@ -46,7 +46,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .brand { display: flex; align-items: baseline; gap: 6px; text-decoration: none; color: var(--ink); }
 .brand b { font-family: var(--font-display); font-weight: 800; font-size: 1.55rem; letter-spacing: -.01em; line-height: 1; }
 .brand span { font-family: var(--font-display); font-weight: 500; font-size: .85rem; color: var(--muted); }
-.brand img { height: 22px; width: auto; align-self: center; }
+.brand img { height: 18px; width: auto; align-self: center; }
 .coll-btn { display: inline-flex; align-items: center; gap: 7px; border: 1.5px solid var(--ink); color: var(--ink); background: var(--surface);
   border-radius: 50px; padding: 7px 8px 7px 13px; font-family: var(--font-display); font-weight: 700; font-size: .9rem; flex-shrink: 0; }
 .coll-btn svg { width: 16px; height: 16px; color: var(--red); }
@@ -190,7 +190,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .splash svg.cake { width: min(62vw, 280px); height: auto; overflow: visible; }
 .splash .title { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.6rem, 12vw, 4rem); letter-spacing: -.02em; color: var(--ink); line-height: 1; opacity: 0; margin-top: -40px; }
 .splash .by { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; color: var(--muted); opacity: 0; }
-.splash .by img { height: 30px; width: auto; }
+.splash .by img { height: 28px; width: auto; }
 .splash .skip { position: absolute; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; font-size: .78rem; color: var(--soft); }
 .crumb { position: absolute; border-radius: 2px; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .photo.loading::after { animation: none; } .card.fly, .card.back { transition: none; } }
@@ -355,12 +355,12 @@ header { display: flex; align-items: center; justify-content: space-between; gap
     const colors = ['#e9c48a', '#e9c48a', '#fff6e5', '#ed2237', '#040037', '#d9ad6c'];
     for (let i = 0; i < 26; i++) {
       const c = document.createElement('i'); c.className = 'crumb';
-      const s = 4 + Math.random() * 7; c.style.width = c.style.height = s + 'px'; c.style.background = colors[i % colors.length];
+      const s = 4 + Math.random() * 7; c.style.width = c.style.height = s + 'px'; c.style.background = colors[i % colors.length]; c.style.opacity = 0;
       c.style.left = (box.left - hb.left + box.width * (.35 + Math.random() * .3)) + 'px'; c.style.top = (box.top - hb.top + box.height * (.4 + Math.random() * .3)) + 'px';
       host.appendChild(c);
       const dx = (Math.random() - .5) * 260, up = -40 - Math.random() * 90, down = 160 + Math.random() * 160;
       c.animate([{ transform: 'translate(0,0) rotate(0)', opacity: 0 }, { transform: `translate(${dx * .5}px, ${up}px) rotate(120deg)`, opacity: 1, offset: .35 },
-        { transform: `translate(${dx}px, ${down}px) rotate(300deg)`, opacity: 0 }], { duration: 900 + Math.random() * 300, delay: 960, easing: 'cubic-bezier(.2,.6,.6,1)', fill: 'forwards' });
+        { transform: `translate(${dx}px, ${down}px) rotate(300deg)`, opacity: 0 }], { duration: 900 + Math.random() * 300, delay: 960, easing: 'cubic-bezier(.2,.6,.6,1)', fill: 'both' });
     }
     title.animate([{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1.06)', offset: .7 }, { opacity: 1, transform: 'scale(1)' }],
       { duration: 520, delay: 1250, easing: 'cubic-bezier(.3,.7,.4,1)', fill: 'forwards' });

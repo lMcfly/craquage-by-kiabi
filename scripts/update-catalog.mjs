@@ -45,11 +45,12 @@ async function readPage(browser, slug) {
 
 // ---------- rangement ----------
 const norm = s => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
-const KIDS = /\b(enfant|fille|garcon|bebe|junior|ado|homme|naissance|grossesse)\b/;
+const KIDS = /\b(enfant|fille|garcon|bebe|junior|ado|homme|naissance|grossesse)\b|^(peignoir|robe de chambre|pyjama|chemise de nuit|nuisette)/;
 // La catégorie vient d'abord du premier mot du nom (Kiabi nomme ses articles par leur type), puis du rayon.
 const BY_NAME = [
   ['chaussures', /^(bottine|botte|basket|escarpin|mocassin|ballerine|sandale|chaussure|derby|sabot|mule|boots|santiag|chausson|pantoufle)/],
-  ['accessoire', /^(sac|pochette|cabas|bonnet|echarpe|foulard|gant|mitaine|ceinture|chapeau|casquette|bijou|collier|chaussette|collant|snood|beret|bandeau|lot de)/],
+  ['pull', /^lot de \d+ (sous-pull|pull|gilet)/],
+  ['accessoire', /^(sac|pochette|cabas|bonnet|echarpe|foulard|gant|mitaine|ceinture|chapeau|casquette|bijou|collier|chaussette|collant|snood|beret|bandeau)/],
   ['robe', /^(robe|combinaison|salopette|combishort)/],
   ['jupe', /^(jupe)/],
   ['pantalon', /^(pantalon|jean|legging|jogging|short|bermuda|jegging|cargo)/],
