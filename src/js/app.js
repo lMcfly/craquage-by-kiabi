@@ -5,6 +5,7 @@ import { IMG, SW, CATS, catLabel, LOOK, photo, discount, OCCASIONS, occLabel, oc
 import { playSplash } from './splash.js';
 import { profile, saveProfile, fits, setSizeData, sizeText, sizeRows } from './profile.js';
 import { swipeToClose } from './sheets.js';
+import { rememberPrice, forgetPrice, priceDrop, takeNewDrops } from './prices.js';
 import { setupPlatform } from './platform.js';
 
 applyTheme(); applyStatic();
@@ -307,7 +308,7 @@ function decide(choice) {
   const id = currentId(); if (busy || !id) return;
   const top = $('deck').querySelector('.card.top');
   const btn = $(choice === 'yes' ? 'btn-yes' : 'btn-no'); btn.classList.add('flash'); setTimeout(() => btn.classList.remove('flash'), 160);
-  const commit = () => { verdicts[id] = choice; history.push({ id, choice }); learn(id, choice === 'yes' ? 1 : -.6); rerank(); busy = false; render(); if (choice === 'yes') showToast(id); else hideToast(); };
+  const commit = () => { verdicts[id] = choice; if (choice === 'yes') rememberPrice(byId.get(id)); history.push({ id, choice }); learn(id, choice === 'yes' ? 1 : -.6); rerank(); busy = false; render(); if (choice === 'yes') showToast(id); else hideToast(); };
   if (!top || reduced) return commit();
   busy = true;
   const dir = choice === 'yes' ? 1 : -1;
@@ -376,8 +377,13 @@ function thumbBtn(id, label) {
 }
 // Vignette d'envie : touche la photo pour la fiche, petit bouton panier pour aller directement sur l'article Kiabi
 function wishItem(id) {
-  const box = document.createElement('div'); box.className = 'wish-item';
+  const box = document.createElement('div'), p = byId.get(id); box.className = 'wish-item';
   box.appendChild(thumbBtn(id));
+  const drop = priceDrop(p);                                   // moins cher qu'au moment du coup de cœur
+  if (drop) box.insertAdjacentHTML('beforeend', `<span class="wdrop">−${esc(eur(drop))}</span>`);
+  if (!p.c.some(c => fits(p, c, true))) {                     // n'existe plus dans ma taille
+    box.classList.add('nosize'); box.insertAdjacentHTML('beforeend', `<span class="wnosize">${t('not_in_size')}</span>`);
+  }
   const a = document.createElement('a'); a.className = 'kbuy'; a.href = curColor(id).u; a.target = '_blank'; a.rel = 'noopener';
   a.setAttribute('aria-label', t('buy_on') + ' : ' + byId.get(id).n); a.title = t('buy_on');
   a.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg>';
@@ -532,8 +538,8 @@ $('toast-buy').addEventListener('click', () => { const id = history.length && hi
 $('sheet-share').onclick = () => sheetId && share(sheetId);
 $('sheet-like').onclick = () => {     // cœur de la fiche : ajoute ou retire des envies
   const id = sheetId; if (!id) return;
-  if (verdicts[id] === 'yes') { verdicts[id] = 'no'; learn(id, -.4); flash(t('removed')); }
-  else { verdicts[id] = 'yes'; history.push({ id, choice: 'yes' }); learn(id, 1); flash(t('added')); }
+  if (verdicts[id] === 'yes') { verdicts[id] = 'no'; forgetPrice(id); learn(id, -.4); flash(t('removed')); }
+  else { verdicts[id] = 'yes'; rememberPrice(byId.get(id)); history.push({ id, choice: 'yes' }); learn(id, 1); flash(t('added')); }
   fillSheet(); if (!$('coll').hidden) { renderColl(); if (!$('pane-styles').hidden) renderStyles(); }
   render();
 };
@@ -568,5 +574,9 @@ fetch('data/products.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw 
     if (OCCASIONS[st.occ]) occ = st.occ;
   } else order = all;
   $('loading').hidden = true; render();
+  // envies : prix de référence pour celles d'avant cette fonction, puis on signale les nouvelles baisses
+  goIds().forEach(id => rememberPrice(byId.get(id)));
+  const drops = takeNewDrops(goIds().map(id => byId.get(id)));
+  if (drops) setTimeout(() => flash(t(drops > 1 ? 'drops_n' : 'drops_1', { n: drops })), 3600);
   try { if (sessionStorage.getItem('craquage-wiped')) { sessionStorage.removeItem('craquage-wiped'); flash(t('wiped')); } } catch (e) {}
 }).catch(() => { $('loading').hidden = true; $('error').hidden = false; });

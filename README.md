@@ -40,6 +40,7 @@ src/
     splash.js               Animation « Craquage by K »
     platform.js             Comportement d'appli (pas de zoom) et service worker
     sheets.js               Panneaux du bas : fermeture en glissant vers le bas
+    prices.js               Baisses de prix des envies (prix au moment du coup de cœur)
     utils.js                Petits outils partagés (DOM, stockage local)
 assets/
   brand/                    Logo K Kiabi (version claire et version blanche)
