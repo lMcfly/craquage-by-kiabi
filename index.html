@@ -22,12 +22,15 @@
 :root {
   --ink: #040037; --red: #ed2237; --bg: #f3f3f8; --surface: #ffffff; --line: #e6e6ee; --muted: #6e6d85; --soft: #b3b2c2; --active: #ececf3;
   --glass: rgba(255, 255, 255, .78); --glass-line: rgba(255, 255, 255, .9);
+  --btn-bg: #040037; --btn-fg: #ffffff; --photo: #f4f4f6; --scrim: rgba(4, 0, 55, .35);
   --shadow: 0 16px 36px -18px rgba(4, 0, 55, .32); --shadow-s: 0 6px 18px -8px rgba(4, 0, 55, .28);
   --font-display: "Plus Jakarta Sans", "Helvetica Neue", Arial, sans-serif; --font-body: "Plus Jakarta Sans", "Helvetica Neue", Arial, sans-serif;
   --tabbar: calc(78px + env(safe-area-inset-bottom, 0px));
   color-scheme: light;
   padding-top: env(safe-area-inset-top, 0px);
 }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink: #f1f1f8; --bg: #0a0920; --surface: #16152f; --line: #2a2946; --muted: #a4a3bf; --soft: #5f5e7c; --active: #26254a; --glass: rgba(22, 21, 47, .74); --glass-line: rgba(255, 255, 255, .08); --btn-bg: #f1f1f8; --btn-fg: #040037; --photo: #e9e9ef; --scrim: rgba(0, 0, 0, .55); --shadow: 0 16px 36px -18px rgba(0, 0, 0, .8); --shadow-s: 0 6px 18px -8px rgba(0, 0, 0, .7); color-scheme: dark; } }
+:root[data-theme="dark"] { --ink: #f1f1f8; --bg: #0a0920; --surface: #16152f; --line: #2a2946; --muted: #a4a3bf; --soft: #5f5e7c; --active: #26254a; --glass: rgba(22, 21, 47, .74); --glass-line: rgba(255, 255, 255, .08); --btn-bg: #f1f1f8; --btn-fg: #040037; --photo: #e9e9ef; --scrim: rgba(0, 0, 0, .55); --shadow: 0 16px 36px -18px rgba(0, 0, 0, .8); --shadow-s: 0 6px 18px -8px rgba(0, 0, 0, .7); color-scheme: dark; }
 html, body { height: 100%; margin: 0; }
 body {
   background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px;
@@ -46,7 +49,23 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--red); outline-o
 .app { height: 100%; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; padding-top: 4px; padding-bottom: calc(var(--tabbar) + 6px); }
 
 /* ---------- En-tête ---------- */
-header { display: flex; align-items: center; justify-content: center; min-height: 34px; }
+header { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; min-height: 44px; }
+header .brand { justify-self: center; }
+.gear { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; padding: 0; color: var(--ink); }
+.gear svg { width: 22px; height: 22px; }
+.k-night { display: none; }
+:root[data-theme="dark"] .k-day { display: none; } :root[data-theme="dark"] .k-night { display: block; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .k-day { display: none; } :root:not([data-theme="light"]) .k-night { display: block; } }
+.setgroup { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.setgroup h4 { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.seg { display: grid; gap: 6px; background: var(--bg); border-radius: 18px; padding: 5px; }
+.seg.three { grid-template-columns: repeat(3, 1fr); } .seg.two { grid-template-columns: 1fr 1fr; }
+.seg button { border: 0; background: transparent; color: var(--ink); border-radius: 14px; padding: 11px 6px; font-weight: 600; font-size: .92rem; }
+.seg button[aria-pressed="true"] { background: var(--surface); box-shadow: var(--shadow-s); font-weight: 800; }
+.account { background: var(--bg); border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.account p { margin: 0; font-size: .9rem; line-height: 1.45; color: var(--muted); }
+.btn.danger { background: transparent; color: var(--red); border: 1.5px solid var(--red); }
+.btn.danger.full { background: var(--red); color: #fff; }
 .brand { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--ink); }
 .brand b { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; letter-spacing: -.03em; line-height: 1; }
 .brand span { font-weight: 500; font-size: .9rem; color: var(--muted); }
@@ -56,7 +75,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
 .catbtn { display: inline-flex; align-items: center; gap: 8px; border: 0; background: var(--surface); color: var(--ink); border-radius: 50px; padding: 10px 18px 10px 20px; font-weight: 700; font-size: .95rem; box-shadow: 0 2px 8px -4px rgba(4,0,55,.2); }
 .catbtn svg { width: 18px; height: 18px; }
 .catbtn.deal { color: var(--red); }
-.catsheet { position: fixed; inset: 0; z-index: 35; background: rgba(4, 0, 55, .35); display: flex; align-items: flex-end; justify-content: center; }
+.catsheet { position: fixed; inset: 0; z-index: 35; background: var(--scrim); display: flex; align-items: flex-end; justify-content: center; }
 .catpanel { width: 100%; max-width: 520px; background: var(--surface); border-radius: 28px 28px 0 0; padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px)); animation: sheetUp .22s ease-out; }
 .catpanel .grab { width: 40px; height: 5px; border-radius: 5px; background: var(--line); margin: 0 auto 12px; }
 .catpanel h3 { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; letter-spacing: -.02em; margin: 0 0 14px; text-align: center; }
@@ -64,8 +83,8 @@ header { display: flex; align-items: center; justify-content: center; min-height
 .cattile { border: 0; background: var(--bg); border-radius: 18px; padding: 14px 14px; text-align: left; display: flex; flex-direction: column; gap: 2px; color: var(--ink); }
 .cattile b { font-weight: 700; font-size: 1rem; }
 .cattile span { font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-.cattile[aria-pressed="true"] { background: var(--ink); color: #fff; }
-.cattile[aria-pressed="true"] span { color: rgba(255,255,255,.7); }
+.cattile[aria-pressed="true"] { background: var(--btn-bg); color: var(--btn-fg); }
+.cattile[aria-pressed="true"] span { color: inherit; opacity: .7; }
 .cattile.deal b { color: var(--red); }
 .cattile.deal[aria-pressed="true"] { background: var(--red); } .cattile.deal[aria-pressed="true"] b { color: #fff; }
 @keyframes sheetUp { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -75,7 +94,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
 .deck { --info: 96px; --w: min(100cqw, calc((100cqh - var(--info)) * .75), 460px); position: relative; width: var(--w); height: calc(var(--w) * 4 / 3 + var(--info)); max-width: 100%; }
 .card { position: absolute; inset: 0; border-radius: 24px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow);
   touch-action: none; user-select: none; will-change: transform; display: flex; flex-direction: column; }
-.card .photo { position: relative; width: 100%; aspect-ratio: 3 / 4; flex-shrink: 0; background: #f4f4f6; }
+.card .photo { position: relative; width: 100%; aspect-ratio: 3 / 4; flex-shrink: 0; background: var(--photo); }
 .card .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; pointer-events: none; -webkit-user-drag: none; }
 .photo.loading::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.6) 50%, transparent 70%) var(--line);
   background-size: 200% 100%; animation: shimmer 1.2s linear infinite; z-index: 2; }
@@ -115,7 +134,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
 .verdict svg { width: 26px; height: 26px; }
 .verdict span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .verdict.no { color: var(--ink); }
-.verdict.yes { background: var(--ink); color: #fff; border: 0; box-shadow: var(--shadow-s); }
+.verdict.yes { background: var(--btn-bg); color: var(--btn-fg); border: 0; box-shadow: var(--shadow-s); }
 .verdict:active, .verdict.flash { transform: scale(.94); }
 .undo { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--muted); padding: 0; }
 .undo svg { width: 20px; height: 20px; } .undo:disabled { opacity: .35; cursor: default; }
@@ -126,7 +145,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
 .state p { margin: 0; color: var(--muted); max-width: 34ch; line-height: 1.5; }
 .state .stack { display: flex; flex-direction: column; gap: 10px; width: min(100%, 340px); }
 .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; border: 0; border-radius: 50px; padding: 15px 18px; font-weight: 700; font-size: 1.02rem; text-decoration: none; }
-.btn.primary { background: var(--ink); color: #fff; }
+.btn.primary { background: var(--btn-bg); color: var(--btn-fg); }
 .btn.ghost { background: var(--surface); color: var(--ink); box-shadow: 0 2px 8px -4px rgba(4,0,55,.18); }
 .btn.link { background: none; color: var(--muted); font-weight: 600; padding: 8px; }
 .empty-hero { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 40px 10px 10px; }
@@ -151,7 +170,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
 .coll-body { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 8px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .thumb { position: relative; aspect-ratio: 3 / 4; max-width: 100%; border-radius: 20px; overflow: hidden; padding: 0; border: 0; background: var(--surface); box-shadow: 0 4px 14px -8px rgba(4,0,55,.25); }
-.thumb { background: #f4f4f6; }
+.thumb { background: var(--photo); }
 .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 .thumb .tag { position: absolute; left: 8px; bottom: 8px; font-size: .78rem; font-weight: 700; background: var(--glass); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink); padding: 4px 9px; border-radius: 50px; font-variant-numeric: tabular-nums; }
 .empty { color: var(--muted); font-size: .92rem; margin: 0; text-align: center; line-height: 1.5; }
@@ -184,14 +203,14 @@ header { display: flex; align-items: center; justify-content: center; min-height
 .look-row .thumb { border-radius: 12px; }
 .look-items { margin: 0; font-size: .82rem; color: var(--muted); line-height: 1.4; }
 .pill { border: 0; background: var(--active); color: var(--ink); border-radius: 50px; padding: 10px 16px; font-weight: 700; font-size: .9rem; }
-.pill.dark { background: var(--ink); color: #fff; }
+.pill.dark { background: var(--btn-bg); color: var(--btn-fg); }
 
 /* ---------- Fiche article (plein écran, comme la fiche produit Kiabi) ---------- */
 .sheet { position: fixed; inset: 0; z-index: 40; background: var(--surface); overflow-y: auto; }
 .sheet-top { position: relative; }
 .gallery { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .gallery::-webkit-scrollbar { display: none; }
-.gallery img { flex: 0 0 100%; width: 100%; height: min(64vh, 133vw); object-fit: contain; background: #f4f4f6; scroll-snap-align: center; }
+.gallery img { flex: 0 0 100%; width: 100%; height: min(64vh, 133vw); object-fit: contain; background: var(--photo); scroll-snap-align: center; }
 .gdots { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 2; display: flex; gap: 5px; padding: 6px 9px; border-radius: 50px; }
 .gdots i { width: 7px; height: 7px; border-radius: 50px; background: var(--soft); transition: width .2s; }
 .gdots i.on { width: 20px; background: var(--ink); }
@@ -213,7 +232,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
   border-radius: 50px; padding: 6px 6px 6px 8px; max-width: calc(100% - 32px); animation: toastIn .25s ease-out; color: var(--ink); }
 .toast img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; object-position: top; background: var(--line); }
 .toast span { font-size: .9rem; font-weight: 600; white-space: nowrap; padding-right: 4px; }
-.toast a { background: var(--ink); color: #fff; border-radius: 50px; padding: 9px 15px; font-weight: 700; font-size: .88rem; white-space: nowrap; text-decoration: none; }
+.toast a { background: var(--btn-bg); color: var(--btn-fg); border-radius: 50px; padding: 9px 15px; font-weight: 700; font-size: .88rem; white-space: nowrap; text-decoration: none; }
 
 /* ---------- Animation d'ouverture : lettres qui montent, cœur qui craque, « by K » ---------- */
 .splash { position: fixed; inset: 0; z-index: 50; background: radial-gradient(120% 80% at 50% 40%, #0d0a52 0%, #040037 60%); display: grid; place-items: center; cursor: pointer; overflow: hidden; }
@@ -238,23 +257,25 @@ header { display: flex; align-items: center; justify-content: center; min-height
     <div class="word" id="word" aria-hidden="true"></div>
     <div class="by"><span>by</span><img src="assets/kiabi-k-white.svg" alt=""></div>
   </div>
-  <div class="skip">Touchez pour passer</div>
+  <div class="skip" data-i18n="skip"></div>
 </div>
 
 <div class="app">
   <header>
-    <a class="brand" href="./" aria-label="Craquage by Kiabi"><b>Craquage</b><span>by</span><img src="assets/kiabi-k.svg" alt="Kiabi"></a>
+    <span class="hside" aria-hidden="true"></span>
+    <a class="brand" href="./" aria-label="Craquage by Kiabi"><b>Craquage</b><span>by</span><img class="k-day" src="assets/kiabi-k.svg" alt="Kiabi"><img class="k-night" src="assets/kiabi-k-white.svg" alt="Kiabi"></a>
+    <button class="gear glass hside" id="gear" type="button" data-i18n-aria="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 010 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></button>
   </header>
   <div class="catbar"><button class="catbtn" id="catbtn" type="button" aria-haspopup="dialog"><span id="catlabel">Tout</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>
 
   <section class="state" id="loading">
-    <h2>Chargement…</h2>
-    <p>On prépare les dernières nouveautés Kiabi.</p>
+    <h2 data-i18n="loading"></h2>
+    <p data-i18n="loading_txt"></p>
   </section>
   <section class="state" id="error" hidden>
-    <h2>Pas de connexion</h2>
-    <p>Impossible de charger les articles. Vérifie ta connexion internet, puis réessaie.</p>
-    <div class="stack"><button class="btn primary" type="button" onclick="location.reload()">Réessayer</button></div>
+    <h2 data-i18n="offline"></h2>
+    <p data-i18n="offline_txt"></p>
+    <div class="stack"><button class="btn primary" type="button" onclick="location.reload()" data-i18n="retry"></button></div>
   </section>
 
   <section id="swipe-view" style="display:none">
@@ -263,7 +284,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
       <button class="verdict no glass" id="btn-no" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span>No go</span>
       </button>
-      <button class="undo glass" id="btn-undo" type="button" aria-label="Annuler le dernier choix" title="Annuler">
+      <button class="undo glass" id="btn-undo" type="button" data-i18n-aria="undo">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 010 10h-3"/></svg>
       </button>
       <button class="verdict yes" id="btn-yes" type="button">
@@ -276,9 +297,9 @@ header { display: flex; align-items: center; justify-content: center; min-height
     <h2 id="end-title">Tu as tout vu !</h2>
     <p id="end-text"></p>
     <div class="stack">
-      <button class="btn primary" id="end-coll" type="button">Voir mes envies</button>
-      <button class="btn ghost" id="end-restart" type="button">Revoir mes « No go »</button>
-      <button class="btn link" id="end-all" type="button" hidden>Toutes les catégories</button>
+      <button class="btn primary" id="end-coll" type="button" data-i18n="see_wishlist"></button>
+      <button class="btn ghost" id="end-restart" type="button" data-i18n="replay_no"></button>
+      <button class="btn link" id="end-all" type="button" hidden data-i18n="all_cats"></button>
     </div>
   </section>
 </div>
@@ -292,23 +313,36 @@ header { display: flex; align-items: center; justify-content: center; min-height
 </div>
 
 <nav class="tabbar glass" aria-label="Navigation">
-  <button type="button" id="nav-swipe" aria-current="page"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3.5"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5" stroke-linecap="round"/></svg>Craquage</button>
-  <button type="button" id="nav-items"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg>Envies<span class="badge" id="coll-count" hidden>0</span></button>
-  <button type="button" id="nav-styles" aria-label="Mon style et mes looks"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>Style</button>
+  <button type="button" id="nav-swipe" aria-current="page"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3.5"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5" stroke-linecap="round"/></svg><span data-i18n="tab_swipe"></span></button>
+  <button type="button" id="nav-items"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg><span data-i18n="tab_wish"></span><span class="badge" id="coll-count" hidden>0</span></button>
+  <button type="button" id="nav-styles"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg><span data-i18n="tab_style"></span></button>
 </nav>
 
-<div class="catsheet" id="catsheet" hidden><div class="catpanel" role="dialog" aria-modal="true" aria-labelledby="cat-title"><div class="grab"></div><h3 id="cat-title">Je veux voir…</h3><div class="cattiles" id="cattiles"></div></div></div>
+<div class="catsheet" id="catsheet" hidden><div class="catpanel" role="dialog" aria-modal="true" aria-labelledby="cat-title"><div class="grab"></div><h3 id="cat-title" data-i18n="i_want"></h3><div class="cattiles" id="cattiles"></div></div></div>
 
-<div class="toast glass" id="toast" hidden role="status"><img id="toast-img" alt=""><span id="toast-text">Ajouté à tes envies</span><a id="toast-buy" href="#" target="_blank" rel="noopener">Acheter</a></div>
+<div class="catsheet" id="setsheet" hidden><div class="catpanel" role="dialog" aria-modal="true" aria-labelledby="set-title"><div class="grab"></div><h3 id="set-title" data-i18n="settings"></h3>
+  <div class="setgroup"><h4 data-i18n="appearance"></h4><div class="seg three" id="set-theme">
+    <button type="button" data-v="auto" data-i18n="th_auto"></button><button type="button" data-v="light" data-i18n="th_light"></button><button type="button" data-v="dark" data-i18n="th_dark"></button></div></div>
+  <div class="setgroup"><h4 data-i18n="language"></h4><div class="seg two" id="set-lang">
+    <button type="button" data-v="fr">Français</button><button type="button" data-v="en">English</button><button type="button" data-v="es">Español</button><button type="button" data-v="de">Deutsch</button></div></div>
+  <div class="setgroup"><h4 data-i18n="account"></h4><div class="account">
+    <p data-i18n="account_txt"></p>
+    <button class="btn danger" type="button" id="wipe" data-i18n="wipe"></button>
+    <div id="wipe-confirm" hidden style="display:flex;flex-direction:column;gap:8px"><p data-i18n="wipe_q" style="color:var(--ink);font-weight:600"></p>
+      <button class="btn danger full" type="button" id="wipe-yes" data-i18n="wipe_yes"></button><button class="btn link" type="button" id="wipe-no" data-i18n="cancel"></button></div>
+  </div></div>
+</div></div>
+
+<div class="toast glass" id="toast" hidden role="status"><img id="toast-img" alt=""><span id="toast-text"></span><a id="toast-buy" href="#" target="_blank" rel="noopener" data-i18n="buy"></a></div>
 
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-title">
   <div class="sheet-top">
     <div class="gallery" id="sheet-gallery" aria-label="Photos de l’article"></div>
     <div class="gdots glass" id="sheet-dots" aria-hidden="true"></div>
-    <button class="sheet-back glass" id="sheet-close" type="button" aria-label="Retour"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="sheet-back glass" id="sheet-close" type="button" data-i18n-aria="back"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
     <div class="sheet-tools glass">
-      <button id="sheet-share" type="button" aria-label="Envoyer à une amie"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></button>
-      <button id="sheet-like" type="button" aria-label="Ajouter à mes envies"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg></button>
+      <button id="sheet-share" type="button" data-i18n-aria="share"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></button>
+      <button id="sheet-like" type="button" data-i18n-aria="add_wish"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg></button>
     </div>
   </div>
   <div class="sheet-body">
@@ -316,7 +350,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
     <p class="sheet-colour" id="sheet-colour"></p>
     <h2 class="sheet-title" id="sheet-title"></h2>
     <div class="price" id="sheet-price"></div>
-    <a class="btn primary" id="sheet-buy" href="#" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg>Acheter sur kiabi.com</a>
+    <a class="btn primary" id="sheet-buy" href="#" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg><span data-i18n="buy_on"></span></a>
   </div>
 </div>
 
@@ -324,11 +358,115 @@ header { display: flex; align-items: center; justify-content: center; min-height
 (() => {
   const $ = id => document.getElementById(id);
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const eur = n => n.toFixed(2).replace('.', ',') + ' €';
+  const eur = n => new Intl.NumberFormat(settings.lang === 'en' ? 'en-IE' : settings.lang, { style: 'currency', currency: 'EUR' }).format(n);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const IMG = 'https://static.kiabi.com/images/';
   const store = { get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } },
                   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+
+  // ---------- Langues ----------
+  const I18N = {
+    fr: { skip: 'Touchez pour passer', loading: 'Chargement…', loading_txt: 'On prépare les dernières nouveautés Kiabi.', offline: 'Pas de connexion',
+      offline_txt: 'Impossible de charger les articles. Vérifie ta connexion internet, puis réessaie.', retry: 'Réessayer', undo: 'Annuler le dernier choix',
+      see_wishlist: 'Voir mes envies', replay_no: 'Revoir mes « No go »', all_cats: 'Toutes les catégories', i_want: 'Je veux voir…', buy: 'Acheter', buy_on: 'Acheter sur kiabi.com',
+      back: 'Retour', share: 'Envoyer à une amie', add_wish: 'Ajouter à mes envies', remove_wish: 'Retirer de mes envies', tab_swipe: 'Craquage', tab_wish: 'Envies', tab_style: 'Style',
+      settings: 'Réglages', appearance: 'Apparence', th_auto: 'Auto', th_light: 'Jour', th_dark: 'Nuit', language: 'Langue', account: 'Mon compte',
+      account_txt: 'Tes envies, tes looks et tes préférences sont enregistrés uniquement sur ce téléphone.', wipe: 'Supprimer mes données',
+      wipe_q: 'Tout supprimer ? Tes envies, tes looks et tes préférences seront effacés de ce téléphone.', wipe_yes: 'Oui, tout supprimer', cancel: 'Annuler', wiped: 'Données supprimées',
+      cat_all: 'Tout', cat_deal: 'Bons plans', cat_robe: 'Robes', cat_pull: 'Pulls & gilets', cat_haut: 'Hauts & chemises', cat_pantalon: 'Pantalons & jeans', cat_jupe: 'Jupes',
+      cat_veste: 'Manteaux & vestes', cat_chaussures: 'Chaussures', cat_accessoire: 'Accessoires', art1: '{n} article', artN: '{n} articles',
+      end_all: 'Tu as tout vu !', end_cat: 'Tu as tout vu dans « {c} »', end_txt: '{a} dans tes envies. De nouveaux articles arrivent chaque jour.', coll_n: '{a} · enregistrés sur ce téléphone',
+      title_items: 'Mes envies', title_styles: 'Mon style', empty_txt: 'Glisse à droite les articles qui te font craquer : ils t’attendront ici.', empty_go: 'Commencer à swiper',
+      tap_hint: 'Touche pour d’autres photos', colours: 'Couleurs', colour: 'Couleur', share_txt: 'Regarde ce que j’ai trouvé sur Kiabi : {n} à {p}',
+      copied: 'Lien copié, colle-le dans un message', copy_fail: 'Copie impossible : {u}', added: 'Ajouté à tes envies', removed: 'Retiré de tes envies', look_saved: 'Look enregistré',
+      eyebrow: 'D’après {n} coups de cœur', desc1: 'Tu craques surtout pour {a}.', desc2: 'Tu craques surtout pour {a}, avec une touche {b}.', tastes: 'Craquage te propose désormais en priorité : {l}.',
+      my_looks: 'Mes looks', looks_for_you: 'Looks pour toi', look_n: 'Look {n}', del: 'Supprimer', save: 'Enregistrer', saved: 'Enregistré', pieces: '{n} pièces',
+      looks_empty1: 'Mets au moins 2 articles en Go : on te propose ensuite des tenues avec tes envies.', looks_empty2: 'Mets un haut, un bas ou une veste en Go pour obtenir des tenues.' },
+    en: { skip: 'Tap to skip', loading: 'Loading…', loading_txt: 'Getting the latest Kiabi arrivals ready.', offline: 'No connection',
+      offline_txt: 'The items could not be loaded. Check your internet connection and try again.', retry: 'Try again', undo: 'Undo last choice',
+      see_wishlist: 'See my wishlist', replay_no: 'Review my “No go”', all_cats: 'All categories', i_want: 'I want to see…', buy: 'Buy', buy_on: 'Buy on kiabi.com',
+      back: 'Back', share: 'Send to a friend', add_wish: 'Add to my wishlist', remove_wish: 'Remove from my wishlist', tab_swipe: 'Craquage', tab_wish: 'Wishlist', tab_style: 'Style',
+      settings: 'Settings', appearance: 'Appearance', th_auto: 'Auto', th_light: 'Day', th_dark: 'Night', language: 'Language', account: 'My account',
+      account_txt: 'Your wishlist, looks and preferences are saved only on this phone.', wipe: 'Delete my data',
+      wipe_q: 'Delete everything? Your wishlist, looks and preferences will be erased from this phone.', wipe_yes: 'Yes, delete everything', cancel: 'Cancel', wiped: 'Data deleted',
+      cat_all: 'All', cat_deal: 'Deals', cat_robe: 'Dresses', cat_pull: 'Jumpers & cardigans', cat_haut: 'Tops & shirts', cat_pantalon: 'Trousers & jeans', cat_jupe: 'Skirts',
+      cat_veste: 'Coats & jackets', cat_chaussures: 'Shoes', cat_accessoire: 'Accessories', art1: '{n} item', artN: '{n} items',
+      end_all: 'You’ve seen everything!', end_cat: 'You’ve seen everything in “{c}”', end_txt: '{a} in your wishlist. New items arrive every day.', coll_n: '{a} · saved on this phone',
+      title_items: 'My wishlist', title_styles: 'My style', empty_txt: 'Swipe right on the items you love: they’ll wait for you here.', empty_go: 'Start swiping',
+      tap_hint: 'Tap for more photos', colours: 'Colours', colour: 'Colour', share_txt: 'Look what I found at Kiabi: {n} for {p}',
+      copied: 'Link copied, paste it in a message', copy_fail: 'Could not copy: {u}', added: 'Added to your wishlist', removed: 'Removed from your wishlist', look_saved: 'Look saved',
+      eyebrow: 'Based on {n} favourites', desc1: 'You mostly fall for {a}.', desc2: 'You mostly fall for {a}, with a touch of {b}.', tastes: 'Craquage now shows you first: {l}.',
+      my_looks: 'My looks', looks_for_you: 'Looks for you', look_n: 'Look {n}', del: 'Delete', save: 'Save', saved: 'Saved', pieces: '{n} pieces',
+      looks_empty1: 'Swipe at least 2 items to Go: we’ll then suggest outfits from your wishlist.', looks_empty2: 'Swipe a top, a bottom or a jacket to Go to get outfits.' },
+    es: { skip: 'Toca para saltar', loading: 'Cargando…', loading_txt: 'Preparamos las últimas novedades de Kiabi.', offline: 'Sin conexión',
+      offline_txt: 'No se pudieron cargar los artículos. Comprueba tu conexión a internet y vuelve a intentarlo.', retry: 'Reintentar', undo: 'Deshacer la última elección',
+      see_wishlist: 'Ver mis favoritos', replay_no: 'Volver a ver mis «No go»', all_cats: 'Todas las categorías', i_want: 'Quiero ver…', buy: 'Comprar', buy_on: 'Comprar en kiabi.com',
+      back: 'Volver', share: 'Enviar a una amiga', add_wish: 'Añadir a favoritos', remove_wish: 'Quitar de favoritos', tab_swipe: 'Craquage', tab_wish: 'Favoritos', tab_style: 'Estilo',
+      settings: 'Ajustes', appearance: 'Apariencia', th_auto: 'Auto', th_light: 'Día', th_dark: 'Noche', language: 'Idioma', account: 'Mi cuenta',
+      account_txt: 'Tus favoritos, looks y preferencias se guardan solo en este teléfono.', wipe: 'Borrar mis datos',
+      wipe_q: '¿Borrarlo todo? Tus favoritos, looks y preferencias se eliminarán de este teléfono.', wipe_yes: 'Sí, borrarlo todo', cancel: 'Cancelar', wiped: 'Datos borrados',
+      cat_all: 'Todo', cat_deal: 'Ofertas', cat_robe: 'Vestidos', cat_pull: 'Jerséis y chaquetas de punto', cat_haut: 'Tops y camisas', cat_pantalon: 'Pantalones y vaqueros', cat_jupe: 'Faldas',
+      cat_veste: 'Abrigos y chaquetas', cat_chaussures: 'Zapatos', cat_accessoire: 'Accesorios', art1: '{n} artículo', artN: '{n} artículos',
+      end_all: '¡Lo has visto todo!', end_cat: 'Lo has visto todo en «{c}»', end_txt: '{a} en tus favoritos. Cada día llegan artículos nuevos.', coll_n: '{a} · guardados en este teléfono',
+      title_items: 'Mis favoritos', title_styles: 'Mi estilo', empty_txt: 'Desliza a la derecha los artículos que te enamoran: te esperarán aquí.', empty_go: 'Empezar a deslizar',
+      tap_hint: 'Toca para ver más fotos', colours: 'Colores', colour: 'Color', share_txt: 'Mira lo que he encontrado en Kiabi: {n} por {p}',
+      copied: 'Enlace copiado, pégalo en un mensaje', copy_fail: 'No se pudo copiar: {u}', added: 'Añadido a tus favoritos', removed: 'Quitado de tus favoritos', look_saved: 'Look guardado',
+      eyebrow: 'Según {n} flechazos', desc1: 'Te encantan sobre todo {a}.', desc2: 'Te encantan sobre todo {a}, con un toque {b}.', tastes: 'Craquage te muestra ahora primero: {l}.',
+      my_looks: 'Mis looks', looks_for_you: 'Looks para ti', look_n: 'Look {n}', del: 'Eliminar', save: 'Guardar', saved: 'Guardado', pieces: '{n} prendas',
+      looks_empty1: 'Pon al menos 2 artículos en Go: te propondremos conjuntos con tus favoritos.', looks_empty2: 'Pon en Go una prenda de arriba, una de abajo o una chaqueta para obtener conjuntos.' },
+    de: { skip: 'Tippen zum Überspringen', loading: 'Wird geladen…', loading_txt: 'Wir bereiten die neuesten Kiabi-Teile vor.', offline: 'Keine Verbindung',
+      offline_txt: 'Die Artikel konnten nicht geladen werden. Prüfe deine Internetverbindung und versuche es erneut.', retry: 'Erneut versuchen', undo: 'Letzte Wahl rückgängig',
+      see_wishlist: 'Meine Wunschliste ansehen', replay_no: 'Meine „No go“ erneut ansehen', all_cats: 'Alle Kategorien', i_want: 'Ich möchte sehen…', buy: 'Kaufen', buy_on: 'Auf kiabi.com kaufen',
+      back: 'Zurück', share: 'An eine Freundin senden', add_wish: 'Zur Wunschliste hinzufügen', remove_wish: 'Von der Wunschliste entfernen', tab_swipe: 'Craquage', tab_wish: 'Wunschliste', tab_style: 'Stil',
+      settings: 'Einstellungen', appearance: 'Darstellung', th_auto: 'Auto', th_light: 'Tag', th_dark: 'Nacht', language: 'Sprache', account: 'Mein Konto',
+      account_txt: 'Deine Wunschliste, Looks und Vorlieben werden nur auf diesem Telefon gespeichert.', wipe: 'Meine Daten löschen',
+      wipe_q: 'Alles löschen? Deine Wunschliste, Looks und Vorlieben werden von diesem Telefon entfernt.', wipe_yes: 'Ja, alles löschen', cancel: 'Abbrechen', wiped: 'Daten gelöscht',
+      cat_all: 'Alles', cat_deal: 'Angebote', cat_robe: 'Kleider', cat_pull: 'Pullover & Strickjacken', cat_haut: 'Tops & Hemden', cat_pantalon: 'Hosen & Jeans', cat_jupe: 'Röcke',
+      cat_veste: 'Mäntel & Jacken', cat_chaussures: 'Schuhe', cat_accessoire: 'Accessoires', art1: '{n} Artikel', artN: '{n} Artikel',
+      end_all: 'Du hast alles gesehen!', end_cat: 'Du hast alles in „{c}“ gesehen', end_txt: '{a} auf deiner Wunschliste. Jeden Tag kommen neue Artikel dazu.', coll_n: '{a} · auf diesem Telefon gespeichert',
+      title_items: 'Meine Wunschliste', title_styles: 'Mein Stil', empty_txt: 'Wische Teile, die dir gefallen, nach rechts: Sie warten hier auf dich.', empty_go: 'Jetzt wischen',
+      tap_hint: 'Tippen für weitere Fotos', colours: 'Farben', colour: 'Farbe', share_txt: 'Schau, was ich bei Kiabi gefunden habe: {n} für {p}',
+      copied: 'Link kopiert, füge ihn in eine Nachricht ein', copy_fail: 'Kopieren nicht möglich: {u}', added: 'Zur Wunschliste hinzugefügt', removed: 'Von der Wunschliste entfernt', look_saved: 'Look gespeichert',
+      eyebrow: 'Basierend auf {n} Lieblingsteilen', desc1: 'Du verliebst dich vor allem in {a}.', desc2: 'Du verliebst dich vor allem in {a}, mit einem Hauch {b}.', tastes: 'Craquage zeigt dir jetzt zuerst: {l}.',
+      my_looks: 'Meine Looks', looks_for_you: 'Looks für dich', look_n: 'Look {n}', del: 'Löschen', save: 'Speichern', saved: 'Gespeichert', pieces: '{n} Teile',
+      looks_empty1: 'Wische mindestens 2 Artikel auf Go: Danach schlagen wir dir Outfits mit deinen Favoriten vor.', looks_empty2: 'Wische ein Oberteil, ein Unterteil oder eine Jacke auf Go, um Outfits zu erhalten.' }
+  };
+  const STYLES_I18N = {
+    fr: { cosy: ['Cocooning', 'les mailles douces et les pièces chaudes'], chic: ['Chic', 'les coupes nettes et les pièces habillées'], casual: ['Casual', 'les pièces faciles à porter tous les jours'],
+      retro: ['Rétro', 'le velours, les volants et les imprimés vintage'], preppy: ['Preppy', 'les rayures, les carreaux et l’esprit college'], minimal: ['Minimaliste', 'les lignes simples et les couleurs sobres'],
+      rock: ['Rock', 'l’effet cuir, le vinyle et le léopard'], glam: ['Glam', 'les matières qui brillent'], sport: ['Sporty', 'les sweats, les doudounes et le confort'] },
+    en: { cosy: ['Cosy', 'soft knits and warm pieces'], chic: ['Chic', 'clean cuts and dressy pieces'], casual: ['Casual', 'easy everyday pieces'], retro: ['Retro', 'velvet, ruffles and vintage prints'],
+      preppy: ['Preppy', 'stripes, checks and a college vibe'], minimal: ['Minimalist', 'simple lines and understated colours'], rock: ['Rock', 'faux leather, vinyl and leopard'], glam: ['Glam', 'shiny fabrics'], sport: ['Sporty', 'sweatshirts, puffers and comfort'] },
+    es: { cosy: ['Cocooning', 'los tejidos suaves y las prendas cálidas'], chic: ['Chic', 'los cortes limpios y las prendas elegantes'], casual: ['Casual', 'las prendas fáciles para cada día'], retro: ['Retro', 'el terciopelo, los volantes y los estampados vintage'],
+      preppy: ['Preppy', 'las rayas, los cuadros y el aire college'], minimal: ['Minimalista', 'las líneas simples y los colores sobrios'], rock: ['Rock', 'el efecto cuero, el vinilo y el leopardo'], glam: ['Glam', 'los tejidos que brillan'], sport: ['Sporty', 'las sudaderas, los plumíferos y la comodidad'] },
+    de: { cosy: ['Cosy', 'weiche Strickteile und warme Stücke'], chic: ['Chic', 'klare Schnitte und elegante Teile'], casual: ['Casual', 'bequeme Alltagsteile'], retro: ['Retro', 'Samt, Rüschen und Vintage-Muster'],
+      preppy: ['Preppy', 'Streifen, Karos und College-Stil'], minimal: ['Minimalistisch', 'schlichte Linien und dezente Farben'], rock: ['Rock', 'Lederoptik, Lack und Leo-Muster'], glam: ['Glam', 'glänzende Stoffe'], sport: ['Sporty', 'Sweatshirts, Steppjacken und Komfort'] }
+  };
+  const COLOURS_I18N = {
+    en: { 'écru': 'ecru', blanc: 'white', noir: 'black', marine: 'navy', 'bleu clair': 'light blue', denim: 'denim', bleu: 'blue', gris: 'grey', beige: 'beige', camel: 'camel', marron: 'brown', taupe: 'taupe', kaki: 'khaki', vert: 'green', bordeaux: 'burgundy', rouge: 'red', rose: 'pink', jaune: 'yellow', orange: 'orange', violet: 'purple', 'léopard': 'leopard', multicolore: 'multicolour' },
+    es: { 'écru': 'crudo', blanc: 'blanco', noir: 'negro', marine: 'marino', 'bleu clair': 'azul claro', denim: 'denim', bleu: 'azul', gris: 'gris', beige: 'beige', camel: 'camel', marron: 'marrón', taupe: 'topo', kaki: 'caqui', vert: 'verde', bordeaux: 'burdeos', rouge: 'rojo', rose: 'rosa', jaune: 'amarillo', orange: 'naranja', violet: 'morado', 'léopard': 'leopardo', multicolore: 'multicolor' },
+    de: { 'écru': 'Ecru', blanc: 'Weiß', noir: 'Schwarz', marine: 'Marine', 'bleu clair': 'Hellblau', denim: 'Denim', bleu: 'Blau', gris: 'Grau', beige: 'Beige', camel: 'Camel', marron: 'Braun', taupe: 'Taupe', kaki: 'Khaki', vert: 'Grün', bordeaux: 'Bordeaux', rouge: 'Rot', rose: 'Rosa', jaune: 'Gelb', orange: 'Orange', violet: 'Lila', 'léopard': 'Leo', multicolore: 'Bunt' }
+  };
+  const SETTINGS_KEY = 'craquage-settings-v1';
+  const settings = Object.assign({ theme: 'auto', lang: (navigator.language || 'fr').slice(0, 2) }, store.get(SETTINGS_KEY) || {});
+  if (!I18N[settings.lang]) settings.lang = 'fr';
+  const t = (k, v = {}) => String((I18N[settings.lang] || I18N.fr)[k] ?? I18N.fr[k] ?? k).replace(/\{(\w+)\}/g, (_, x) => v[x] ?? '');
+  const arts = n => t(n > 1 ? 'artN' : 'art1', { n: n.toLocaleString(settings.lang) });
+  const colourName = c => settings.lang === 'fr' ? c.c : ((COLOURS_I18N[settings.lang] || {})[c.f] || c.c);
+  const STYLE = new Proxy({}, { get: (_, k) => (STYLES_I18N[settings.lang] || STYLES_I18N.fr)[k] });
+  function applyStatic() {
+    document.documentElement.lang = settings.lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); el.title = t(el.dataset.i18nAria); });
+  }
+  function applyTheme() {
+    const r = document.documentElement;
+    if (settings.theme === 'auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', settings.theme);
+    const dark = settings.theme === 'dark' || (settings.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#0a0920' : '#f3f3f8');
+  }
+  applyTheme(); applyStatic();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 
   // ---------- Animation d'ouverture ----------
   function playSplash() {
@@ -368,8 +506,8 @@ header { display: flex; align-items: center; justify-content: center; min-height
     'beige': '#d8c3a5', 'camel': '#b48a5f', 'marron': '#5a3a2a', 'taupe': '#9b8b7a', 'kaki': '#7a7a32', 'vert': '#5f7a4f', 'bordeaux': '#6e1f2b', 'rouge': '#c0392b',
     'rose': '#e7a3b5', 'jaune': '#ecd36a', 'orange': '#e07b39', 'violet': '#8a6bb0',
     'léopard': 'linear-gradient(135deg,#c9a777 30%,#3b2a1c 30% 40%,#c9a777 40% 70%,#3b2a1c 70% 80%,#c9a777 80%)', 'multicolore': 'conic-gradient(#ed2237,#ecd36a,#5f7a4f,#4f74b3,#ed2237)' };
-  const CATS = [['all', 'Tout'], ['deal', 'Bons plans'], ['robe', 'Robes'], ['pull', 'Pulls & gilets'], ['haut', 'Hauts & chemises'], ['pantalon', 'Pantalons & jeans'],
-    ['jupe', 'Jupes'], ['veste', 'Manteaux & vestes'], ['chaussures', 'Chaussures'], ['accessoire', 'Accessoires']];
+  const CATS = ['all', 'deal', 'robe', 'pull', 'haut', 'pantalon', 'jupe', 'veste', 'chaussures', 'accessoire'].map(k => [k]);
+  const catLabel = k => t('cat_' + k);
   const LOOK = { haut: 'haut', pull: 'haut', robe: 'robe', pantalon: 'bas', jupe: 'bas', veste: 'veste', chaussures: 'extra', accessoire: 'extra' };
   const photo = (c, size, k = 0) => IMG + c.i + '_' + size + (c.x[k] || c.x[0] || 1) + '.jpg';
   const discount = c => { const now = Math.min(...c.p), was = Math.max(...c.p); return was > now ? Math.round((1 - now / was) * 100) : 0; };
@@ -454,22 +592,12 @@ header { display: flex; align-items: center; justify-content: center; min-height
     const inWin = new Set(win), slots = []; order.forEach((id, i) => { if (inWin.has(id)) slots.push(i); });
     slots.forEach((pos, k) => { order[pos] = ranked[k]; });
   }
-  function topTastes() {
-    const label = { k: { robe: 'les robes', pull: 'les pulls et gilets', haut: 'les hauts', pantalon: 'les pantalons', jupe: 'les jupes', veste: 'les manteaux et vestes', chaussures: 'les chaussures', accessoire: 'les accessoires' } };
-    return Object.entries(prefs.w).filter(([, v]) => v > 1).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([f]) => {
-      const [t, v] = f.split(':');
-      if (t === 'k') return label.k[v]; if (t === 'f') return 'le ' + v; if (t === 't') return 'le style ' + (STYLE[v] ? STYLE[v][0].toLowerCase() : v);
-      if (t === 'd') return v === 'deal' ? 'les bons plans' : null; if (t === 'p') return 'les prix ' + v.replace('<', 'sous ').replace('+', ' € et plus').replace(/(\d+)-(\d+)/, 'entre $1 et $2 €');
-      return null;
-    }).filter(Boolean);
-  }
-
   // ---------- Couleurs ----------
   function swatchButtons(id, onPick) {
     const p = byId.get(id), frag = document.createDocumentFragment();
     p.c.forEach((c, k) => {
       const b = document.createElement('button'); b.type = 'button'; b.style.background = SW[c.f] || '#b3b2c2';
-      b.setAttribute('aria-label', 'Couleur ' + c.c); b.title = c.c; b.setAttribute('aria-pressed', String(k === colorIdx(id)));
+      b.setAttribute('aria-label', t('colour') + ' ' + colourName(c)); b.title = colourName(c); b.setAttribute('aria-pressed', String(k === colorIdx(id)));
       b.addEventListener('pointerdown', e => e.stopPropagation());
       b.addEventListener('click', e => { e.stopPropagation(); chosen[id] = k; onPick(); save(); });
       frag.appendChild(b);
@@ -481,12 +609,12 @@ header { display: flex; align-items: center; justify-content: center; min-height
   // ---------- Partage ----------
   async function share(id) {
     learn(id, 1);
-    const p = byId.get(id), c = curColor(id), text = `Regarde ce que j’ai trouvé sur Kiabi : ${p.n} à ${eur(Math.min(...c.p))}`;
+    const p = byId.get(id), c = curColor(id), text = t('share_txt', { n: p.n, p: eur(Math.min(...c.p)) });
     try {
       if (navigator.share) { await navigator.share({ title: p.n, text, url: c.u }); return; }
     } catch (e) { if (e && e.name === 'AbortError') return; }
-    try { await navigator.clipboard.writeText(text + ' ' + c.u); flash('Lien copié, colle-le dans un message'); }
-    catch (e) { flash('Copie impossible : ' + c.u); }
+    try { await navigator.clipboard.writeText(text + ' ' + c.u); flash(t('copied')); }
+    catch (e) { flash(t('copy_fail', { u: c.u })); }
   }
   function flash(msg) {
     const t = $('toast'); $('toast-img').hidden = true; $('toast-buy').hidden = true; $('toast-text').textContent = msg; t.hidden = false;
@@ -504,17 +632,17 @@ header { display: flex; align-items: center; justify-content: center; min-height
     const pr = el.querySelector('.price'); pr.className = 'price' + (d ? ' is-promo' : ''); pr.innerHTML = priceHtml(c);
     el.querySelector('.buy').href = c.u;
     const sw = el.querySelector('.swatches'); sw.innerHTML = ''; sw.appendChild(swatchButtons(id, () => { photoPos[id] = 0; learn(id, .1); fillCard(el, id); }));
-    const cn = document.createElement('span'); cn.className = 'cname'; cn.textContent = c.c; sw.appendChild(cn);
+    const cn = document.createElement('span'); cn.className = 'cname'; cn.textContent = colourName(c); sw.appendChild(cn);
     if (el.classList.contains('top')) p.c.forEach((cc, j) => { if (j !== k) { const im = new Image(); im.src = photo(cc, 'hd', 0); } });
   }
   function makeCard(id, cls) {
     const el = document.createElement('article'); el.className = 'card ' + cls;
     el.innerHTML = `<div class="photo"><img alt="" draggable="false"><span class="promo" hidden></span><div class="dots" hidden></div>
-      <div class="card-tools glass"><button class="share" type="button" aria-label="Envoyer à une amie"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></button>
-      <a class="buy" target="_blank" rel="noopener" aria-label="Acheter sur kiabi.com"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg></a></div>
-      <span class="tap-hint" hidden>Touche pour d’autres photos</span><div class="stamp yes">Go</div><div class="stamp no">No go</div></div>
+      <div class="card-tools glass"><button class="share" type="button" aria-label="${t('share')}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></button>
+      <a class="buy" target="_blank" rel="noopener" aria-label="${t('buy_on')}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg></a></div>
+      <span class="tap-hint" hidden>${t('tap_hint')}</span><div class="stamp yes">Go</div><div class="stamp no">No go</div></div>
       <div class="info"><div class="headline"><span class="name-btn"><span class="name"></span></span><div class="price"></div></div>
-      <div class="swatches" role="group" aria-label="Couleurs"></div></div>`;
+      <div class="swatches" role="group" aria-label="${t('colours')}"></div></div>`;
     el.querySelectorAll('.buy, .share').forEach(b => b.addEventListener('pointerdown', e => e.stopPropagation()));
     el.querySelector('.share').addEventListener('click', e => { e.stopPropagation(); share(id); });
     el.querySelector('.buy').addEventListener('click', () => learn(id, 1.5));
@@ -532,9 +660,9 @@ header { display: flex; align-items: center; justify-content: center; min-height
     const nGo = goIds().length; $('coll-count').textContent = nGo; $('coll-count').hidden = !nGo;
     renderChips();
     if (done) {
-      const label = (CATS.find(c => c[0] === cat) || CATS[0])[1], n = goIds().length;
-      $('end-title').textContent = cat === 'all' ? 'Tu as tout vu !' : `Tu as tout vu dans « ${label} »`;
-      $('end-text').textContent = `${n} article${n > 1 ? 's' : ''} dans tes envies. De nouveaux articles arrivent chaque jour.`;
+      const label = catLabel(cat), n = goIds().length;
+      $('end-title').textContent = cat === 'all' ? t('end_all') : t('end_cat', { c: label });
+      $('end-text').textContent = t('end_txt', { a: arts(n) });
       $('end-all').hidden = cat === 'all';
       $('end-restart').hidden = !Object.values(verdicts).includes('no');
       return;
@@ -544,16 +672,16 @@ header { display: flex; align-items: center; justify-content: center; min-height
     next.slice(1).forEach(preload);
   }
   function renderChips() {          // bouton de catégorie en haut
-    const label = (CATS.find(c => c[0] === cat) || CATS[0])[1];
+    const label = catLabel(cat);
     $('catlabel').textContent = label; $('catbtn').classList.toggle('deal', cat === 'deal');
   }
   function openCats() {
     const box = $('cattiles'); box.innerHTML = '';
     const left = k => { const save = cat; cat = k; const n = order.filter(id => !verdicts[id] && matches(id)).length; cat = save; return n; };
-    CATS.forEach(([k, label]) => {
+    CATS.forEach(([k]) => { const label = catLabel(k);
       const b = document.createElement('button'); b.type = 'button'; b.className = 'cattile' + (k === 'deal' ? ' deal' : '');
       b.setAttribute('aria-pressed', String(cat === k)); const n = left(k);
-      b.innerHTML = `<b>${label}</b><span>${n.toLocaleString('fr-FR')} article${n > 1 ? 's' : ''}</span>`;
+      b.innerHTML = `<b>${label}</b><span>${arts(n)}</span>`;
       b.onclick = () => { cat = k; closeCats(); hideToast(); rerank(0); render(); };
       box.appendChild(b);
     });
@@ -562,6 +690,29 @@ header { display: flex; align-items: center; justify-content: center; min-height
   const closeCats = () => { $('catsheet').hidden = true; };
   $('catbtn').onclick = openCats;
   $('catsheet').addEventListener('click', e => { if (e.target.id === 'catsheet') closeCats(); });
+
+  // ---------- Réglages (écrou) ----------
+  function syncSettings() {
+    $('set-theme').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === settings.theme)));
+    $('set-lang').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === settings.lang)));
+  }
+  function openSettings() { hideToast(); syncSettings(); $('wipe-confirm').hidden = true; $('wipe').hidden = false; $('setsheet').hidden = false; }
+  const closeSettings = () => { $('setsheet').hidden = true; };
+  $('gear').onclick = openSettings;
+  $('setsheet').addEventListener('click', e => { if (e.target.id === 'setsheet') closeSettings(); });
+  $('set-theme').addEventListener('click', e => { const v = e.target.closest('button')?.dataset.v; if (!v) return;
+    settings.theme = v; store.set(SETTINGS_KEY, settings); applyTheme(); syncSettings(); });
+  $('set-lang').addEventListener('click', e => { const v = e.target.closest('button')?.dataset.v; if (!v || v === settings.lang) return;
+    settings.lang = v; store.set(SETTINGS_KEY, settings); applyStatic(); syncSettings();
+    render(); if (!$('coll').hidden) { renderColl(); renderStyles(); }
+    if (!$('sheet').hidden) fillSheet(); });
+  $('wipe').onclick = () => { $('wipe').hidden = true; $('wipe-confirm').hidden = false; $('wipe-yes').focus(); };
+  $('wipe-no').onclick = () => { $('wipe-confirm').hidden = true; $('wipe').hidden = false; };
+  $('wipe-yes').onclick = () => {
+    try { Object.keys(localStorage).filter(k => k.startsWith('craquage-')).forEach(k => localStorage.removeItem(k)); } catch (e) {}
+    try { sessionStorage.setItem('craquage-wiped', 1); } catch (e) {}
+    location.reload();
+  };
 
   function decide(choice) {
     const id = currentId(); if (busy || !id) return;
@@ -614,6 +765,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
   $('btn-no').onclick = () => decide('no');
   $('btn-undo').onclick = undo;
   document.addEventListener('keydown', e => {
+    if (!$('setsheet').hidden) { if (e.key === 'Escape') closeSettings(); return; }
     if (!$('catsheet').hidden) { if (e.key === 'Escape') closeCats(); return; }
     if (!$('sheet').hidden || !$('coll').hidden) { if (e.key === 'Escape') { if (!$('sheet').hidden) closeSheet(); else navTo('swipe'); } return; }
     if (e.key === 'ArrowRight') { e.preventDefault(); decide('yes'); }
@@ -634,15 +786,15 @@ header { display: flex; align-items: center; justify-content: center; min-height
   }
   function renderColl() {
     const ids = goIds().slice().reverse(), grid = $('coll-grid');
-    $('coll-n').textContent = ids.length ? `${ids.length} article${ids.length > 1 ? 's' : ''} · enregistrés sur ce téléphone` : '';
+    $('coll-n').textContent = ids.length ? t('coll_n', { a: arts(ids.length) }) : '';
     grid.innerHTML = ''; ids.forEach(id => grid.appendChild(thumbBtn(id)));
     if (!ids.length) {
-      grid.innerHTML = `<div class="empty-hero" style="grid-column:1/-1"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg><h3>Mes envies</h3>
-        <p>Glisse à droite les articles qui te font craquer : ils t’attendront ici.</p><div class="stack" style="width:min(100%,320px);margin-top:12px"><button class="btn primary" type="button" id="empty-go">Commencer à swiper</button></div></div>`;
+      grid.innerHTML = `<div class="empty-hero" style="grid-column:1/-1"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg><h3>${t('title_items')}</h3>
+        <p>${t('empty_txt')}</p><div class="stack" style="width:min(100%,320px);margin-top:12px"><button class="btn primary" type="button" id="empty-go">${t('empty_go')}</button></div></div>`;
       $('empty-go').onclick = () => navTo('swipe');
     }
   }
-  const TITLES = { items: 'Mes envies', styles: 'Mon style' };
+  const TITLES = { get items() { return t('title_items'); }, get styles() { return t('title_styles'); } };
   function navTo(which) {
     hideToast(); if (!$('sheet').hidden) closeSheet();
     ['swipe', 'items', 'styles'].forEach(t => { const b = $('nav-' + t); if (t === which) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
@@ -656,9 +808,6 @@ header { display: flex; align-items: center; justify-content: center; min-height
   const openColl = () => navTo('items');
 
   // ---------- Mes styles ----------
-  const STYLE = { cosy: ['Cocooning', 'mailles douces et pièces chaudes'], chic: ['Chic', 'coupes nettes et pièces habillées'], casual: ['Casual', 'des pièces faciles à porter tous les jours'],
-    retro: ['Rétro', 'velours, volants et imprimés vintage'], preppy: ['Preppy', 'rayures, carreaux et esprit college'], minimal: ['Minimaliste', 'des lignes simples et des couleurs sobres'],
-    rock: ['Rock', 'effet cuir, vinyle et léopard'], glam: ['Glam', 'des matières qui brillent'], sport: ['Sporty', 'sweats, doudounes et confort'] };
   const NEUTRAL = new Set(['noir', 'blanc', 'écru', 'beige', 'gris', 'marine', 'denim', 'camel', 'taupe', 'marron', 'léopard']);
   const CATLABEL = { haut: 'haut', bas: 'bas', veste: 'veste', robe: 'robe', extra: 'touche finale' };
   const meta = id => { const p = byId.get(id); return { cat: LOOK[p.k], tags: p.t.length ? p.t : ['casual'], col: curColor(id).f }; };
@@ -695,44 +844,44 @@ header { display: flex; align-items: center; justify-content: center; min-height
       ids.forEach(id => meta(id).tags.forEach((t, k) => { const v = k ? 1 : 2; w[t] = (w[t] || 0) + v; total += v; }));
       const ranked = Object.keys(w).sort((a, b) => w[b] - w[a]), [t1, t2] = ranked, share1 = w[t1] / total;
       const name = (!t2 || share1 > .55) ? STYLE[t1][0] : `${STYLE[t1][0]} × ${STYLE[t2][0]}`;
-      const desc = t2 && share1 <= .55 ? `Tu craques surtout pour ${STYLE[t1][1]}, avec une touche ${STYLE[t2][0].toLowerCase()}.` : `Tu craques surtout pour ${STYLE[t1][1]}.`;
+      const desc = t2 && share1 <= .55 ? t('desc2', { a: STYLE[t1][1], b: STYLE[t2][0].toLowerCase() }) : t('desc1', { a: STYLE[t1][1] });
       const cols = {}; ids.forEach(id => { const f = meta(id).col; cols[f] = (cols[f] || 0) + 1; });
       const palette = Object.keys(cols).sort((a, b) => cols[b] - cols[a]).slice(0, 5);
       const prof = document.createElement('section'); prof.className = 'profile';
-      prof.innerHTML = `<p class="eyebrow">D’après ${ids.length} coups de cœur</p><p class="profile-name">${esc(name)}</p><p class="profile-desc">${esc(desc)}</p>
-        <div class="palette">${palette.map(c => `<span><b style="background:${SW[c] || '#999'}"></b>${esc(c)}</span>`).join('')}</div>`;
+      prof.innerHTML = `<p class="eyebrow">${t('eyebrow', { n: ids.length })}</p><p class="profile-name">${esc(name)}</p><p class="profile-desc">${esc(desc)}</p>
+        <div class="palette">${palette.map(c => `<span><b style="background:${SW[c] || '#999'}"></b>${esc(colourName({ c, f: c }))}</span>`).join('')}</div>`;
       pane.appendChild(prof);
     }
     // looks enregistrés, puis looks proposés
     const saved = savedLooks.map(l => ({ ...l, items: l.items.filter(x => byId.has(x.id)) })).filter(l => l.items.length >= 2);
     if (saved.length) {
-      const h = document.createElement('h3'); h.className = 'sec-title'; h.textContent = 'Mes looks'; pane.appendChild(h);
+      const h = document.createElement('h3'); h.className = 'sec-title'; h.textContent = t('my_looks'); pane.appendChild(h);
       saved.forEach((L, n) => {
         L.items.forEach(x => { if (chosen[x.id] == null) chosen[x.id] = x.k; });
         const total = L.items.reduce((s, x) => s + Math.min(...byId.get(x.id).c[Math.min(x.k, byId.get(x.id).c.length - 1)].p), 0);
-        pane.appendChild(lookCard(`Look ${saved.length - n}`, L.items.map(x => x.id), total, 'Supprimer', () => {
+        pane.appendChild(lookCard(t('look_n', { n: saved.length - n }), L.items.map(x => x.id), total, t('del'), () => {
           savedLooks = savedLooks.filter(l => lookKey(l.items) !== lookKey(L.items)); store.set(LOOKS_KEY, savedLooks); renderStyles();
         }));
       });
     }
     const looks = ids.length >= 2 ? buildLooks(ids) : [];
-    const h = document.createElement('h3'); h.className = 'sec-title'; h.textContent = 'Looks pour toi'; pane.appendChild(h);
+    const h = document.createElement('h3'); h.className = 'sec-title'; h.textContent = t('looks_for_you'); pane.appendChild(h);
     if (!looks.length) {
       const e = document.createElement('p'); e.className = 'empty'; e.style.textAlign = 'left';
-      e.textContent = ids.length < 2 ? 'Mets au moins 2 articles en Go : on te propose ensuite des tenues avec tes envies.' : 'Mets un haut, un bas ou une veste en Go pour obtenir des tenues.';
+      e.textContent = ids.length < 2 ? t('looks_empty1') : t('looks_empty2');
       pane.appendChild(e);
     }
     looks.forEach((L, k) => {
       const total = L.look.reduce((s, id) => s + Math.min(...curColor(id).p), 0);
       const already = savedLooks.some(l => lookKey(l.items) === lookKey(L.look.map(id => ({ id }))));
-      pane.appendChild(lookCard(`${STYLE[L.tag][0]}`, L.look, total, already ? 'Enregistré' : 'Enregistrer', already ? null : (btn) => saveLook(L.look, btn)));
+      pane.appendChild(lookCard(`${STYLE[L.tag][0]}`, L.look, total, already ? t('saved') : t('save'), already ? null : (btn) => saveLook(L.look, btn), !already));
     });
   }
-  function lookCard(title, ids, total, action, onAction) {
+  function lookCard(title, ids, total, action, onAction, primary) {
     const el = document.createElement('div'); el.className = 'look';
-    el.innerHTML = `<div class="look-head"><strong>${esc(title)}</strong><span>${ids.length} pièces · ${eur(total)}</span></div>`;
+    el.innerHTML = `<div class="look-head"><strong>${esc(title)}</strong><span>${t('pieces', { n: ids.length })} · ${eur(total)}</span></div>`;
     const row = document.createElement('div'); row.className = 'look-row'; ids.forEach(id => row.appendChild(thumbBtn(id))); el.appendChild(row);
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'pill' + (onAction && action === 'Enregistrer' ? ' dark' : ''); b.textContent = action; b.style.alignSelf = 'flex-start';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'pill' + (primary ? ' dark' : ''); b.textContent = action; b.style.alignSelf = 'flex-start';
     if (onAction) b.onclick = () => onAction(b); else b.disabled = true;
     el.appendChild(b); return el;
   }
@@ -744,7 +893,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
   function saveLook(ids) {
     const items = ids.map(id => ({ id, k: colorIdx(id) })), key = lookKey(items);
     if (!savedLooks.some(l => lookKey(l.items) === key)) { savedLooks.unshift({ items, at: Date.now() }); store.set(LOOKS_KEY, savedLooks); }
-    flash('Look enregistré'); renderStyles();
+    flash(t('look_saved')); renderStyles();
   }
 
   // ---------- Fiche article ----------
@@ -762,11 +911,11 @@ header { display: flex; align-items: center; justify-content: center; min-height
     $('sheet-title').textContent = p.n;
     $('sheet-price').innerHTML = priceHtml(c); $('sheet-price').className = 'price' + (discount(c) ? ' is-promo' : '');
     $('sheet-buy').href = c.u;
-    $('sheet-colour').innerHTML = `Couleur <b>${esc(c.c)}</b>`;
-    const like = $('sheet-like'); like.classList.toggle('liked', verdicts[id] === 'yes'); like.setAttribute('aria-label', verdicts[id] === 'yes' ? 'Retirer de mes envies' : 'Ajouter à mes envies');
+    $('sheet-colour').innerHTML = `${t('colour')} <b>${esc(colourName(c))}</b>`;
+    const like = $('sheet-like'); like.classList.toggle('liked', verdicts[id] === 'yes'); like.setAttribute('aria-label', verdicts[id] === 'yes' ? t('remove_wish') : t('add_wish'));
     const sw = $('sheet-sw'); sw.innerHTML = ''; sw.hidden = p.c.length < 2;
     p.c.forEach((cc, k) => {            // vignettes des couleurs, comme sur la fiche produit Kiabi
-      const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', 'Couleur ' + cc.c); b.setAttribute('aria-pressed', String(k === colorIdx(id)));
+      const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', t('colour') + ' ' + colourName(cc)); b.setAttribute('aria-pressed', String(k === colorIdx(id)));
       b.innerHTML = '<img alt="">'; const im = b.querySelector('img'); im.onerror = () => { im.onerror = null; im.src = photo(cc, 'hd', 0); }; im.src = photo(cc, 'fr', 0);
       b.onclick = () => { chosen[id] = k; learn(id, .1); save(); fillSheet(); if (!$('coll').hidden) { renderColl(); if (!$('pane-styles').hidden) renderStyles(); } };
       sw.appendChild(b);
@@ -780,15 +929,15 @@ header { display: flex; align-items: center; justify-content: center; min-height
   $('sheet-share').onclick = () => sheetId && share(sheetId);
   $('sheet-like').onclick = () => {     // cœur de la fiche : ajoute ou retire des envies
     const id = sheetId; if (!id) return;
-    if (verdicts[id] === 'yes') { verdicts[id] = 'no'; learn(id, -.4); flash('Retiré de tes envies'); }
-    else { verdicts[id] = 'yes'; history.push({ id, choice: 'yes' }); learn(id, 1); flash('Ajouté à tes envies'); }
+    if (verdicts[id] === 'yes') { verdicts[id] = 'no'; learn(id, -.4); flash(t('removed')); }
+    else { verdicts[id] = 'yes'; history.push({ id, choice: 'yes' }); learn(id, 1); flash(t('added')); }
     fillSheet(); if (!$('coll').hidden) { renderColl(); if (!$('pane-styles').hidden) renderStyles(); }
     render();
   };
   function showToast(id) {
     clearTimeout(toastTimer);
     const img = $('toast-img'); img.hidden = false; setPhoto(img, id, 'fr');
-    $('toast-text').textContent = 'Ajouté à tes envies'; $('toast-buy').hidden = false; $('toast-buy').href = curColor(id).u;
+    $('toast-text').textContent = t('added'); $('toast-buy').hidden = false; $('toast-buy').href = curColor(id).u;
     $('toast').hidden = false; toastTimer = setTimeout(hideToast, 3500);
   }
   function hideToast() { clearTimeout(toastTimer); $('toast').hidden = true; }
@@ -807,6 +956,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
       if (CATS.some(c => c[0] === st.cat)) cat = st.cat;
     } else order = all;
     $('loading').hidden = true; render();
+    try { if (sessionStorage.getItem('craquage-wiped')) { sessionStorage.removeItem('craquage-wiped'); flash(t('wiped')); } } catch (e) {}
   }).catch(() => { $('loading').hidden = true; $('error').hidden = false; });
 
   // pas de zoom : pincement et double-tap bloqués (Safari ignore la balise viewport)
