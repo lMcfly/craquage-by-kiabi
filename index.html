@@ -62,34 +62,36 @@ header { display: flex; align-items: center; justify-content: center; min-height
 
 /* ---------- Cartes ---------- */
 .stage { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; container-type: size; }
-.deck { --info: 104px; --w: min(100cqw, calc((100cqh - var(--info)) * .8), 460px); position: relative; width: var(--w); height: calc(var(--w) * 5 / 4 + var(--info)); max-width: 100%; }
-.card { position: absolute; inset: 0; border-radius: 28px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow);
+.deck { --info: 96px; --w: min(100cqw, calc((100cqh - var(--info)) * .75), 460px); position: relative; width: var(--w); height: calc(var(--w) * 4 / 3 + var(--info)); max-width: 100%; }
+.card { position: absolute; inset: 0; border-radius: 24px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow);
   touch-action: none; user-select: none; will-change: transform; display: flex; flex-direction: column; }
-.card .photo { position: relative; width: 100%; aspect-ratio: 4 / 5; flex-shrink: 0; background: var(--line); }
-.card .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; pointer-events: none; -webkit-user-drag: none; }
-.card .photo::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 22%; background: linear-gradient(to bottom, rgba(255,255,255,0), #fff); z-index: 1; pointer-events: none; }
+.card .photo { position: relative; width: 100%; aspect-ratio: 3 / 4; flex-shrink: 0; background: #f4f4f6; }
+.card .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; pointer-events: none; -webkit-user-drag: none; }
 .photo.loading::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.6) 50%, transparent 70%) var(--line);
   background-size: 200% 100%; animation: shimmer 1.2s linear infinite; z-index: 2; }
 @keyframes shimmer { from { background-position: 120% 0; } to { background-position: -80% 0; } }
-.dots { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 2; display: flex; gap: 5px; align-items: center; padding: 6px 9px; border-radius: 50px; pointer-events: none; }
-.dots i { width: 7px; height: 7px; border-radius: 50px; background: var(--soft); transition: width .2s; }
-.dots i.on { width: 20px; background: var(--ink); }
-.promo { position: absolute; top: 14px; left: 14px; z-index: 2; background: var(--red); color: #fff; font-size: .85rem; font-weight: 700; padding: 6px 11px; border-radius: 50px; font-variant-numeric: tabular-nums; }
-.card-tools { position: absolute; top: 12px; right: 12px; z-index: 3; display: flex; align-items: center; border-radius: 50px; padding: 4px; }
+.dots { position: absolute; top: 8px; left: 14px; right: 14px; z-index: 3; display: flex; gap: 4px; pointer-events: none; }
+.dots i { flex: 1; height: 3px; border-radius: 3px; background: rgba(4, 0, 55, .16); }
+.dots i.on { background: var(--ink); }
+.promo { position: absolute; top: 20px; left: 14px; z-index: 2; background: var(--red); color: #fff; font-size: .85rem; font-weight: 700; padding: 6px 11px; border-radius: 50px; font-variant-numeric: tabular-nums; }
+.card-tools { position: absolute; top: 18px; right: 12px; z-index: 3; display: flex; align-items: center; border-radius: 50px; padding: 4px; }
 .card-tools button, .card-tools a { width: 42px; height: 42px; border-radius: 50%; border: 0; background: transparent; display: grid; place-items: center; color: var(--ink); padding: 0; }
-.tap-hint { position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%); z-index: 2; background: rgba(4, 0, 55, .8); color: #fff; font-size: .76rem; padding: 6px 12px; border-radius: 50px; white-space: nowrap; max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
-.card .info { padding: 2px 18px 12px; display: flex; flex-direction: column; gap: 3px; flex: 1; min-height: 0; }
-.cline { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: .88rem; color: var(--muted); }
-.cline b { color: var(--ink); font-weight: 700; text-transform: capitalize; }
-.name-btn { border: 0; background: none; padding: 0; text-align: left; color: var(--ink); display: block; width: 100%; }
-.card .name { display: block; font-weight: 400; font-size: 1.08rem; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tap-hint { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 2; background: rgba(4, 0, 55, .8); color: #fff; font-size: .76rem; padding: 6px 12px; border-radius: 50px; white-space: nowrap; max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+.card .info { padding: 12px 16px 14px; display: flex; flex-direction: column; justify-content: center; gap: 10px; flex: 1; min-height: 0; }
+.headline { display: flex; align-items: baseline; gap: 12px; }
+.name-btn { flex: 1; min-width: 0; border: 0; background: none; padding: 0; text-align: left; color: var(--ink); display: block; }
+.card .name { display: block; font-weight: 600; font-size: 1.02rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card .price .now { font-size: 1.12rem; letter-spacing: -.01em; }
+.card .price s { font-size: .82rem; }
 .price { display: flex; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
 .price .now { font-family: var(--font-display); font-weight: 800; font-size: 1.45rem; letter-spacing: -.02em; }
 .price.is-promo .now { color: var(--red); }
 .price s { color: var(--muted); font-size: .88rem; }
-.swatches { display: flex; align-items: center; gap: 6px; }
-.swatches button { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--soft); padding: 0; }
+.swatches { display: flex; align-items: center; gap: 10px; overflow-x: auto; scrollbar-width: none; padding: 3px; margin: -3px; }
+.swatches::-webkit-scrollbar { display: none; }
+.swatches button { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--soft); padding: 0; }
 .swatches button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
+.swatches .cname { flex-shrink: 0; font-size: .88rem; color: var(--muted); text-transform: capitalize; white-space: nowrap; }
 .card.under { transform: scale(.95) translateY(10px); opacity: .7; }
 .card.top { cursor: grab; z-index: 2; }
 .card.fly { transition: transform .32s cubic-bezier(.4, 0, .6, 1), opacity .32s; }
@@ -124,7 +126,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
 
 /* ---------- Barre d'onglets flottante ---------- */
 .tabbar { position: fixed; z-index: 30; left: max(14px, env(safe-area-inset-left, 0px)); right: max(14px, env(safe-area-inset-right, 0px));
-  bottom: calc(10px + env(safe-area-inset-bottom, 0px)); max-width: 500px; margin: 0 auto; border-radius: 36px; padding: 6px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)); max-width: 420px; margin: 0 auto; border-radius: 36px; padding: 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
 .tabbar button { position: relative; border: 0; background: transparent; border-radius: 30px; padding: 8px 4px 7px; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--ink); font-size: .78rem; font-weight: 500; }
 .tabbar button[aria-current="page"] { background: var(--active); font-weight: 700; }
 .tabbar .badge { position: absolute; top: 3px; left: calc(50% + 6px); background: var(--red); color: #fff; border-radius: 50px; min-width: 18px; padding: 1px 5px; font-size: .68rem; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
@@ -139,7 +141,8 @@ header { display: flex; align-items: center; justify-content: center; min-height
 .coll-body { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 8px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
 .thumb { position: relative; aspect-ratio: 3 / 4; max-width: 100%; border-radius: 20px; overflow: hidden; padding: 0; border: 0; background: var(--surface); box-shadow: 0 4px 14px -8px rgba(4,0,55,.25); }
-.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.thumb { background: #f4f4f6; }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 .thumb .tag { position: absolute; left: 8px; bottom: 8px; font-size: .78rem; font-weight: 700; background: var(--glass); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink); padding: 4px 9px; border-radius: 50px; font-variant-numeric: tabular-nums; }
 .empty { color: var(--muted); font-size: .92rem; margin: 0; text-align: center; line-height: 1.5; }
 .profile, .uni, .look { background: var(--surface); border-radius: 24px; box-shadow: 0 4px 14px -8px rgba(4,0,55,.2); }
@@ -178,8 +181,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
 .sheet-top { position: relative; }
 .gallery { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .gallery::-webkit-scrollbar { display: none; }
-.gallery img { flex: 0 0 100%; width: 100%; height: min(66vh, 133vw); object-fit: cover; object-position: top; background: var(--line); scroll-snap-align: center; }
-.sheet-top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 16%; background: linear-gradient(to bottom, rgba(255,255,255,0), #fff); pointer-events: none; }
+.gallery img { flex: 0 0 100%; width: 100%; height: min(64vh, 133vw); object-fit: contain; background: #f4f4f6; scroll-snap-align: center; }
 .gdots { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 2; display: flex; gap: 5px; padding: 6px 9px; border-radius: 50px; }
 .gdots i { width: 7px; height: 7px; border-radius: 50px; background: var(--soft); transition: width .2s; }
 .gdots i.on { width: 20px; background: var(--ink); }
@@ -276,15 +278,13 @@ header { display: flex; align-items: center; justify-content: center; min-height
     <div class="coll-head"><h2 id="coll-title">Mes envies</h2><span class="n" id="coll-n"></span></div>
     <div class="coll-body" id="pane-items"><div class="grid" id="coll-grid"></div></div>
     <div class="coll-body" id="pane-styles" hidden></div>
-    <div class="coll-body" id="pane-looks" hidden></div>
   </div>
 </div>
 
 <nav class="tabbar glass" aria-label="Navigation">
   <button type="button" id="nav-swipe" aria-current="page"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3.5"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5" stroke-linecap="round"/></svg>Craquage</button>
   <button type="button" id="nav-items"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg>Envies<span class="badge" id="coll-count" hidden>0</span></button>
-  <button type="button" id="nav-styles"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>Styles</button>
-  <button type="button" id="nav-looks"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5a2 2 0 112 2c-1 0-2 .7-2 1.7V11"/><path d="M12 11l-9 6.2a1 1 0 00.6 1.8h16.8a1 1 0 00.6-1.8z"/></svg>Looks</button>
+  <button type="button" id="nav-styles" aria-label="Mon style et mes looks"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>Style</button>
 </nav>
 
 <div class="toast glass" id="toast" hidden role="status"><img id="toast-img" alt=""><span id="toast-text">Ajouté à tes envies</span><a id="toast-buy" href="#" target="_blank" rel="noopener">Acheter</a></div>
@@ -506,21 +506,20 @@ header { display: flex; align-items: center; justify-content: center; min-height
     const promo = el.querySelector('.promo'); promo.hidden = !d; promo.textContent = d ? '−' + d + ' %' : '';
     el.querySelector('.tap-hint').hidden = !(photosOf(c).length > 1 && !hintShown && el.classList.contains('top'));
     el.querySelector('.name').textContent = p.n;
-    el.querySelector('.cname').textContent = c.c;
     const pr = el.querySelector('.price'); pr.className = 'price' + (d ? ' is-promo' : ''); pr.innerHTML = priceHtml(c);
     el.querySelector('.buy').href = c.u;
     const sw = el.querySelector('.swatches'); sw.innerHTML = ''; sw.appendChild(swatchButtons(id, () => { photoPos[id] = 0; learn(id, .1); fillCard(el, id); }));
-    if (p.c.length < 2) sw.hidden = true;
+    const cn = document.createElement('span'); cn.className = 'cname'; cn.textContent = c.c; sw.appendChild(cn);
     if (el.classList.contains('top')) p.c.forEach((cc, j) => { if (j !== k) { const im = new Image(); im.src = photo(cc, 'hd', 0); } });
   }
   function makeCard(id, cls) {
     const el = document.createElement('article'); el.className = 'card ' + cls;
-    el.innerHTML = `<div class="photo"><img alt="" draggable="false"><span class="promo" hidden></span><div class="dots glass" hidden></div>
+    el.innerHTML = `<div class="photo"><img alt="" draggable="false"><span class="promo" hidden></span><div class="dots" hidden></div>
       <div class="card-tools glass"><button class="share" type="button" aria-label="Envoyer à une amie"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></button>
       <a class="buy" target="_blank" rel="noopener" aria-label="Acheter sur kiabi.com"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1.5 1.5 0 01-1.5 1.3H7.7a1.5 1.5 0 01-1.5-1.3L5 8z"/><path d="M9 8V6.5a3 3 0 016 0V8"/></svg></a></div>
       <span class="tap-hint" hidden>Touche pour d’autres photos</span><div class="stamp yes">Go</div><div class="stamp no">No go</div></div>
-      <div class="info"><div class="cline"><span>Couleur <b class="cname"></b></span><div class="swatches" role="group" aria-label="Couleurs"></div></div>
-      <button class="name-btn" type="button"><span class="name"></span></button><div class="price"></div></div>`;
+      <div class="info"><div class="headline"><button class="name-btn" type="button"><span class="name"></span></button><div class="price"></div></div>
+      <div class="swatches" role="group" aria-label="Couleurs"></div></div>`;
     el.querySelectorAll('.buy, .share, .name-btn').forEach(b => b.addEventListener('pointerdown', e => e.stopPropagation()));
     el.querySelector('.name-btn').addEventListener('click', e => { e.stopPropagation(); openSheet(id); });
     el.querySelector('.share').addEventListener('click', e => { e.stopPropagation(); share(id); });
@@ -640,17 +639,17 @@ header { display: flex; align-items: center; justify-content: center; min-height
       $('empty-go').onclick = () => navTo('swipe');
     }
   }
-  const TITLES = { items: 'Mes envies', styles: 'Mes styles', looks: 'Mes looks' };
+  const TITLES = { items: 'Mes envies', styles: 'Mon style' };
   function navTo(which) {
     hideToast(); if (!$('sheet').hidden) closeSheet();
-    ['swipe', 'items', 'styles', 'looks'].forEach(t => { const b = $('nav-' + t); if (t === which) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    ['swipe', 'items', 'styles'].forEach(t => { const b = $('nav-' + t); if (t === which) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     if (which === 'swipe') { $('coll').hidden = true; return; }
     $('coll-title').textContent = TITLES[which]; $('coll-n').textContent = '';
-    ['items', 'styles', 'looks'].forEach(t => { $('pane-' + t).hidden = t !== which; });
-    if (which === 'items') renderColl(); if (which === 'styles') renderStyles(); if (which === 'looks') renderSavedLooks();
+    ['items', 'styles'].forEach(t => { $('pane-' + t).hidden = t !== which; });
+    if (which === 'items') renderColl(); if (which === 'styles') renderStyles();
     $('coll').hidden = false;
   }
-  ['swipe', 'items', 'styles', 'looks'].forEach(t => { $('nav-' + t).onclick = () => navTo(t); });
+  ['swipe', 'items', 'styles'].forEach(t => { $('nav-' + t).onclick = () => navTo(t); });
   const openColl = () => navTo('items');
 
   // ---------- Mes styles ----------
@@ -688,78 +687,61 @@ header { display: flex; align-items: center; justify-content: center; min-height
   function renderStyles() {
     const pane = $('pane-styles'); pane.innerHTML = '';
     const ids = goIds();
-    if (ids.length < 2) { pane.innerHTML = '<p class="empty">Mets au moins 2 articles en Go pour voir apparaître tes styles.</p>'; return; }
-    const w = {}; let total = 0;
-    ids.forEach(id => meta(id).tags.forEach((t, k) => { const v = k ? 1 : 2; w[t] = (w[t] || 0) + v; total += v; }));
-    const ranked = Object.keys(w).sort((a, b) => w[b] - w[a]), [t1, t2] = ranked, share1 = w[t1] / total;
-    const name = (!t2 || share1 > .55) ? STYLE[t1][0] : `${STYLE[t1][0]} × ${STYLE[t2][0]}`;
-    const desc = t2 && share1 <= .55 ? `Tu craques surtout pour ${STYLE[t1][1]}, avec une touche ${STYLE[t2][0].toLowerCase()} : ${STYLE[t2][1]}.` : `Tu craques surtout pour ${STYLE[t1][1]}.`;
-    const cols = {}; ids.forEach(id => { const f = meta(id).col; cols[f] = (cols[f] || 0) + 1; });
-    const palette = Object.keys(cols).sort((a, b) => cols[b] - cols[a]).slice(0, 6);
-    const prof = document.createElement('section'); prof.className = 'profile';
-    prof.innerHTML = `<p class="eyebrow">Ton style, d’après ${ids.length} coups de cœur</p><p class="profile-name">${esc(name)}</p><p class="profile-desc">${esc(desc)}</p>
-      <div class="bars">${ranked.slice(0, 4).map(t => { const pct = Math.round(w[t] / total * 100); return `<span>${STYLE[t][0]}</span><span class="bar"><i style="width:${pct}%"></i></span><span class="pct">${pct} %</span>`; }).join('')}</div>
-      <div><p class="eyebrow" style="margin-bottom:8px">Ta palette</p><div class="palette">${palette.map(c => `<span><b style="background:${SW[c] || '#999'}"></b>${esc(c)}</span>`).join('')}</div></div>`;
-    const tastes = topTastes();
-    if (tastes.length) { const t = document.createElement('p'); t.className = 'profile-desc'; t.textContent = 'Craquage te propose désormais en priorité ' + tastes.join(', ') + '.'; prof.appendChild(t); }
-    pane.appendChild(prof);
-    const unis = ranked.filter(t => ids.filter(id => meta(id).tags.includes(t)).length >= 2);
-    if (unis.length) {
-      const h = document.createElement('h3'); h.className = 'sec-title'; h.textContent = 'Tes univers'; pane.appendChild(h);
-      const grid = document.createElement('div'); grid.className = 'cards';
-      unis.forEach(t => {
-        const its = ids.filter(id => meta(id).tags.includes(t)).sort((a, b) => (meta(b).tags[0] === t) - (meta(a).tags[0] === t));
-        const card = document.createElement('div'); card.className = 'uni';
-        card.innerHTML = `<div class="uni-head"><strong>${STYLE[t][0]}</strong><span>${its.length} articles</span></div>`;
-        const m = document.createElement('div'); m.className = 'mosaic'; its.slice(0, 4).forEach(id => m.appendChild(thumbBtn(id)));
-        card.appendChild(m); grid.appendChild(card);
-      });
-      pane.appendChild(grid);
+    if (ids.length >= 2) {
+      const w = {}; let total = 0;
+      ids.forEach(id => meta(id).tags.forEach((t, k) => { const v = k ? 1 : 2; w[t] = (w[t] || 0) + v; total += v; }));
+      const ranked = Object.keys(w).sort((a, b) => w[b] - w[a]), [t1, t2] = ranked, share1 = w[t1] / total;
+      const name = (!t2 || share1 > .55) ? STYLE[t1][0] : `${STYLE[t1][0]} × ${STYLE[t2][0]}`;
+      const desc = t2 && share1 <= .55 ? `Tu craques surtout pour ${STYLE[t1][1]}, avec une touche ${STYLE[t2][0].toLowerCase()}.` : `Tu craques surtout pour ${STYLE[t1][1]}.`;
+      const cols = {}; ids.forEach(id => { const f = meta(id).col; cols[f] = (cols[f] || 0) + 1; });
+      const palette = Object.keys(cols).sort((a, b) => cols[b] - cols[a]).slice(0, 5);
+      const prof = document.createElement('section'); prof.className = 'profile';
+      prof.innerHTML = `<p class="eyebrow">D’après ${ids.length} coups de cœur</p><p class="profile-name">${esc(name)}</p><p class="profile-desc">${esc(desc)}</p>
+        <div class="palette">${palette.map(c => `<span><b style="background:${SW[c] || '#999'}"></b>${esc(c)}</span>`).join('')}</div>`;
+      pane.appendChild(prof);
     }
-    const looks = buildLooks(ids);
-    const h = document.createElement('h3'); h.className = 'sec-title'; h.textContent = 'Looks proposés'; pane.appendChild(h);
-    const sub = document.createElement('p'); sub.className = 'sec-sub';
-    sub.textContent = looks.length ? 'Assemblés avec tes envies. Touche une pièce pour l’acheter.' : 'Mets un haut, un bas ou une veste en Go pour obtenir des looks.'; pane.appendChild(sub);
+    // looks enregistrés, puis looks proposés
+    const saved = savedLooks.map(l => ({ ...l, items: l.items.filter(x => byId.has(x.id)) })).filter(l => l.items.length >= 2);
+    if (saved.length) {
+      const h = document.createElement('h3'); h.className = 'sec-title'; h.textContent = 'Mes looks'; pane.appendChild(h);
+      saved.forEach((L, n) => {
+        L.items.forEach(x => { if (chosen[x.id] == null) chosen[x.id] = x.k; });
+        const total = L.items.reduce((s, x) => s + Math.min(...byId.get(x.id).c[Math.min(x.k, byId.get(x.id).c.length - 1)].p), 0);
+        pane.appendChild(lookCard(`Look ${saved.length - n}`, L.items.map(x => x.id), total, 'Supprimer', () => {
+          savedLooks = savedLooks.filter(l => lookKey(l.items) !== lookKey(L.items)); store.set(LOOKS_KEY, savedLooks); renderStyles();
+        }));
+      });
+    }
+    const looks = ids.length >= 2 ? buildLooks(ids) : [];
+    const h = document.createElement('h3'); h.className = 'sec-title'; h.textContent = 'Looks pour toi'; pane.appendChild(h);
+    if (!looks.length) {
+      const e = document.createElement('p'); e.className = 'empty'; e.style.textAlign = 'left';
+      e.textContent = ids.length < 2 ? 'Mets au moins 2 articles en Go : on te propose ensuite des tenues avec tes envies.' : 'Mets un haut, un bas ou une veste en Go pour obtenir des tenues.';
+      pane.appendChild(e);
+    }
     looks.forEach((L, k) => {
-      const el = document.createElement('div'); el.className = 'look';
       const total = L.look.reduce((s, id) => s + Math.min(...curColor(id).p), 0);
-      el.innerHTML = `<div class="look-head"><strong>Look ${k + 1} · ${STYLE[L.tag][0]}</strong><span>${L.look.length} pièces · ${eur(total)}</span></div>`;
-      const row = document.createElement('div'); row.className = 'look-row'; L.look.forEach(id => row.appendChild(thumbBtn(id, CATLABEL[meta(id).cat])));
-      el.appendChild(row);
-      const p = document.createElement('p'); p.className = 'look-items'; p.textContent = L.look.map(id => byId.get(id).n).join(' + '); el.appendChild(p);
-      const sv = document.createElement('button'); sv.className = 'pill dark'; sv.type = 'button'; sv.style.alignSelf = 'flex-start';
       const already = savedLooks.some(l => lookKey(l.items) === lookKey(L.look.map(id => ({ id }))));
-      sv.textContent = already ? 'Enregistré' : 'Enregistrer ce look'; sv.disabled = already; sv.onclick = () => saveLook(L.look, sv);
-      el.appendChild(sv);
-      pane.appendChild(el);
+      pane.appendChild(lookCard(`${STYLE[L.tag][0]}`, L.look, total, already ? 'Enregistré' : 'Enregistrer', already ? null : (btn) => saveLook(L.look, btn)));
     });
   }
+  function lookCard(title, ids, total, action, onAction) {
+    const el = document.createElement('div'); el.className = 'look';
+    el.innerHTML = `<div class="look-head"><strong>${esc(title)}</strong><span>${ids.length} pièces · ${eur(total)}</span></div>`;
+    const row = document.createElement('div'); row.className = 'look-row'; ids.forEach(id => row.appendChild(thumbBtn(id))); el.appendChild(row);
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'pill' + (onAction && action === 'Enregistrer' ? ' dark' : ''); b.textContent = action; b.style.alignSelf = 'flex-start';
+    if (onAction) b.onclick = () => onAction(b); else b.disabled = true;
+    el.appendChild(b); return el;
+  }
 
-
-  // ---------- Mes looks (enregistrés sur cet appareil) ----------
+  // ---------- Looks enregistrés (sur cet appareil) ----------
   const LOOKS_KEY = 'craquage-looks-v1';
   let savedLooks = (store.get(LOOKS_KEY) || []).filter(l => Array.isArray(l.items));
   const lookKey = items => items.map(x => x.id).sort().join('|');
-  function saveLook(ids, btn) {
+  function saveLook(ids) {
     const items = ids.map(id => ({ id, k: colorIdx(id) })), key = lookKey(items);
     if (!savedLooks.some(l => lookKey(l.items) === key)) { savedLooks.unshift({ items, at: Date.now() }); store.set(LOOKS_KEY, savedLooks); }
-    if (btn) { btn.textContent = 'Enregistré'; btn.disabled = true; }
-    flash('Look enregistré dans « Mes looks »');
-  }
-  function renderSavedLooks() {
-    const pane = $('pane-looks'); pane.innerHTML = '';
-    const list = savedLooks.map(l => ({ ...l, items: l.items.filter(x => byId.has(x.id)) })).filter(l => l.items.length >= 2);
-    if (!list.length) { pane.innerHTML = '<div class="empty-hero"><h3 style="color:var(--ink)">Aucun look</h3><p>Dans « Styles », touche « Enregistrer ce look » sous une tenue qui te plaît. Tes looks restent sur ce téléphone.</p></div>'; return; }
-    list.forEach((L, n) => {
-      L.items.forEach(x => { if (chosen[x.id] == null) chosen[x.id] = x.k; });
-      const el = document.createElement('div'); el.className = 'look';
-      const total = L.items.reduce((s, x) => s + Math.min(...byId.get(x.id).c[Math.min(x.k, byId.get(x.id).c.length - 1)].p), 0);
-      el.innerHTML = `<div class="look-head"><strong>Look ${list.length - n}</strong><span>${L.items.length} pièces · ${eur(total)}</span></div>`;
-      const row = document.createElement('div'); row.className = 'look-row'; L.items.forEach(x => row.appendChild(thumbBtn(x.id))); el.appendChild(row);
-      const del = document.createElement('button'); del.className = 'pill'; del.type = 'button'; del.textContent = 'Supprimer ce look'; del.style.alignSelf = 'flex-start';
-      del.onclick = () => { savedLooks = savedLooks.filter(l => lookKey(l.items) !== lookKey(L.items)); store.set(LOOKS_KEY, savedLooks); renderSavedLooks(); };
-      el.appendChild(del); pane.appendChild(el);
-    });
+    flash('Look enregistré'); renderStyles();
   }
 
   // ---------- Fiche article ----------
