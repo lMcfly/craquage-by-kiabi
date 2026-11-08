@@ -215,17 +215,17 @@ header { display: flex; align-items: center; justify-content: center; min-height
 .toast span { font-size: .9rem; font-weight: 600; white-space: nowrap; padding-right: 4px; }
 .toast a { background: var(--ink); color: #fff; border-radius: 50px; padding: 9px 15px; font-weight: 700; font-size: .88rem; white-space: nowrap; text-decoration: none; }
 
-/* ---------- Animation d'ouverture : les lettres sautent en arc, le mot craque, le K arrive ---------- */
-.splash { position: fixed; inset: 0; z-index: 50; background: var(--surface); display: grid; place-items: center; cursor: pointer; overflow: hidden; }
-.splash-inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.word { display: flex; font-family: var(--font-display); font-weight: 800; letter-spacing: -.04em; font-size: clamp(3rem, 15vw, 5rem); letter-spacing: -.02em; line-height: 1; color: var(--ink); }
-.word .l { display: inline-block; transform-origin: 50% 100%; opacity: 0; }
-.splash .by { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; color: var(--muted); align-self: flex-end; margin-right: 4px; }
-.splash .by span { opacity: 0; }
-.splash .by img { height: 46px; width: auto; opacity: 0; transform-origin: 50% 100%; }
-.trails { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
-.trails path { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
-.splash .skip { position: absolute; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; font-size: .78rem; color: var(--soft); }
+/* ---------- Animation d'ouverture : lettres qui montent, cœur qui craque, « by K » ---------- */
+.splash { position: fixed; inset: 0; z-index: 50; background: radial-gradient(120% 80% at 50% 40%, #0d0a52 0%, #040037 60%); display: grid; place-items: center; cursor: pointer; overflow: hidden; }
+.splash-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.word { display: flex; align-items: flex-start; font-family: var(--font-display); font-weight: 800; font-size: clamp(3rem, 15vw, 5.2rem); letter-spacing: -.045em; line-height: 1.05; color: #fff; }
+.word .m { display: inline-block; overflow: hidden; padding: 0 .01em .08em; margin-bottom: -.08em; }
+.word .l { display: inline-block; transform: translateY(110%); }
+.word .heart { width: .5em; height: .5em; margin: .02em 0 0 .06em; overflow: visible; transform: scale(0); }
+.word .heart path { fill: var(--red); }
+.splash .by { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 500; font-size: 1.15rem; color: rgba(255,255,255,.72); opacity: 0; }
+.splash .by img { height: 40px; width: auto; }
+.splash .skip { position: absolute; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; font-size: .78rem; color: rgba(255,255,255,.4); }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @media (prefers-reduced-motion: reduce) { .toast { animation: none; } .photo.loading::after { animation: none; } .card.fly, .card.back { transition: none; } }
 @media (max-width: 380px) { .brand b { font-size: 1.35rem; } .tabbar button { font-size: .72rem; } }
@@ -236,7 +236,7 @@ header { display: flex; align-items: center; justify-content: center; min-height
 <div class="splash" id="splash" role="img" aria-label="Craquage by Kiabi">
   <div class="splash-inner" id="splash-inner">
     <div class="word" id="word" aria-hidden="true"></div>
-    <div class="by"><span>by</span><img id="splash-k" src="assets/kiabi-k.svg" alt=""></div>
+    <div class="by"><span>by</span><img src="assets/kiabi-k-white.svg" alt=""></div>
   </div>
   <div class="skip">Touchez pour passer</div>
 </div>
@@ -332,51 +332,33 @@ header { display: flex; align-items: center; justify-content: center; min-height
 
   // ---------- Animation d'ouverture ----------
   function playSplash() {
-    const sp = $('splash'), inner = $('splash-inner'), word = $('word'), byTxt = sp.querySelector('.by span'), K = $('splash-k');
+    const sp = $('splash'), word = $('word'), by = sp.querySelector('.by');
     let done = false;
-    const finish = () => { if (done) return; done = true; sp.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, fill: 'forwards' }).onfinish = () => sp.remove(); };
+    const finish = () => { if (done) return; done = true;
+      sp.animate([{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(1.06)' }], { duration: 420, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = () => sp.remove(); };
     sp.addEventListener('click', finish);
-    const letters = [...'Craquage'].map(ch => { const s = document.createElement('span'); s.className = 'l'; s.textContent = ch; word.appendChild(s); return s; });
-    if (reduced || !sp.animate) { letters.forEach(l => l.style.opacity = 1); byTxt.style.opacity = 1; K.style.opacity = 1; return setTimeout(finish, 1100); }
-    const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg'); svg.setAttribute('class', 'trails'); inner.appendChild(svg);
-    const box = el => { const r = el.getBoundingClientRect(), o = inner.getBoundingClientRect(); return { x: r.left - o.left + r.width / 2, y: r.top - o.top + r.height / 2, h: r.height }; };
-    // trait de vitesse : se dessine derrière l'élément puis s'efface
-    function trail(d, delay, dur) {
-      const p = document.createElementNS(ns, 'path'); p.setAttribute('d', d); svg.appendChild(p);
-      const len = p.getTotalLength(); p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
-      p.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0, offset: .55 }, { strokeDashoffset: -len }], { duration: dur, delay, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'both' });
-    }
-    // saut en arc : départ décalé, sommet, atterrissage écrasé, rebond
-    function jump(el, from, delay, dur) {
-      el.animate([
-        { opacity: 0, transform: `translate(${from[0]}px, ${from[1]}px) rotate(${from[2]}deg)` },
-        { opacity: 1, transform: `translate(${from[0] * .45}px, ${-Math.abs(from[1]) * .55 - 40}px) rotate(${from[2] * .4}deg)`, offset: .45 },
-        { opacity: 1, transform: 'translate(0, 0) rotate(0) scale(1.15, .82)', offset: .78 },
-        { opacity: 1, transform: 'translate(0, -6px) rotate(0) scale(.96, 1.05)', offset: .9 },
-        { opacity: 1, transform: 'translate(0, 0) rotate(0) scale(1)' }
-      ], { duration: dur, delay, easing: 'cubic-bezier(.33,.66,.55,1)', fill: 'both' });
-    }
-    letters.forEach((l, i) => jump(l, [-30 - (7 - i) * 6, 70 + (i % 3) * 25, -25 + i * 4], 120 + i * 70, 620));
-    const c = box(letters[0]);
-    trail(`M ${c.x - 70} ${c.y + 120} Q ${c.x - 60} ${c.y - 150} ${c.x + 10} ${c.y - 110}`, 60, 640);
-    // le mot craque : chaque lettre se penche un peu, petite secousse
-    const crackAt = 120 + 7 * 70 + 620 + 40;
-    const tilt = [-7, 5, -4, 8, -6, 4, -8, 6], lift = [2, -3, 1, -4, 3, -2, 1, -3];
-    letters.forEach((l, i) => l.animate([{ transform: 'rotate(0) translateY(0)' }, { transform: `rotate(${tilt[i] * 1.6}deg) translateY(${lift[i] * 1.8}px)`, offset: .35 },
-      { transform: `rotate(${tilt[i]}deg) translateY(${lift[i]}px)` }], { duration: 380, delay: crackAt, easing: 'cubic-bezier(.3,.7,.4,1)', fill: 'forwards', composite: 'add' }));
-    word.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'translateX(-2px)' }, { transform: 'translateX(0)' }], { duration: 260, delay: crackAt });
-    // « by » puis le K arrive de loin en grand arc
-    byTxt.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, delay: crackAt + 200, fill: 'both' });
-    const k = box(K);
-    trail(`M ${k.x + 190} ${k.y + 70} Q ${k.x + 70} ${k.y - 46} ${k.x + 8} ${k.y - 2}`, crackAt + 180, 700);
-    K.animate([
-      { opacity: 0, transform: 'translate(180px, 60px) rotate(40deg)' },
-      { opacity: 1, transform: 'translate(64px, -26px) rotate(14deg)', offset: .5 },
-      { opacity: 1, transform: 'translate(0, 0) rotate(0) scale(1.18, .8)', offset: .8 },
-      { opacity: 1, transform: 'translate(0, -5px) scale(.95, 1.06)', offset: .9 },
-      { opacity: 1, transform: 'translate(0, 0) scale(1)' }
-    ], { duration: 620, delay: crackAt + 240, easing: 'cubic-bezier(.33,.66,.55,1)', fill: 'both' });
-    setTimeout(finish, crackAt + 240 + 620 + 650);
+    // lettres dans une fente invisible + cœur en deux moitiés (fissure en zigzag)
+    const letters = [...'Craquage'].map(ch => { const m = document.createElement('span'); m.className = 'm'; const l = document.createElement('span'); l.className = 'l'; l.textContent = ch; m.appendChild(l); word.appendChild(m); return l; });
+    const H = 'M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3 1.7-1.8 3.2-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z';
+    word.insertAdjacentHTML('beforeend', `<svg class="heart" viewBox="0 0 24 24" aria-hidden="true"><defs>
+      <clipPath id="hl"><path d="M0 0H12.6L11 9l2.4 4-2.2 4L12 24H0Z"/></clipPath><clipPath id="hr"><path d="M12.6 0H24V24H12L11.2 17l2.2-4L11 9Z"/></clipPath></defs>
+      <g class="hl"><path clip-path="url(#hl)" d="${H}"/></g><g class="hr"><path clip-path="url(#hr)" d="${H}"/></g></svg>`);
+    const heart = word.querySelector('.heart'), hl = heart.querySelector('.hl'), hr = heart.querySelector('.hr');
+    if (reduced || !sp.animate) { letters.forEach(l => l.style.transform = 'none'); heart.style.transform = 'none'; by.style.opacity = 1; return setTimeout(finish, 1100); }
+    const ease = 'cubic-bezier(.2,.8,.2,1)';
+    letters.forEach((l, i) => l.animate([{ transform: 'translateY(110%) rotate(8deg)', filter: 'blur(6px)' }, { transform: 'translateY(0) rotate(0)', filter: 'blur(0)' }],
+      { duration: 620, delay: 150 + i * 55, easing: ease, fill: 'both' }));
+    const tHeart = 150 + 7 * 55 + 380;
+    heart.animate([{ transform: 'scale(0) rotate(-20deg)' }, { transform: 'scale(1.25) rotate(6deg)', offset: .6 }, { transform: 'scale(1) rotate(0)' }],
+      { duration: 480, delay: tHeart, easing: 'cubic-bezier(.3,1.4,.5,1)', fill: 'both' });
+    // le cœur craque : deux moitiés qui s'écartent à peine, petite secousse du mot
+    const tCrack = tHeart + 560;
+    [hl, hr].forEach((g, i) => { g.style.transformBox = 'fill-box'; g.style.transformOrigin = i ? '0% 100%' : '100% 100%';
+      g.animate([{ transform: 'translate(0,0) rotate(0)' }, { transform: `translate(${i ? 2.2 : -2.2}px, 1px) rotate(${i ? 14 : -14}deg)`, offset: .45 }, { transform: `translate(${i ? 1.2 : -1.2}px, .6px) rotate(${i ? 8 : -8}deg)` }],
+        { duration: 520, delay: tCrack, easing: ease, fill: 'forwards' }); });
+    word.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-3px)' }, { transform: 'translateX(3px)' }, { transform: 'translateX(-1px)' }, { transform: 'translateX(0)' }], { duration: 280, delay: tCrack });
+    by.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 520, delay: tCrack + 220, easing: ease, fill: 'both' });
+    setTimeout(finish, tCrack + 220 + 520 + 650);
   }
   playSplash();
 
