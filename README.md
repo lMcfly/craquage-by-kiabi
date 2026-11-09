@@ -17,7 +17,7 @@ Les choix (Go, No go, couleurs, looks, réglages) sont enregistrés uniquement s
 
 - **Femme et homme, uniquement marque Kiabi** (web et magasin, pas de marketplace, jamais enfant) : le robot applique les filtres du site « Marques › Kiabi » et « Genre › Femme » ou « Homme », écarte les tailles enfant/bébé. L'utilisatrice choisit « Je cherche pour : Femme / Homme / Les deux » à l'accueil ou dans Réglages › Mes infos.
 - **Lecture tournante** : environ 2 300 rubriques (femme et homme) ; chaque passage du robot 1 lit les moins récemment lues (1 000 au plus), celles sans article Kiabi une fois par semaine. Un article reste tant qu'il a été vu dans les 5 derniers jours. Les rubriques renommées par Kiabi sont suivies.
-- **Un peu de tout** : aucune catégorie ne dépasse 30 % du catalogue de chaque genre; sur « Tout », l'app alterne les catégories (jamais deux fois la même d'affilée) tout en tenant compte des goûts.
+- **Un peu de tout** : aucune catégorie ne dépasse 30 % du catalogue de chaque genre ; sur « Tout », l'app alterne les catégories (jamais deux fois la même d'affilée) tout en tenant compte des goûts.
 - **Nouveautés automatiques** : 3 fois par jour, le robot 1 lit chaque rayon trié par « Nouveautés », note la date d'arrivée des articles ; l'app glisse les nouveautés au début de la pile avec un badge **Nouveau** (7 jours).
 - **Tailles** : pour chaque couleur, le robot 2 note les tailles disponibles (XS à XXL, pointures 35 à 42) grâce au filtre « Taille » des rayons Kiabi. L'app demande la taille au premier lancement (modifiable dans Réglages › Mes infos) et ne montre que ce qui existe dans cette taille.
 - **Garde-fou** : si le robot récupère moins de la moitié des articles de la veille (blocage, panne), l'ancien catalogue est conservé.
