@@ -67,11 +67,13 @@ async function readPage(browser, g, slug) {
 
 // ---------- rangement ----------
 const norm = s => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
-// Articles à écarter selon le genre lu (enfant, autre genre, nuit et sous-vêtements)
+// Hors sujet pour craquer : enfant, autre genre, nuit, bain, chaussettes, maternité ; sous-vêtements homme (n'importe où dans le nom)
+const OFF = /\b(pyjamas?|nuisette|peignoir|robe de chambre|de nuit|homewear|de bain|maillot|bikini|(?<!effet )(mi-)?chaussettes?|thermiques?|grossesse|allaitement)\b/;
 const EXCLUDE = {
-  f: /\b(enfant|fille|garcon|bebe|junior|ado|homme|naissance|grossesse)\b|^(peignoir|robe de chambre|pyjama|chemise de nuit|nuisette)/,
-  h: /\b(enfant|fille|garcon|bebe|junior|ado|femme|naissance)\b|^(peignoir|robe de chambre|pyjama|calecon|boxer|slip|lot de \d+ (boxer|calecon|slip))/
+  f: /\b(enfant|fille|garcon|bebe|junior|ado|homme|naissance)\b/,
+  h: /\b(enfant|fille|garcon|bebe|junior|ado|femme|naissance|calecons?|boxers?|slips?)\b/
 };
+const excluded = (g, name) => OFF.test(norm(name)) || EXCLUDE[g].test(norm(name));
 // La catégorie vient d'abord du premier mot du nom (Kiabi nomme ses articles par leur type), puis du rayon.
 const BY_NAME = [
   ['chaussures', /^(bottine|botte|basket|escarpin|mocassin|ballerine|sandale|chaussure|derby|sabot|mule|boots|santiag|chausson|pantoufle|tennis|sneaker|claquette|tong|richelieu|espadrille)/],
@@ -100,7 +102,7 @@ const slugify = s => norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 function build(items) {
   const byPid = new Map();
   for (const it of items) {
-    if (!it.name || !it.imgs.length || EXCLUDE[it.g].test(norm(it.name))) continue;
+    if (!it.name || !it.imgs.length || excluded(it.g, it.name)) continue;
     if (/-\d+[AM]$/.test(it.size)) continue;                 // taille enfant ou bébé (3A, 12A, 6M…) : sécurité en plus du filtre genre
     if (!byPid.has(it.pid)) byPid.set(it.pid, new Map());
     const cols = byPid.get(it.pid); if (!cols.has(it.cid)) cols.set(it.cid, it);
@@ -156,7 +158,7 @@ fresh.forEach(p => {
 const freshIds = new Set(fresh.map(p => p.id));
 // les articles des rubriques pas relues ce passage restent, s'ils ont été vus dans les 2 derniers jours
 const kept = prev.filter(p => !freshIds.has(p.id)).map(p => ({ g: 'f', v: today, ...p }))
-  .filter(p => now - Date.parse(p.v) <= 2 * DAY);
+  .filter(p => now - Date.parse(p.v) <= 2 * DAY && !excluded(p.g, p.n));
 const merged = [...fresh, ...kept];
 
 // Un peu de tout : par genre, aucune catégorie ne dépasse 22 % ; dans chaque catégorie, les nouveautés d'abord.
