@@ -25,7 +25,7 @@ const all = [];
 const lists = Object.entries(GENDERS).map(([g, name]) => (PAGES[name] || []).map(slug => ({ g, slug, id: g + ':' + slug })));
 for (let i = 0; i < Math.max(...lists.map(l => l.length)); i++) lists.forEach(l => l[i] && all.push(l[i]));
 const due = all.filter(p => { const s = state[p.id]; if (!s || !s.read) return true;
-  return now - Date.parse(s.read) >= (s.empty >= 2 ? 7 * DAY : 20 * 3600e3); });
+  return now - Date.parse(s.read) >= (s.empty >= 2 ? 7 * DAY : 12 * 3600e3); });
 due.sort((a, b) => (Date.parse(state[a.id]?.read || 0) || 0) - (Date.parse(state[b.id]?.read || 0) || 0));
 const todo = due.slice(0, MAX_PAGES);
 console.log(`${todo.length} rubriques à lire (${due.length} à jour de lecture, ${all.length} en tout)`);
