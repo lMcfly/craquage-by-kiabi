@@ -21,7 +21,9 @@ const DAY = 864e5, now = Date.now(), today = new Date().toISOString().slice(0, 1
 // ---------- quelles rubriques lire ce passage ----------
 const state = fs.existsSync(INDEX) ? JSON.parse(fs.readFileSync(INDEX, 'utf8')).pages || {} : {};
 const all = [];
-for (const [g, name] of Object.entries(GENDERS)) for (const slug of PAGES[name] || []) all.push({ g, slug, id: g + ':' + slug });
+// femme et homme en alternance : à égalité (jamais lues), une rubrique de chaque à tour de rôle
+const lists = Object.entries(GENDERS).map(([g, name]) => (PAGES[name] || []).map(slug => ({ g, slug, id: g + ':' + slug })));
+for (let i = 0; i < Math.max(...lists.map(l => l.length)); i++) lists.forEach(l => l[i] && all.push(l[i]));
 const due = all.filter(p => { const s = state[p.id]; if (!s || !s.read) return true;
   return now - Date.parse(s.read) >= (s.empty >= 2 ? 7 * DAY : 20 * 3600e3); });
 due.sort((a, b) => (Date.parse(state[a.id]?.read || 0) || 0) - (Date.parse(state[b.id]?.read || 0) || 0));
