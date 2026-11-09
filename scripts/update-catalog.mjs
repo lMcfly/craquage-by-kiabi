@@ -14,7 +14,7 @@ const ROOT = new URL('..', import.meta.url).pathname;
 const PAGES = JSON.parse(fs.readFileSync(ROOT + 'scripts/pages.json', 'utf8'));   // { femme: [...], homme: [...] }
 const OUT = ROOT + 'data/products.json';
 const INDEX = ROOT + 'scripts/catalog-index.json';
-const MAX_PAGES = +(process.env.MAX_PAGES || 650);       // rubriques lues par passage (3 passages par jour)
+const MAX_PAGES = +(process.env.MAX_PAGES || 1000);      // rubriques lues par passage (3 passages par jour : tout le site relu chaque jour)
 const GENDERS = { f: 'femme', h: 'homme' };
 const DAY = 864e5, now = Date.now(), today = new Date().toISOString().slice(0, 10);
 
@@ -156,9 +156,9 @@ fresh.forEach(p => {
   p.c.forEach(c => { const s = knownSizes.get(keyOf(c.u)); if (s) c.s = s; });   // tailles déjà vérifiées par le robot 2
 });
 const freshIds = new Set(fresh.map(p => p.id));
-// les articles des rubriques pas relues ce passage restent, s'ils ont été vus dans les 2 derniers jours
+// les articles des rubriques pas relues ce passage restent, s'ils ont été vus dans les 5 derniers jours
 const kept = prev.filter(p => !freshIds.has(p.id)).map(p => ({ g: 'f', v: today, ...p }))
-  .filter(p => now - Date.parse(p.v) <= 2 * DAY && !excluded(p.g, p.n));
+  .filter(p => now - Date.parse(p.v) <= 5 * DAY && !excluded(p.g, p.n));
 const merged = [...fresh, ...kept];
 
 // Un peu de tout : par genre, aucune catégorie ne dépasse 22 % ; dans chaque catégorie, les nouveautés d'abord.
