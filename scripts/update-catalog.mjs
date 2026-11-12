@@ -6,6 +6,7 @@
 // Garde les tailles déjà vérifiées et note dans scripts/catalog-index.json l'état de chaque rubrique (pour le robot 2).
 // Usage : node scripts/update-catalog.mjs   →   écrit data/products.json et scripts/catalog-index.json
 //         MAX_PAGES=50 node scripts/update-catalog.mjs   → limite le nombre de rubriques lues (essais)
+//         ONLY=h node scripts/update-catalog.mjs         → relit seulement les rubriques homme (ou f : femme)
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import { PAUSE, pageUrl, keyOf } from './lib/kiabi.mjs';
@@ -24,7 +25,10 @@ const all = [];
 // femme et homme en alternance : à égalité (jamais lues), une rubrique de chaque à tour de rôle
 const lists = Object.entries(GENDERS).map(([g, name]) => (PAGES[name] || []).map(slug => ({ g, slug, id: g + ':' + slug })));
 for (let i = 0; i < Math.max(...lists.map(l => l.length)); i++) lists.forEach(l => l[i] && all.push(l[i]));
-const due = all.filter(p => { const s = state[p.id]; if (!s || !s.read) return true;
+// ONLY=h (ou f) : relance à la main sur un seul genre, en relisant ses rubriques même lues récemment
+const ONLY = process.env.ONLY || '';
+const due = all.filter(p => { if (ONLY && p.g !== ONLY) return false; const s = state[p.id]; if (!s || !s.read) return true;
+  if (ONLY) return !(s.empty >= 2);            // sauf rubriques vides deux fois de suite
   return now - Date.parse(s.read) >= (s.empty >= 2 ? 7 * DAY : 12 * 3600e3); });
 due.sort((a, b) => (Date.parse(state[a.id]?.read || 0) || 0) - (Date.parse(state[b.id]?.read || 0) || 0));
 const todo = due.slice(0, MAX_PAGES);

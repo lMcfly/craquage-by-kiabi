@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: '17 1,9,17 * * *'   # vers 2 h 17, 10 h 17 et 18 h 17 (heure de Paris en hiver)
   workflow_dispatch:
+    inputs:
+      only:
+        description: 'Relire seulement un genre (h = homme, f = femme ; vide = lecture tournante normale)'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -29,6 +34,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Récupérer les articles
         run: node scripts/update-catalog.mjs
+        env:
+          ONLY: ${{ github.event.inputs.only }}
       - name: Enregistrer s'il y a du nouveau
         run: |
           if git diff --quiet -- data/products.json scripts/catalog-index.json; then echo "Catalogue inchangé"; exit 0; fi
