@@ -161,8 +161,8 @@ const kept = prev.filter(p => !freshIds.has(p.id)).map(p => ({ g: 'f', v: today,
   .filter(p => now - Date.parse(p.v) <= 5 * DAY && !excluded(p.g, p.n));
 const merged = [...fresh, ...kept];
 
-// Un peu de tout : par genre, aucune catégorie ne dépasse 30 % (l'app alterne ensuite les catégories à l'affichage) ; dans chaque catégorie, les nouveautés d'abord.
-const MAX_SHARE = .30, products = [], summary = {};
+// Un peu de tout : par genre, aucune catégorie ne dépasse 40 % (l'app alterne ensuite les catégories à l'affichage) ; dans chaque catégorie, les nouveautés d'abord.
+const MAX_SHARE = .40, products = [], summary = {};
 for (const g of Object.keys(GENDERS)) {
   const mine = merged.filter(p => p.g === g); if (!mine.length) continue;
   const groups = {}; mine.forEach(p => (groups[p.k] = groups[p.k] || []).push(p));
