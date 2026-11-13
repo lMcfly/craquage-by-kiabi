@@ -34,6 +34,20 @@ due.sort((a, b) => (Date.parse(state[a.id]?.read || 0) || 0) - (Date.parse(state
 const todo = due.slice(0, MAX_PAGES);
 console.log(`${todo.length} rubriques à lire (${due.length} à jour de lecture, ${all.length} en tout)`);
 
+// Articles affichés sur la page (90 au plus)
+function scrape(page) {
+  return page.evaluate(() => [...document.querySelectorAll('.products-item-wrapper')].map(w => {
+      const a = w.querySelector('a[href*="_P"]'); if (!a) return null;
+      const href = a.href.split('?')[0];
+      const m = href.match(/\/([^/]+)_P(\d+)C(\d+)$/); if (!m) return null;
+      const prices = [...(w.querySelector('.products-item-info__price')?.innerText || '').matchAll(/(\d+),(\d{2})\s*€/g)].map(x => +(x[1] + '.' + x[2]));
+      const imgs = [...w.querySelectorAll('img')].map(i => i.getAttribute('src') || '').filter(s => s.includes('static.kiabi.com/images/'));
+      const rating = (w.querySelector('.stars')?.getAttribute('style') || '').match(/--rating:\s*([\d,.]+)/);
+      return { url: href, slug: m[1], pid: m[2], cid: m[3], size: a.dataset.id || '', name: (w.querySelector('.products-item-info__title')?.innerText || '').trim(),
+               prices, imgs, rating: rating ? +rating[1].replace(',', '.') : null };
+    }).filter(Boolean));
+}
+
 async function readPage(browser, g, slug) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   try {
@@ -50,20 +64,27 @@ async function readPage(browser, g, slug) {
     const on = await page.evaluate(f => ['kiabi', f].map(x => { const i = document.querySelector(`[data-filter="${x}"] input`); return !!(i && i.checked); }), GENDERS[g]);
     if (!on[0] || !on[1]) { console.log(`  ${g}:${slug}: rien en marque Kiabi ${GENDERS[g]}`); return { ok: true, canonical, items: [], sizes: [] }; }
     // Pas de « Voir plus » : ce bouton charge la suite sans le filtre de marque (articles de la marketplace).
-    const items = await page.evaluate(() => [...document.querySelectorAll('.products-item-wrapper')].map(w => {
-      const a = w.querySelector('a[href*="_P"]'); if (!a) return null;
-      const href = a.href.split('?')[0];
-      const m = href.match(/\/([^/]+)_P(\d+)C(\d+)$/); if (!m) return null;
-      const prices = [...(w.querySelector('.products-item-info__price')?.innerText || '').matchAll(/(\d+),(\d{2})\s*€/g)].map(x => +(x[1] + '.' + x[2]));
-      const imgs = [...w.querySelectorAll('img')].map(i => i.getAttribute('src') || '').filter(s => s.includes('static.kiabi.com/images/'));
-      const rating = (w.querySelector('.stars')?.getAttribute('style') || '').match(/--rating:\s*([\d,.]+)/);
-      return { url: href, slug: m[1], pid: m[2], cid: m[3], size: a.dataset.id || '', name: (w.querySelector('.products-item-info__title')?.innerText || '').trim(),
-               prices, imgs, rating: rating ? +rating[1].replace(',', '.') : null };
-    }).filter(Boolean));
+    let items = await scrape(page);
     const sizes = await page.evaluate(() => [...document.querySelectorAll('[data-filter]')]
       .filter(e => /^taille/.test(e.querySelector('input')?.name || '')).map(e => e.dataset.filter));
-    console.log(`  ${g}:${canonical}: ${items.length} couleurs`);
-    return { ok: true, canonical, sizes, items: items.map(x => ({ ...x, src: g + ':' + slug, g })) };
+    // Rubrique pleine : Kiabi n'affiche que les 90 plus récents. On relit la rubrique filtrée sur chaque tiers des tailles
+    // (le filtre Taille garde les filtres Kiabi et genre) : jusqu'à 90 articles de plus par tiers.
+    let more = 0; const full = items.length >= 88;
+    if (full && sizes.length >= 2) {
+      const seen = new Set(items.map(it => it.pid + ':' + it.cid)), n = Math.min(3, sizes.length);
+      for (let i = 0; i < n; i++) {
+        const part = sizes.slice(Math.floor(i * sizes.length / n), Math.floor((i + 1) * sizes.length / n));
+        await PAUSE(2000);
+        await page.goto(pageUrl(canonical, ';taille%3A' + part.map(encodeURIComponent).join(','), GENDERS[g]), { waitUntil: 'domcontentloaded', timeout: 60000 });
+        await PAUSE(2500);
+        const ok = await page.evaluate(f => ['kiabi', f].every(x => document.querySelector(`[data-filter="${x}"] input`)?.checked)
+          && [...document.querySelectorAll('[data-filter] input:checked')].some(i => /^taille/.test(i.name)), GENDERS[g]);
+        if (!ok) continue;
+        for (const it of await scrape(page)) { const k = it.pid + ':' + it.cid; if (!seen.has(k)) { seen.add(k); items.push(it); more++; } }
+      }
+    }
+    console.log(`  ${g}:${canonical}: ${items.length} couleurs${more ? ` (dont ${more} grâce au filtre Taille)` : ''}`);
+    return { ok: true, canonical, sizes, full, items: items.map(x => ({ ...x, src: g + ':' + slug, g })) };
   } catch (e) {
     console.log(`  ${g}:${slug}: erreur (${e.message.split('\n')[0]})`); return { ok: false };
   } finally { await page.close(); }
@@ -141,7 +162,7 @@ for (const p of todo) {
   readOk++; if (r.items.length) withItems++;
   items.push(...r.items);
   const s = state[p.id] || {};
-  state[p.id] = { g: p.g, slug: r.canonical, sizes: r.sizes, keys: [...new Set(r.items.map(it => it.pid + ':' + it.cid))],
+  state[p.id] = { g: p.g, slug: r.canonical, sizes: r.sizes, full: !!r.full, keys: [...new Set(r.items.map(it => it.pid + ':' + it.cid))],
                   read: new Date().toISOString(), empty: r.items.length ? 0 : (s.empty || 0) + 1 };
 }
 await browser.close();

@@ -25,7 +25,11 @@ if (!colour.size) { console.log('Toutes les couleurs ont déjà leurs tailles.')
 const todo = new Set(colour.keys()), chosen = [];
 while (todo.size) {
   let best = null, gain = 0;
-  for (const [slug, v] of Object.entries(pages)) { if (!(v.sizes || []).length || !(v.keys || []).length) continue; let g = 0; for (const k of v.keys) if (todo.has(k)) g++; if (g > gain) { gain = g; best = slug; } }
+  // rubriques de moins de 88 couleurs d'abord : sur une rubrique pleine, le filtre Taille peut lui aussi être coupé à 90
+  for (const full of [false, true]) {
+    for (const [slug, v] of Object.entries(pages)) { if (!(v.sizes || []).length || !(v.keys || []).length || !!(v.full ?? v.keys.length >= 88) !== full) continue; let g = 0; for (const k of v.keys) if (todo.has(k)) g++; if (g > gain) { gain = g; best = slug; } }
+    if (best) break;
+  }
   if (!best) break;
   chosen.push(best); pages[best].keys.forEach(k => todo.delete(k));
 }
