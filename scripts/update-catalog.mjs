@@ -187,13 +187,13 @@ const kept = prev.filter(p => !freshIds.has(p.id)).map(p => ({ g: 'f', v: today,
 const merged = [...fresh, ...kept];
 
 // Un peu de tout : par genre, aucune catégorie ne dépasse 40 % (l'app alterne ensuite les catégories à l'affichage) ; dans chaque catégorie, les nouveautés d'abord.
-const MAX_SHARE = .40, products = [], summary = {};
+const MAX_SHARE = .40, NO_CAP = new Set(['h:haut']), products = [], summary = {};   // hauts homme : pas de plafond (sinon rotation quotidienne)
 for (const g of Object.keys(GENDERS)) {
   const mine = merged.filter(p => p.g === g); if (!mine.length) continue;
   const groups = {}; mine.forEach(p => (groups[p.k] = groups[p.k] || []).push(p));
   const cap = Math.max(60, Math.round(mine.length * MAX_SHARE));
   for (const [k, l] of Object.entries(groups)) {
-    const keep = l.sort((x, y) => y.a.localeCompare(x.a) || (y.r || 0) - (x.r || 0)).slice(0, cap);
+    const keep = l.sort((x, y) => y.a.localeCompare(x.a) || (y.r || 0) - (x.r || 0)).slice(0, NO_CAP.has(g + ':' + k) ? Infinity : cap);
     products.push(...keep); summary[g + ':' + k] = keep.length;
   }
 }
